@@ -80,7 +80,7 @@ static func run(expect: Callable) -> void:
 	for row: Array in rows:
 		for token: Dictionary in row:
 			if token.get("icon", "") == "retaliate": shared_tooltip = str(token.get("tooltip", ""))
-	expect.call(shared_tooltip == preload("res://scripts/action_icon_library.gd").tooltip("retaliate"), "Enemy intent Retaliate tooltip uses the shared glossary copy")
+	expect.call(shared_tooltip.begins_with("When you hit this enemy from an adjacent tile, you take ") and shared_tooltip.ends_with(" damage."), "Enemy intent Retaliate tooltip names the adjacent hit and its damage")
 	board.free()
 	for step: Dictionary in phase["steps"]:
 		if step.get("action_type", "") == "ranged":

@@ -10,11 +10,11 @@ const Search = preload("res://scripts/grimoire_search.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const SAVE_PATH: String = "user://mrk01-marked-old-save.bin"
-const MARKED_DEFINITION: String = "Marked tiles show where this enemy acts on its next turn."
+const MARKED_DEFINITION: String = "Marked tiles show where this enemy will act."
 const MOVE_COPY: Dictionary = {
 	"icefall": "@pattern(icefall:hero) This enemy hits each Marked tile on this enemy’s next turn, then leaves Ice.",
-	"lob": "@pattern(cross:hero) On your tile. On this enemy's next turn, this enemy hits each Marked tile and leaves Fire.",
-	"burrow": "This enemy Burrows and Marks your tile. Burrowed enemies cannot be targeted.",
+	"lob": "@pattern(cross:hero) On this enemy's next turn, this enemy hits each Marked tile around you and leaves Fire.",
+	"burrow": "You can't choose a Burrowed enemy as a target, and Gust doesn't move a Burrowed enemy.",
 	"erupt": "This enemy emerges on the Marked tile or the nearest open tile."
 }
 const MARK_IDS: Dictionary = {"hoarfrost_seer": "icefall", "slag_mortar": "lob_slag", "burrow_grub": "burrow"}

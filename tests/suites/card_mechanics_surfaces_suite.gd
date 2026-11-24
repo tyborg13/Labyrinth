@@ -28,7 +28,7 @@ const FIXTURES: Dictionary = {
 	"w4a_fx_guard": {"actions": [{"type": "block", "amount": 1}], "time": 2},
 	"w4a_fx_ember_ward": {"element": "fire", "actions": [{"type": "block", "amount": 5}, {"type": "surface_adjacent_enemies", "surface": "fire"}], "time": 3},
 	"w4a_fx_static_ward": {"element": "lightning", "actions": [{"type": "block", "amount": 5}, {"type": "surface_adjacent_enemies", "surface": "electrified", "include_self": true}], "time": 3},
-	"w4a_fx_hoarfrost_ward": {"element": "ice", "actions": [{"type": "block", "amount": 5}, {"type": "surface_adjacent_enemies", "surface": "ice"}], "time": 3},
+	"w4a_fx_hoarfrost_ward": {"element": "ice", "actions": [{"type": "block", "amount": 6}, {"type": "surface_adjacent_enemies", "surface": "ice"}], "time": 3},
 	"w4a_fx_rime_step": {"element": "ice", "actions": [{"type": "move", "range": 2}, {"type": "surface_adjacent_enemies", "surface": "ice"}], "time": 2},
 	"w4a_fx_flashsteam": {"element": "fire", "actions": [{"type": "aoe", "damage": 3, "range": 3, "pattern": CROSS, "rotate": false, "element": "fire", "consume": {"surface": "ice", "bonus_damage": 4}}], "time": 4},
 	"w4a_fx_pyroclasm": {"element": "fire", "actions": [{"type": "ranged", "damage": 9, "range": 3, "element": "fire", "consume": {"surface": "fire", "bonus_damage": 6}}], "time": 7},
@@ -657,7 +657,7 @@ static func _test_all_enemies_selectors(engine: CombatEngine, expect: Callable) 
 	_paint(icy, [Vector2i(5, 4)], "ice")
 	var silence: Dictionary = _action(engine, "white_silence")
 	var silenced: Dictionary = engine.apply_player_action(icy, silence, NO_TARGET)
-	expect.call(_hp(silenced, 1) == 24 and int(engine.stagger_delays_between(icy, silenced).get(1, 0)) == 6, "White Silence deals 6 and Staggers 6 on Ice")
+	expect.call(_hp(silenced, 1) == 22 and int(engine.stagger_delays_between(icy, silenced).get(1, 0)) == 6, "White Silence deals 8 and Staggers 6 on Ice")
 	expect.call(_hp(silenced, 2) == 30, "White Silence skips enemies off Ice")
 	expect.call(_preview_matches(engine, icy, silence, NO_TARGET), "White Silence preview equals resolution")
 	var lit: Dictionary = _state(engine, [_enemy(1, Vector2i(6, 4)), _enemy(2, Vector2i(6, 8))])

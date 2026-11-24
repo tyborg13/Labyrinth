@@ -142,7 +142,7 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 				continue
 			if player_bonuses:
 				hit_action = engine._action_with_target_state_relic_modifiers(state, hit_action, index)
-				if not echo: hit_action = engine._action_with_light_target_skill_modifier(state, hit_action, index)
+				if not echo: hit_action = engine._action_with_light_target_skill_modifier(state, hit_action, index, hit)
 				hit_action = CardKeywordRules.action_with_state_bonus(engine, state, hit_action, index)
 				hit_action = CommonRelicRules.before_melee_hit(state, hit_action, hit, melee_fuel)
 			hit_action = SurfaceCardRules.before_enemy_hit(engine, state, hit_action, hit, index, family_context)

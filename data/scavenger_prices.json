@@ -1,0 +1,25 @@
+{
+  "buy_cost_by_rarity": {
+    "gear": {
+      "common": 100,
+      "rare": 240,
+      "epic": 360,
+      "legendary": 540
+    },
+    "magic": {
+      "common": 50,
+      "rare": 175,
+      "epic": 265,
+      "legendary": 400
+    },
+    "item": {
+      "common": 25,
+      "rare": 40,
+      "epic": 60,
+      "legendary": 90
+    }
+  },
+  "sell_value_ratio": 0.35,
+  "purge_base_price": 50,
+  "purge_price_step": 25
+}

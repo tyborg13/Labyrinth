@@ -117,6 +117,6 @@ static func run(driver: SceneTree, scene: Node, expect: Callable) -> void:
 	view = await open(driver, scene, 0)
 	expect.call(view == null and scene.get("_run_end_recap").visible and not scene.get("_dialogue_active"), "Starter-only gear skips all dialogue and opens recap")
 	expect.call(scene.get("_run_state")[Rules.HEIRLOOM_END_KEY] == {"item": "", "done": true}, "Live automatic skip records exactly Leave nothing")
-	expect.call(scene.get("_run_state")[Rules.EVENTS_KEY].back()["payload"].get("skipped_no_eligible", false), "Live skip emits the additive analytics field")
+	expect.call((scene.get("_run_state").get(Rules.EVENTS_KEY, []) as Array).is_empty(), "Live automatic skip creates no heirloom receipt")
 	await preload("res://tests/helpers/heirloom_feedback_checks.gd").run(driver, scene, expect, open)
 	print("HEIRLOOM VIEW CHECKS: completed geometry 1-5, navigation, previews, ceremony skip, reduced motion, recap and automatic skip")

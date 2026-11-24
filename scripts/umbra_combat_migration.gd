@@ -27,6 +27,7 @@ static func lasting_sources(umbra: Dictionary) -> Array:
 	return sources
 
 static func migrate(combat: Dictionary) -> void:
+	combat.erase("remembered_umbra_blockers")
 	for rite: Variant in RiteRules.active_rites(combat):
 		if not (rite is Dictionary and str(rite.get("card_id", "")) == "rite_of_noon" and rite.get("effects") is Array):
 			continue

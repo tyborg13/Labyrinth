@@ -92,7 +92,7 @@ These assumptions are baked into the current coefficients:
   adjacent step even when only 1 movement remains. Splitting movement does not
   refresh that exception. Electrified is immediately usable as cardinally
   connected ground or as relay nodes for intrinsic Chain. Ordinary Electrified survives use;
-  Stormcoal conductive Fire is consumed.
+  Stormcoal Fire conducts hero Lightning card hits and those hits consume it.
 - Enemy preview block matters immediately during the player turn.
 - Stagger delays a turn. Shock and Immobilize restrict actions. Expose increases damage taken.
 - Pierce attacks deal HP damage through block and stoneskin without removing

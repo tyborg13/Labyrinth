@@ -27,17 +27,28 @@ static func cached(signature: String) -> Texture2D:
 	return null
 
 static func request(tree: SceneTree, signature: String, equipped: Dictionary) -> Node:
-	if _jobs.has(signature):
-		return _jobs[signature]
 	# The dummy renderer has no pixels or post-draw event. Source-only tests use
 	# the documented fallback; the real-renderer suite exercises the bake itself.
 	if DisplayServer.get_name() == "headless":
 		return null
+	var pending: Variant = _jobs.get(signature)
+	if is_instance_valid(pending) and not pending.is_queued_for_deletion():
+		return pending
 	var job := new()
 	_jobs[signature] = job
-	tree.root.add_child(job)
-	job._bake.call_deferred(signature, equipped.duplicate())
+	job.tree_exiting.connect(job._forget_job.bind(signature), CONNECT_ONE_SHOT)
+	# RunScene._ready can ask while the root is still adding the run scene.
+	# Defer attachment and start the already-deferred bake only once attached.
+	job._attach_and_bake.call_deferred(tree.root, signature, equipped.duplicate())
 	return job
+
+func _attach_and_bake(parent: Window, signature: String, equipped: Dictionary) -> void:
+	if is_instance_valid(parent) and parent.is_inside_tree() and not parent.is_queued_for_deletion():
+		parent.add_child(self)
+	if not is_inside_tree():
+		_finish(signature, null)
+		return
+	_bake(signature, equipped)
 
 func _bake(signature: String, equipped: Dictionary) -> void:
 	var canvas := SubViewport.new()
@@ -72,6 +83,10 @@ func _bake(signature: String, equipped: Dictionary) -> void:
 	_finish(signature, texture)
 
 func _finish(signature: String, texture: Texture2D) -> void:
-	_jobs.erase(signature)
+	_forget_job(signature)
 	baked.emit(signature, texture)
 	queue_free()
+
+func _forget_job(signature: String) -> void:
+	if _jobs.get(signature) == self:
+		_jobs.erase(signature)

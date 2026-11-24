@@ -204,7 +204,6 @@ static func choose_intent(engine: RefCounted, state: Dictionary, index: int, int
 		if roll <= 0: return intent.duplicate(true)
 	return {}
 
-# All enemy-directed modes hold a saved announcement through the next beat.
 const DIRECTION_MODES: Array = ["aimed", "toward_entry", "fixed", "toward_source", "turn_clockwise"]
 const FIXED_DIRECTIONS: Dictionary = {"up": Vector2i.UP, "right": Vector2i.RIGHT, "down": Vector2i.DOWN, "left": Vector2i.LEFT}
 
@@ -230,11 +229,16 @@ static func dial_error(state: Dictionary, instance: Dictionary) -> String:
 
 static func prepare(engine: RefCounted, state: Dictionary, instance: Dictionary) -> void:
 	var mode: String = str(instance["dials"]["direction"])
-	if mode not in ["toward_source", "turn_clockwise"] or instance.has("locked_direction"): return
+	if mode == "toward_source":
+		# Beat snapshots retain the field read by the rule audit. Live queries derive their own heading.
+		instance["locked_direction"] = _toward_source(engine, state, instance)
+	elif mode == "turn_clockwise" and not instance.has("locked_direction"):
+		var source: Dictionary = engine._surface_actor(state, "enemy", int(instance["source"]["id"]))
+		instance["locked_direction"] = engine._cardinal_direction(Vector2i(state["player"]["pos"]) - Vector2i(source["pos"]))
+
+static func _toward_source(engine: RefCounted, state: Dictionary, instance: Dictionary) -> Vector2i:
 	var source: Dictionary = engine._surface_actor(state, "enemy", int(instance["source"]["id"]))
-	var delta: Vector2i = Vector2i(state["player"]["pos"]) - Vector2i(source["pos"])
-	# The same dominant-cardinal tie rule as Wildfire, mirrored for the pull.
-	instance["locked_direction"] = engine._cardinal_direction(-delta if mode == "toward_source" else delta)
+	return engine._cardinal_direction(Vector2i(source["pos"]) - Vector2i(state["player"]["pos"]))
 
 static func after_beat(instance: Dictionary) -> void:
 	match str(instance["dials"]["direction"]):
@@ -243,12 +247,14 @@ static func after_beat(instance: Dictionary) -> void:
 			var axis: Vector2i = instance["locked_direction"]
 			instance["locked_direction"] = Vector2i(-axis.y, axis.x)
 
-static func value_for(state: Dictionary, instance: Dictionary) -> Dictionary:
+static func value_for(engine: RefCounted, state: Dictionary, instance: Dictionary) -> Dictionary:
 	var dials: Dictionary = instance["dials"]
 	var mode: String = str(dials["direction"])
-	var axis: Vector2i = instance.get("locked_direction", Vector2i.ZERO)
-	if mode == "toward_entry": axis = entry_direction(state)
+	var axis: Vector2i
+	if mode == "toward_source": axis = _toward_source(engine, state, instance)
+	elif mode == "toward_entry": axis = entry_direction(state)
 	elif mode.begins_with("fixed:"): axis = FIXED_DIRECTIONS[mode.trim_prefix("fixed:")]
+	else: axis = instance.get("locked_direction", Vector2i.ZERO)
 	var value: Dictionary = {"direction": axis, "source_id": int(instance["source"].get("id", -1)), "push": int(dials["tiles"]), "rounds_left": int(instance.get("beats_remaining", 2))}
 	if str(instance["source"]["kind"]) == "room": value.merge({"room_source": "umbral_snare", "battlefield_room": true})
 	return value
@@ -257,7 +263,7 @@ static func value_for(state: Dictionary, instance: Dictionary) -> Dictionary:
 # it before the next beat, so projections read its saved announcement instead.
 # Resolution still installs that Call normally; neither query mutates the save.
 static func projected_value_for(engine: RefCounted, state: Dictionary, instance: Dictionary) -> Dictionary:
-	var value: Dictionary = value_for(state, instance)
+	var value: Dictionary = value_for(engine, state, instance)
 	if str(instance["dials"]["direction"]) != "aimed" or str(instance["source"]["kind"]) != "enemy": return value
 	var index: int = engine._enemy_index_for_id(state, int(instance["source"]["id"]))
 	if index < 0: return value
@@ -271,7 +277,7 @@ static func projected_value_for(engine: RefCounted, state: Dictionary, instance:
 	return value
 
 static func resolve_beat(engine: RefCounted, state: Dictionary, instance: Dictionary) -> Dictionary:
-	var value: Dictionary = value_for(state, instance)
+	var value: Dictionary = value_for(engine, state, instance)
 	state["wind"] = value
 	# Primitive: Wind.push_all (unchanged farthest-first Push/Collision mover).
 	return push_all(engine, state, value)

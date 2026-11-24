@@ -1,6 +1,9 @@
 extends RefCounted
 
 const TileGlow = preload("res://scripts/tile_glow.gd")
+const Assets = preload("res://scripts/asset_loader.gd")
+const Clock = preload("res://scripts/presentation_clock.gd")
+const ArtTreatment = preload("res://scripts/combat_art_treatment.gd")
 
 const Rules = preload("res://scripts/enemy_mechanics/burrow.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
@@ -8,17 +11,17 @@ const Icons = preload("res://scripts/action_icon_library.gd")
 const EARTH: Color = Color("b98b45")
 const BURROW_ICON: String = "burrow"
 const ERUPT_ICON: String = "erupt"
-const MOUND_BASE: Color = Color("4a3520")
-const MOUND_RIM: Color = Color("7a5a34")
-const MOUND_DARK: Color = Color("2e2116")
-const MOUND_SPECK_COUNT: int = 7
+const MOUND_PATH: String = "res://assets/art/enemies/burrow_mound.png"
+# Centre of the approved soil on the 255 px source canvas.
+const MOUND_ANCHOR := Vector2(128.0, 224.0)
+const MOUND_ART_SCALE: float = 1.0
 const RISE_SECONDS: float = 0.25
+# Compatibility with the rig adapter's old presentation payload and EN01 probe.
 const DUST_SECONDS: float = 0.35
 const BREATH_SECONDS: float = 1.5
 const BREATH_SCALE: float = 0.03
-const MOUND_TILE_WIDTH: float = 0.60
-const MOUND_TILE_HEIGHT: float = 0.32
 static var _preview_engine := Combat.new()
+static var _mound_texture: CanvasTexture
 
 static func draw_body(view: Control, unit: Dictionary) -> bool:
 	var effect: Dictionary = view.presentation.get("en01_erupt", {})
@@ -36,24 +39,41 @@ static func draw_body(view: Control, unit: Dictionary) -> bool:
 				Rect2(Vector2.ZERO, Vector2(texture.get_width(), texture.get_height() * visible_height / rect.size.y)))
 		return true
 	if not bool(unit.get("burrowed", false)): return false
-	var pulse: float = 1.0 if bool(view.presentation.get("reduced_motion", false)) else 1.0 + BREATH_SCALE * sin(float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0 * TAU / BREATH_SECONDS)
-	var center: Vector2 = view._unit_center(unit)
-	var size: Vector2 = Vector2(view._tile_width() * MOUND_TILE_WIDTH, view._tile_height() * MOUND_TILE_HEIGHT) * pulse
-	var alpha: float = 1.0 - float(unit.get("death_progress", 0.0))
-	view._draw_impact_ellipse(center, size.x, size.y, 0.0, Color(MOUND_BASE, alpha))
-	var rim: PackedVector2Array
-	for index: int in range(15):
-		var angle: float = PI + PI * 0.5 * float(index) / 14.0
-		rim.append(center + size * 0.5 * Vector2(cos(angle), sin(angle)))
-	view.draw_polyline(rim, Color(MOUND_RIM, alpha), 1.0, true)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = int(unit.get("id", 0))
-	for index: int in range(MOUND_SPECK_COUNT):
-		var angle: float = rng.randf_range(0.0, TAU)
-		var radius: float = sqrt(rng.randf()) * 0.85
-		var spot: Vector2 = center + size * 0.5 * radius * Vector2(cos(angle), sin(angle))
-		view.draw_circle(spot, rng.randf_range(1.0, 1.5), Color(MOUND_DARK if index < 4 else EARTH, alpha))
+	var mound: CanvasTexture = mound_texture()
+	if mound != null:
+		var pulse: float = breath_scale(Clock.ticks_msec(), bool(view.presentation.get("reduced_motion", false)))
+		var tint: Color = unit.get("modulate", Color.WHITE)
+		tint.a *= 1.0 - float(unit.get("death_progress", 0.0))
+		view._draw_world_texture(mound, mound_draw_rect(view, unit["pos"], mound, pulse), tint, ArtTreatment.actor_profile(unit, mound))
 	return true
+
+static func mound_texture() -> CanvasTexture:
+	if _mound_texture == null:
+		var paint: Texture2D = Assets.load_texture_source_first(MOUND_PATH)
+		if paint == null: return null
+		_mound_texture = CanvasTexture.new()
+		_mound_texture.diffuse_texture = paint
+		_mound_texture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	return _mound_texture
+
+static func breath_scale(ticks_msec: int, reduced_motion: bool) -> float:
+	if reduced_motion: return 1.0
+	return 1.0 + BREATH_SCALE * sin(float(ticks_msec) / 1000.0 * TAU / BREATH_SECONDS)
+
+static func mound_draw_rect(view: Control, tile: Vector2i, texture: CanvasTexture, pulse: float) -> Rect2:
+	var pixel_scale: float = view.protagonist_source_pixel_scale() * MOUND_ART_SCALE
+	var center: Vector2 = view._tile_center(tile)
+	var position: Vector2 = center - MOUND_ANCHOR * pixel_scale
+	# Register the neutral sprite at its middle, then breathe about its opaque foot.
+	var used: Rect2i = Assets.texture_used_rect(texture.diffuse_texture)
+	position.y += float(used.end.y) * pixel_scale * (1.0 - pulse)
+	return Rect2(position, texture.get_size() * Vector2(pixel_scale, pixel_scale * pulse))
+
+static func mound_peak_top_y(view: Control, tile: Vector2i) -> float:
+	var texture: CanvasTexture = mound_texture()
+	if texture == null: return view._tile_center(tile).y
+	var peak: Rect2 = mound_draw_rect(view, tile, texture, 1.0 + BREATH_SCALE)
+	return view._texture_used_draw_rect(texture.diffuse_texture, peak).position.y
 
 static func draw_mark(view: Control, tile: Vector2i, draw_marks: Variant = null) -> void:
 	for mark: Dictionary in marks(view.combat_state) if draw_marks == null else draw_marks:
@@ -117,12 +137,11 @@ static func animate(scene: Node, state: Dictionary, step: Dictionary) -> void:
 	var after: Dictionary = step["state_after"]
 	if str(step["kind"]) == "erupt" and not bool(scene._reduced_motion_enabled()):
 		var rising: Dictionary = rise_state(state, step)
-		var dust: Dictionary = {"actor_key": step["actor_key"], "tile": step["to"], "started_msec": preload("res://scripts/presentation_clock.gd").ticks_msec()}
 		scene._play_sfx(preload("res://scripts/attack_sfx_library.gd").entry_for_enemy_action({"type": "aoe", "element": "earth"}))
 		var frames: int = scene.ENEMY_DEATH_MIN_FRAMES
 		await scene._play_timed_animation_frames(frames, RISE_SECONDS / float(frames), func(frame: int) -> void:
 			var progress: float = float(frame - 1) / float(maxi(1, frames - 1))
-			scene._render_board_state(rising, {"en01_erupt": {"actor_key": step["actor_key"], "progress": progress}, "en01_erupt_dust": dust}))
+			scene._render_board_state(rising, {"en01_erupt": {"actor_key": step["actor_key"], "progress": progress}}))
 	var before: Dictionary = state.duplicate(true)
 	# Windows typed-array rule: no conditional expression in a typed assignment.
 	var throws: Array[Dictionary] = preload("res://scripts/typed_arrays.gd").dictionaries([])
@@ -141,8 +160,7 @@ static func animate(scene: Node, state: Dictionary, step: Dictionary) -> void:
 		impact["impact_actor_keys"] = step.get("impact_actor_keys", [])
 	scene._render_board_state(state, impact)
 	if str(step["kind"]) == "erupt":
-		var dust: Dictionary = {"actor_key": step["actor_key"], "tile": step["to"], "started_msec": preload("res://scripts/presentation_clock.gd").ticks_msec() - int(RISE_SECONDS * 1000.0)}
-		await scene._animate_surface_change(before, state, {"en01_erupt_dust": dust} if not bool(scene._reduced_motion_enabled()) else {})
+		await scene._animate_surface_change(before, state)
 		await scene._animate_turn_order_alongside_defeats(before, state)
 
 static func rise_state(state: Dictionary, step: Dictionary) -> Dictionary:

@@ -19,7 +19,7 @@ const ADJ: Array = [[0, -1], [1, 0], [0, 1], [-1, 0]]
 const CROSS: Array = [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]
 
 const FIXTURES: Dictionary = {
-	"w4b_gale_ward": {"actions": [{"type": "block", "amount": 5}, {"type": "force_area", "center": "self", "radius": 1, "push": 1}], "time": 3},
+	"w4b_gale_ward": {"actions": [{"type": "block", "amount": 6}, {"type": "force_area", "center": "self", "radius": 1, "push": 1}], "time": 3},
 	"w4b_bottled_gale": {"actions": [{"type": "force_area", "center": "self", "radius": 1, "push": 3}], "time": 3},
 	"w4b_unsealed_gale": {"actions": [{"type": "force_area", "center": "self", "radius": 3, "push": 3}], "time": 6, "burn": true},
 	"w4b_dust_devil": {"actions": [{"type": "force_area", "center": "target", "range": 3, "radius": 1, "push": 2, "expose": 2, "consume_center": "rubble"}], "time": 4},
@@ -188,7 +188,7 @@ static func _test_gale_ward_and_bottled_gale(engine: CombatEngine, expect: Calla
 	var walls: Array = [{"id": "crate_a", "kind": "wooden_crate", "pos": Vector2i(2, 3), "hp": 10, "max_hp": 10}]
 	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(3, 5)), _enemy(2, Vector2i(2, 4)), _enemy(3, Vector2i(5, 5))], PLAYER, walls)
 	var after: Dictionary = _resolve(engine, state, "w4b_gale_ward")
-	expect.call(int(_player(after).get("block", 0)) == 5, "Gale Ward grants its Block")
+	expect.call(int(_player(after).get("block", 0)) == 6, "Gale Ward grants its Block")
 	expect.call(_pos(after, 1) == Vector2i(4, 5), "Gale Ward pushes an adjacent enemy one tile straight away from you")
 	expect.call(_pos(after, 2) == Vector2i(2, 4) and _hp(after, 2) == 28, "An adjacent enemy pinned against a crate collides (2 damage) instead of moving")
 	expect.call(_pos(after, 3) == Vector2i(5, 5) and _hp(after, 3) == 30, "Enemies outside the radius are untouched")

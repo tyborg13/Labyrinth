@@ -52,7 +52,7 @@ func _run() -> void:
 	var unit: Dictionary = state["enemies"][0]
 	var token: Dictionary = Split.trait_token(unit)
 	_expect(token.get("value") == "Splits 2", "Trait count comes from death_spawn")
-	_expect(token.get("tooltip") == "When this enemy dies, this enemy splits into 2 Cinder Droplets within 1 tile.", "Exact contextual rules and pluralised data name")
+	_expect(token.get("tooltip") == "On death, this enemy splits into 2 Cinder Droplets within 1 tile.", "Exact contextual rules and pluralised data name")
 	_expect(Glossary.lookup("split").get("id") == "splits", "Singular alias resolves")
 	_expect(Glossary.definition("splits") == "When this enemy dies, this enemy splits into smaller enemies on adjacent tiles.", "Exact glossary definition")
 	_expect(Icons.icon_texture("splits") != null, "Approved icon loads")

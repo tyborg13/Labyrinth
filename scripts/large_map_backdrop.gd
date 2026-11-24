@@ -12,9 +12,13 @@ func _ready() -> void:
 func fade_in(seconds: float) -> Tween:
 	_stop_fade()
 	set_fade_alpha(0.0)
-	_fade = create_tween()
-	_fade.tween_method(set_fade_alpha, 0.0, 1.0, seconds).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_fade = tween_alpha(self, set_fade_alpha, 0.0, 1.0, seconds)
 	return _fade
+
+static func tween_alpha(host: Node, apply: Callable, from: float, to: float, seconds: float) -> Tween:
+	var tween: Tween = host.create_tween()
+	tween.tween_method(apply, from, to, seconds).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	return tween
 
 func set_fade_alpha(alpha: float) -> void:
 	modulate.a = alpha

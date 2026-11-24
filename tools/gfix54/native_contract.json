@@ -1,0 +1,10 @@
+{
+  "min_images": 4,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "revealing_glare_condition_hover_1920x1080.png"},
+    {"pattern": "couched_lance_condition_hover_1920x1080.png"},
+    {"pattern": "revealing_glare_focused_side_panels_1920x1080.png"},
+    {"pattern": "couched_lance_focused_side_panels_1920x1080.png"}
+  ]
+}

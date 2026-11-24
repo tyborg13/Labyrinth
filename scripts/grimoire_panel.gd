@@ -9,6 +9,7 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const CreaturePage = preload("res://scripts/grimoire_creature_page.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const GrimoireSearch = preload("res://scripts/grimoire_search.gd")
 const InlineIconText = preload("res://scripts/inline_icon_text.gd")
@@ -20,6 +21,10 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 
 const GRIMOIRE_DIALOG_SIZE: Vector2 = Vector2(1120.0, 640.0)
 const GRIMOIRE_MIN_DIALOG_SIZE: Vector2 = Vector2(820.0, 520.0)
+# Match the section map's right-stick pan response, on the vertical axis.
+const DETAIL_STICK_SPEED: float = 1150.0
+const DETAIL_STICK_DEADZONE: float = 0.22
+const DETAIL_ICON_SIZE: float = 86.0
 const GRIMOIRE_LEFT_PAGE_WIDTH: float = 300.0
 const GRIMOIRE_DETAIL_PAGE_WIDTH: float = 620.0
 const GRIMOIRE_ENTRY_BUTTON_HEIGHT: float = 44.0
@@ -87,6 +92,11 @@ var _grimoire_detail_panel: PanelContainer
 var _grimoire_detail_icon: TextureRect
 var _grimoire_detail_kicker: Label
 var _grimoire_detail_title: Label
+var _grimoire_detail_stack: VBoxContainer
+var _grimoire_detail_scroll: ScrollContainer
+var _grimoire_creature_stack: VBoxContainer
+var _grimoire_detail_stick: float = 0.0
+var _grimoire_detail_entry: String = ""
 var _grimoire_detail_body: RichTextLabel
 var _grimoire_detail_content: VBoxContainer
 var _grimoire_selected_section: String = ""
@@ -164,6 +174,8 @@ func open(opener: Control) -> void:
 func close() -> void:
 	var was_visible: bool = visible
 	hide()
+	_grimoire_detail_stick = 0.0
+	_grimoire_detail_entry = ""
 	_reset_grimoire_search()
 	preload("res://scripts/grimoire_search_rows.gd").release_closed(self)
 	if not was_visible: return
@@ -180,6 +192,20 @@ func track_navigation_intent(event: InputEvent) -> void:
 		_grimoire_restore_navigation_focus = false
 	elif event is InputEventKey or event is InputEventAction or event is InputEventJoypadButton:
 		_grimoire_restore_navigation_focus = true
+
+func _input(event: InputEvent) -> void:
+	if is_visible_in_tree() and event is InputEventJoypadMotion and event.axis == JOY_AXIS_RIGHT_Y:
+		_grimoire_detail_stick = event.axis_value
+
+func _process(delta: float) -> void:
+	if not is_visible_in_tree() or not is_instance_valid(_grimoire_detail_scroll) or not _grimoire_detail_scroll.visible:
+		return
+	if absf(_grimoire_detail_stick) <= DETAIL_STICK_DEADZONE:
+		return
+	var strength: float = (absf(_grimoire_detail_stick) - DETAIL_STICK_DEADZONE) / (1.0 - DETAIL_STICK_DEADZONE)
+	var bar: VScrollBar = _grimoire_detail_scroll.get_v_scroll_bar()
+	if bar.visible:
+		bar.value += signf(_grimoire_detail_stick) * strength * DETAIL_STICK_SPEED * delta
 
 func layout() -> void:
 	_layout_grimoire_dialog()
@@ -411,36 +437,18 @@ func build() -> void:
 	detail_margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING_LARGE))
 	_grimoire_detail_panel.add_child(detail_margin)
 
-	var detail_stack := VBoxContainer.new()
-	detail_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	detail_stack.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-	detail_margin.add_child(detail_stack)
+	_grimoire_detail_stack = VBoxContainer.new()
+	_grimoire_detail_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_grimoire_detail_stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_grimoire_detail_stack.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
+	detail_margin.add_child(_grimoire_detail_stack)
 
 	var detail_header := HBoxContainer.new()
 	detail_header.add_theme_constant_override("separation", UiTypography.SPACE_LARGE)
-	detail_stack.add_child(detail_header)
-
-	var icon_frame := PanelContainer.new()
-	icon_frame.custom_minimum_size = Vector2(86.0, 86.0)
-	icon_frame.add_theme_stylebox_override("panel", _grimoire_icon_frame_style())
-	detail_header.add_child(icon_frame)
-
-	var icon_margin := MarginContainer.new()
-	icon_margin.add_theme_constant_override("margin_left", 3)
-	icon_margin.add_theme_constant_override("margin_top", 3)
-	icon_margin.add_theme_constant_override("margin_right", 3)
-	icon_margin.add_theme_constant_override("margin_bottom", 3)
-	icon_frame.add_child(icon_margin)
+	_grimoire_detail_stack.add_child(detail_header)
 
 	_grimoire_detail_icon = TextureRect.new()
-	_grimoire_detail_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_grimoire_detail_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	_grimoire_detail_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_grimoire_detail_icon.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_grimoire_detail_icon.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_grimoire_detail_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_margin.add_child(_grimoire_detail_icon)
+	detail_header.add_child(_grimoire_icon_socket(DETAIL_ICON_SIZE, _grimoire_detail_icon))
 
 	var detail_title_stack := VBoxContainer.new()
 	detail_title_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -464,7 +472,7 @@ func build() -> void:
 	rule.custom_minimum_size = Vector2(0.0, 2.0)
 	rule.color = _rgba(DETAIL_RULE_RGBA)
 	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	detail_stack.add_child(rule)
+	_grimoire_detail_stack.add_child(rule)
 
 	_grimoire_detail_body = RichTextLabel.new()
 	_grimoire_detail_body.bbcode_enabled = false
@@ -475,14 +483,26 @@ func build() -> void:
 	_grimoire_detail_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	UiTypography.apply_rich_text_role(_grimoire_detail_body, UiTypography.ROLE_BODY)
 	_grimoire_detail_body.add_theme_color_override("default_color", Color.hex(DETAIL_BODY))
-	detail_stack.add_child(_grimoire_detail_body)
+	_grimoire_detail_stack.add_child(_grimoire_detail_body)
 
 	_grimoire_detail_content = VBoxContainer.new()
 	_grimoire_detail_content.name = "GrimoireDetailContent"
 	_grimoire_detail_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_grimoire_detail_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_grimoire_detail_content.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-	detail_stack.add_child(_grimoire_detail_content)
+	_grimoire_detail_stack.add_child(_grimoire_detail_content)
+	_grimoire_detail_scroll = ScrollContainer.new()
+	_grimoire_detail_scroll.name = "GrimoireDetailScroll"
+	_grimoire_detail_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_grimoire_detail_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_grimoire_detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_grimoire_detail_scroll.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	_grimoire_detail_scroll.hide()
+	_grimoire_detail_stack.add_child(_grimoire_detail_scroll)
+	_grimoire_creature_stack = VBoxContainer.new()
+	_grimoire_creature_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_grimoire_creature_stack.add_theme_constant_override("separation", 0)
+	_grimoire_detail_scroll.add_child(_grimoire_creature_stack)
 	_ui_skin.apply_outer_panel_frame(_grimoire_dialog, UiSkin.SURFACE_PARCHMENT)
 
 func _grimoire_cover_style() -> StyleBoxFlat:
@@ -506,13 +526,35 @@ func _grimoire_page_style(right_page: bool) -> StyleBoxFlat:
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.16)
 	return style
 
-func _grimoire_icon_frame_style() -> StyleBoxFlat:
-	var style := _ui_skin.make_plain_card_style(_rgba(ICON_FILL_RGBA), Color.hex(ICON_EDGE), 8.0)
-	style.corner_radius_top_left = 7
-	style.corner_radius_top_right = 7
-	style.corner_radius_bottom_right = 7
-	style.corner_radius_bottom_left = 7
-	style.shadow_size = 4
+func _grimoire_icon_socket(edge: float, icon: TextureRect) -> PanelContainer:
+	var icon_frame := PanelContainer.new()
+	icon_frame.custom_minimum_size = Vector2(edge, edge)
+	icon_frame.add_theme_stylebox_override("panel", _grimoire_icon_frame_style(edge / DETAIL_ICON_SIZE))
+
+	var icon_margin := MarginContainer.new()
+	icon_margin.add_theme_constant_override("margin_left", roundi(3.0 * edge / DETAIL_ICON_SIZE))
+	icon_margin.add_theme_constant_override("margin_top", roundi(3.0 * edge / DETAIL_ICON_SIZE))
+	icon_margin.add_theme_constant_override("margin_right", roundi(3.0 * edge / DETAIL_ICON_SIZE))
+	icon_margin.add_theme_constant_override("margin_bottom", roundi(3.0 * edge / DETAIL_ICON_SIZE))
+	icon_frame.add_child(icon_margin)
+
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	icon.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon_margin.add_child(icon)
+	return icon_frame
+
+func _grimoire_icon_frame_style(scale_factor: float) -> StyleBoxFlat:
+	var style := _ui_skin.make_plain_card_style(_rgba(ICON_FILL_RGBA), Color.hex(ICON_EDGE), 8.0 * scale_factor)
+	style.corner_radius_top_left = roundi(7.0 * scale_factor)
+	style.corner_radius_top_right = roundi(7.0 * scale_factor)
+	style.corner_radius_bottom_right = roundi(7.0 * scale_factor)
+	style.corner_radius_bottom_left = roundi(7.0 * scale_factor)
+	style.shadow_size = roundi(4.0 * scale_factor)
+	style.set_border_width_all(roundi(3.0 * scale_factor))
 	return style
 
 func _grimoire_search_field_style(focused: bool) -> StyleBoxFlat:
@@ -619,6 +661,7 @@ func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 				var entry_index: int = _add_grimoire_entry_tab(entry, unread, 2)
 				if str(entry.get("id", "")) == _grimoire_selected_entry:
 					selected_index = entry_index
+	_refresh_grimoire_nav_minimum_size()
 	if scroll_to_selection:
 		call_deferred("_scroll_grimoire_entry_list_to_index", selected_index, 0, scroll_revision)
 	else:
@@ -658,6 +701,7 @@ func _rebuild_grimoire_search_results(unlocked: Array[String], unread: Array[Str
 		_grimoire_selected_entry = "" if _grimoire_search_results.is_empty() else str((_grimoire_search_results[0].get("entry", {}) as Dictionary).get("id", ""))
 	_reconcile_grimoire_search_rows(unread)
 	_update_grimoire_search_chrome(unlocked.size())
+	_refresh_grimoire_nav_minimum_size()
 	if _grimoire_search_results.is_empty():
 		call_deferred("_restore_grimoire_entry_list_scroll", 0, 0, scroll_revision)
 	else:
@@ -1161,6 +1205,12 @@ func _grimoire_tab_style(depth: int, selected: bool, hover: bool, pressed: bool,
 	style.content_margin_bottom = UiTypography.SPACE_TIGHT
 	return style
 
+func _refresh_grimoire_nav_minimum_size() -> void:
+	# Replacing rows can leave the list with the same minimum size, so it
+	# emits no change to refresh ScrollContainer's cached child extent.
+	# Recalculate with the final rows before restoring scroll or handling input.
+	_grimoire_entry_scroll.update_minimum_size()
+
 func _restore_grimoire_entry_list_scroll(scroll_position: int, attempt: int = 0, revision: int = 0) -> void:
 	if revision != _grimoire_nav_scroll_revision:
 		return
@@ -1240,6 +1290,12 @@ func _refresh_grimoire_detail() -> void:
 	if _grimoire_detail_content != null:
 		_clear_children_now(_grimoire_detail_content)
 	var entry: Dictionary = GrimoireLibrary.entry_def(_grimoire_selected_entry)
+	var enemy_id: String = str(entry.get("enemy_id", ""))
+	var page_changed: bool = _grimoire_detail_entry != _grimoire_selected_entry
+	_grimoire_detail_entry = _grimoire_selected_entry
+	_set_creature_detail(not enemy_id.is_empty())
+	if page_changed and _grimoire_detail_scroll.visible:
+		_grimoire_detail_scroll.scroll_vertical = 0
 	if entry.is_empty():
 		_grimoire_detail_kicker.text = "SEARCH" if _grimoire_search_active() else ""
 		_grimoire_detail_title.text = "No known match" if _grimoire_search_active() else "No entries"
@@ -1265,10 +1321,24 @@ func _refresh_grimoire_detail() -> void:
 		_grimoire_detail_body.visible = not body_text.is_empty()
 		_grimoire_detail_body.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		_populate_grimoire_equipment_detail(equipment_id)
+	elif not enemy_id.is_empty():
+		InlineIconText.apply_to(_grimoire_detail_body, body_text, InlineIconText.DEFAULT_ICON_SCALE, true)
+		_grimoire_detail_body.visible = not body_text.is_empty()
+		_grimoire_detail_body.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		CreaturePage.populate(self, _grimoire_detail_content, enemy_id)
 	else:
 		InlineIconText.apply_to(_grimoire_detail_body, body_text, InlineIconText.DEFAULT_ICON_SCALE, true)
 		_grimoire_detail_body.visible = true
 		_grimoire_detail_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+func _set_creature_detail(enabled: bool) -> void:
+	if _grimoire_detail_scroll.visible == enabled:
+		return
+	var parent: VBoxContainer = _grimoire_creature_stack if enabled else _grimoire_detail_stack
+	_grimoire_detail_body.reparent(parent, false)
+	_grimoire_detail_content.reparent(parent, false)
+	_grimoire_detail_scroll.visible = enabled
+	_grimoire_detail_body.scroll_active = not enabled
 
 func _populate_grimoire_card_detail(card_id: String) -> void:
 	if _grimoire_detail_content == null:
@@ -1285,17 +1355,20 @@ func _populate_grimoire_equipment_detail(equipment_id: String) -> void:
 	var card_ids: Array = GameData.equipment_cards(equipment_id)
 	if card_ids.is_empty():
 		return
-	var label := Label.new()
-	label.text = "Granted Cards"
-	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
-	label.add_theme_color_override("font_color", Color.hex(GRANTED_CARDS_TEXT))
-	label.add_theme_color_override("font_outline_color", _rgba(GRANTED_CARDS_OUTLINE_RGBA))
-	label.add_theme_constant_override("outline_size", 1)
-	_grimoire_detail_content.add_child(label)
+	_grimoire_detail_content.add_child(_grimoire_section_heading("Granted Cards"))
 	var row := ItemPreviewBuilders.granted_card_row()
 	_grimoire_detail_content.add_child(row)
 	for card_id_var: Variant in card_ids:
 		row.add_child(_build_card_preview_widget(str(card_id_var), GRIMOIRE_EQUIPMENT_CARD_SIZE, true))
+
+func _grimoire_section_heading(title: String) -> Label:
+	var label := Label.new()
+	label.text = title
+	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	label.add_theme_color_override("font_color", Color.hex(GRANTED_CARDS_TEXT))
+	label.add_theme_color_override("font_outline_color", _rgba(GRANTED_CARDS_OUTLINE_RGBA))
+	label.add_theme_constant_override("outline_size", 1)
+	return label
 
 func _grimoire_body_text(entry: Dictionary) -> String:
 	return preload("res://scripts/input_wording.gd").grimoire_body(entry, _controller_is_active())

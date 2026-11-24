@@ -32,6 +32,12 @@ func configure_bottom_seat(top: float, alpha: float, power: float, ink: Color) -
 	_batch = null
 	queue_redraw()
 
+func bottom_seat_bounds_in_canvas() -> Rect2:
+	if _bottom_seat.is_empty() or not is_visible_in_tree(): return Rect2()
+	var top: float = _bottom_seat["top"]
+	if top >= size.y: return Rect2()
+	return get_global_transform_with_canvas() * Rect2(0.0, top, size.x, size.y - top)
+
 func _ready() -> void:
 	name = "HudSeatScrim"
 	mouse_filter = Control.MOUSE_FILTER_IGNORE

@@ -2,7 +2,7 @@
 
 # txt-27 puts the ground rule on each trap; the Grimoire keeps the detailed body.
 TRAP_DEFINITION = "Traps hit when entered or attacked."
-MARKED_DEFINITION = "Marked tiles show where this enemy acts on its next turn."
+MARKED_DEFINITION = "Marked tiles show where this enemy will act."
 TRAP_BODY = [
     "A trap triggers when a unit enters its tile or an attack hits that tile. The trap damages the unit on its tile, then leaves its element on that tile and each tile next to it. An Air trap leaves no ground: it pushes each unit next to it 1 tile away.",
     "Trigger when entered or attacked. Damage the unit on them, then leave their element on their tile and each tile next to it.",

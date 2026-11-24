@@ -19,7 +19,7 @@ static func bind(trigger: Control, stack: Control, card: Control = null) -> void
 	trigger.focus_entered.connect(_show.bind(trigger, stack, source))
 	trigger.mouse_exited.connect(_hide.bind(trigger, stack))
 	trigger.focus_exited.connect(_hide.bind(trigger, stack))
-	trigger.tree_exiting.connect(_hide.bind(trigger, stack))
+	trigger.tree_exiting.connect(Callable(stack, "hide_for").bind(trigger))
 
 ## The run scene's shared CardFocusTooltipStack (the hand's keyword column).
 static func scene_stack(node: Node) -> Control:

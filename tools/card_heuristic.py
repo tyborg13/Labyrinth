@@ -447,7 +447,7 @@ def encounter_assumptions() -> dict[str, Any]:
             "ice_card_stagger": "On Ice: also Stagger 6 printed per card; dragons take half",
             "stagger_cap": "6 Time per hero or enemy between turns across sources. Printed-card scores value uncapped delay.",
             "rubble_exit_cost": 2,
-            "lightning": "reusable cardinal connected-ground conduction; Chain retains printed jump reach; Stormcoal Fire is consumed",
+            "lightning": "reusable cardinal connected-ground conduction; Chain retains printed jump reach; hero Lightning cards conduct through and consume Stormcoal Fire",
             "trap_shape": "center-only direct damage; center and cardinal ground; Air cardinal push only",
             "score_policy": "bounded expected contact and useful geometry, with setup availability and fuel opportunity cost",
         },

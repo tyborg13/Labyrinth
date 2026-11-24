@@ -18,7 +18,10 @@ const STATUS_DISMISSED: String = "dismissed"
 const STATUS_LEGACY_EXEMPT: String = "legacy_exempt"
 const STATUS_SKIPPED: String = STATUS_DISMISSED
 
+const FLOOR_LOOT_PENDING_KEY: String = "floor_loot_pending"
+
 const MILESTONE_MOVE: String = "move_committed"
+const MILESTONE_FLOOR_LOOT: String = "floor_loot_read"
 const MILESTONE_INTENT: String = "enemy_intent_read"
 const MILESTONE_PLAYS: String = "card_plays_read"
 const MILESTONE_CANCEL: String = "card_preview_cancelled"
@@ -38,6 +41,7 @@ const MILESTONE_PATH: String = "path_chosen"
 
 const MILESTONE_ORDER: Array = [
 	MILESTONE_MOVE,
+	MILESTONE_FLOOR_LOOT,
 	MILESTONE_INTENT,
 	MILESTONE_PLAYS,
 	MILESTONE_CANCEL,
@@ -55,6 +59,7 @@ const MILESTONE_ORDER: Array = [
 
 const PHASE_SELECT_PLAYER: String = "select_player"
 const PHASE_CHOOSE_MOVE: String = "choose_move"
+const PHASE_FLOOR_LOOT: String = "floor_loot"
 const PHASE_INSPECT_ENEMY: String = "inspect_enemy"
 const PHASE_CONFIRM_INTENT: String = "confirm_enemy_intent"
 const PHASE_CARD_PLAYS: String = "card_plays"
@@ -92,6 +97,7 @@ const PASS_CONSEQUENCE: String = PHASE_PASS_TURN
 const PHASE_ORDER: Array = [
 	PHASE_SELECT_PLAYER,
 	PHASE_CHOOSE_MOVE,
+	PHASE_FLOOR_LOOT,
 	PHASE_INSPECT_ENEMY,
 	PHASE_CONFIRM_INTENT,
 	PHASE_CARD_PLAYS,
@@ -233,28 +239,36 @@ const PHASES: Dictionary = {
 # replace the broad version-1 copy while retaining its ids as test aliases.
 const AUTHORED_PHASES: Dictionary = {
 	PHASE_SELECT_PLAYER: {
-		"id": PHASE_SELECT_PLAYER, "lesson": 1, "lesson_total": 10,
+		"id": PHASE_SELECT_PLAYER, "lesson": 1, "lesson_total": 11,
 		"icon": "move", "kicker": "MOVEMENT", "title": "Move the Wanderer",
 		"pointer_text": "Click the glowing tile to choose a move.",
 		"controller_text": "Select the glowing tile to choose a move.",
 		"controller_action": "controller_accept", "action_label": "Select", "attention_pulse": true,
 	},
 	PHASE_CHOOSE_MOVE: {
-		"id": PHASE_CHOOSE_MOVE, "lesson": 1, "lesson_total": 10,
+		"id": PHASE_CHOOSE_MOVE, "lesson": 1, "lesson_total": 11,
 		"icon": "move", "kicker": "MOVEMENT", "title": "Take This Step",
-		"pointer_text": "You begin each turn with 2 Movement. Use 1 to move onto the glowing tile.",
-		"controller_text": "You begin each turn with 2 Movement. Use 1 to move onto the glowing tile.",
+		"pointer_text": "You begin each turn with 2 Movement. Use 1 to step onto the gear.",
+		"controller_text": "You begin each turn with 2 Movement. Use 1 to step onto the gear.",
 		"controller_action": "controller_accept", "action_label": "Move", "attention_pulse": true,
 	},
+	PHASE_FLOOR_LOOT: {
+		"id": PHASE_FLOOR_LOOT, "lesson": 2, "lesson_total": 11,
+		"icon": "", "kicker": "GEAR", "title": "Loot on the Floor",
+		"pointer_text": "Gear and items appear on tiles. Step onto them before combat ends, or they crumble.",
+		"controller_text": "Gear and items appear on tiles. Step onto them before combat ends, or they crumble.",
+		"controller_action": "controller_accept", "action_label": "Continue",
+		"requires_continue": true, "continue_text": "Continue",
+	},
 	PHASE_INSPECT_ENEMY: {
-		"id": PHASE_INSPECT_ENEMY, "lesson": 2, "lesson_total": 10,
+		"id": PHASE_INSPECT_ENEMY, "lesson": 3, "lesson_total": 11,
 		"icon": "", "kicker": "ENEMY INTENT", "title": "Read the Crawler",
 		"pointer_text": "Move the pointer over the glowing crawler to reveal its next action.",
 		"controller_text": "Focus the glowing crawler to reveal its next action.",
 		"controller_action": "controller_move", "action_label": "Inspect", "attention_pulse": true,
 	},
 	PHASE_CONFIRM_INTENT: {
-		"id": PHASE_CONFIRM_INTENT, "lesson": 2, "lesson_total": 10,
+		"id": PHASE_CONFIRM_INTENT, "lesson": 3, "lesson_total": 11,
 		"icon": "", "kicker": "ENEMY INTENT", "title": "Skitter Strike",
 		"pointer_text": "This crawler will move up to 2 tiles, then hit you for 5.",
 		"controller_text": "This crawler will move up to 2 tiles, then hit you for 5.",
@@ -262,7 +276,7 @@ const AUTHORED_PHASES: Dictionary = {
 		"requires_continue": true, "continue_text": "Continue",
 	},
 	PHASE_CARD_PLAYS: {
-		"id": PHASE_CARD_PLAYS, "lesson": 3, "lesson_total": 10,
+		"id": PHASE_CARD_PLAYS, "lesson": 4, "lesson_total": 11,
 		"icon": "card_play", "kicker": "Card Plays", "title": "Two Plays Each Turn",
 		"pointer_text": "You normally get 2 Card Plays each turn. The counter tracks what remains.",
 		"controller_text": "You normally get 2 Card Plays each turn. The counter tracks what remains.",
@@ -270,42 +284,42 @@ const AUTHORED_PHASES: Dictionary = {
 		"requires_continue": true, "continue_text": "Continue",
 	},
 	PHASE_SELECT_CARD_FOR_CANCEL: {
-		"id": PHASE_SELECT_CARD_FOR_CANCEL, "lesson": 3, "lesson_total": 10,
+		"id": PHASE_SELECT_CARD_FOR_CANCEL, "lesson": 4, "lesson_total": 11,
 		"icon": "card_play", "kicker": "CARD PREVIEW", "title": "Select Pale Spark",
 		"pointer_text": "Click the glowing Pale Spark. Nothing is spent while you preview it.",
 		"controller_text": "Select the glowing Pale Spark. Nothing is spent while you preview it.",
 		"controller_action": "controller_accept", "action_label": "Preview", "attention_pulse": true,
 	},
 	PHASE_CANCEL_CARD: {
-		"id": PHASE_CANCEL_CARD, "lesson": 3, "lesson_total": 10,
+		"id": PHASE_CANCEL_CARD, "lesson": 4, "lesson_total": 11,
 		"icon": "", "kicker": "CARD PREVIEW", "title": "Change Your Mind",
 		"pointer_text": "Right-click, or use Cancel, to return Pale Spark safely.",
 		"controller_text": "Press Cancel to return Pale Spark safely.",
 		"controller_action": "controller_cancel", "action_label": "Cancel", "attention_pulse": true,
 	},
 	PHASE_SELECT_FIRST_CARD: {
-		"id": PHASE_SELECT_FIRST_CARD, "lesson": 4, "lesson_total": 10,
+		"id": PHASE_SELECT_FIRST_CARD, "lesson": 5, "lesson_total": 11,
 		"icon": "card_play", "kicker": "FIRST PLAY", "title": "Play Pale Spark",
 		"pointer_text": "Click Pale Spark again. This time, you will commit the attack.",
 		"controller_text": "Select Pale Spark again. This time, you will commit the attack.",
 		"controller_action": "controller_accept", "action_label": "Play", "attention_pulse": true,
 	},
 	PHASE_SELECT_FIRST_TARGET: {
-		"id": PHASE_SELECT_FIRST_TARGET, "lesson": 4, "lesson_total": 10,
+		"id": PHASE_SELECT_FIRST_TARGET, "lesson": 5, "lesson_total": 11,
 		"icon": "", "kicker": "TARGETING", "title": "Aim at the Crawler",
 		"pointer_text": "Click the glowing crawler. Pale Spark will deal 3 damage.",
 		"controller_text": "Select the glowing crawler. Pale Spark will deal 3 damage.",
 		"controller_action": "controller_accept", "action_label": "Target", "attention_pulse": true,
 	},
 	PHASE_FINISH_FIRST_CARD: {
-		"id": PHASE_FINISH_FIRST_CARD, "lesson": 4, "lesson_total": 10,
+		"id": PHASE_FINISH_FIRST_CARD, "lesson": 5, "lesson_total": 11,
 		"icon": "card_play", "kicker": "COMMIT", "title": "Release Pale Spark",
 		"pointer_text": "Confirm the glowing action to commit the card.",
 		"controller_text": "Confirm the glowing action to commit the card.",
 		"controller_action": "controller_accept", "action_label": "Resolve", "attention_pulse": true,
 	},
 	PHASE_FIRST_PLAY: {
-		"id": PHASE_FIRST_PLAY, "lesson": 4, "lesson_total": 10,
+		"id": PHASE_FIRST_PLAY, "lesson": 5, "lesson_total": 11,
 		"icon": "card_play", "kicker": "Card Plays", "title": "One Play Remains",
 		"pointer_text": "Pale Spark spent 1 Card Play. The counter has fallen from 2 to 1.",
 		"controller_text": "Pale Spark spent 1 Card Play. The counter has fallen from 2 to 1.",
@@ -313,28 +327,28 @@ const AUTHORED_PHASES: Dictionary = {
 		"requires_continue": true, "continue_text": "Continue",
 	},
 	PHASE_SELECT_KILL_CARD: {
-		"id": PHASE_SELECT_KILL_CARD, "lesson": 5, "lesson_total": 10,
+		"id": PHASE_SELECT_KILL_CARD, "lesson": 6, "lesson_total": 11,
 		"icon": "card_play", "kicker": "SECOND PLAY", "title": "Finish with Quick Stab",
 		"pointer_text": "Click the glowing Quick Stab. Your move put the crawler in reach.",
 		"controller_text": "Select the glowing Quick Stab. Your move put the crawler in reach.",
 		"controller_action": "controller_accept", "action_label": "Play", "attention_pulse": true,
 	},
 	PHASE_SELECT_KILL_TARGET: {
-		"id": PHASE_SELECT_KILL_TARGET, "lesson": 5, "lesson_total": 10,
+		"id": PHASE_SELECT_KILL_TARGET, "lesson": 6, "lesson_total": 11,
 		"icon": "", "kicker": "LETHAL", "title": "Strike the Wounded Crawler",
 		"pointer_text": "Click the glowing crawler.",
 		"controller_text": "Select the glowing crawler.",
 		"controller_action": "controller_accept", "action_label": "Target", "attention_pulse": true,
 	},
 	PHASE_FINISH_KILL_CARD: {
-		"id": PHASE_FINISH_KILL_CARD, "lesson": 5, "lesson_total": 10,
+		"id": PHASE_FINISH_KILL_CARD, "lesson": 6, "lesson_total": 11,
 		"icon": "card_play", "kicker": "LETHAL", "title": "Commit Quick Stab",
 		"pointer_text": "Confirm the glowing action to defeat the crawler.",
 		"controller_text": "Confirm the glowing action to defeat the crawler.",
 		"controller_action": "controller_accept", "action_label": "Resolve", "attention_pulse": true,
 	},
 	PHASE_KILL_REFUND: {
-		"id": PHASE_KILL_REFUND, "lesson": 5, "lesson_total": 10,
+		"id": PHASE_KILL_REFUND, "lesson": 6, "lesson_total": 11,
 		"icon": "card_play", "kicker": "KILL REFUND", "title": "A Play Returns",
 		"pointer_text": "Defeating an enemy refunds 1 Card Play. You still have 1 to spend.",
 		"controller_text": "Defeating an enemy refunds 1 Card Play. You still have 1 to spend.",
@@ -342,21 +356,21 @@ const AUTHORED_PHASES: Dictionary = {
 		"requires_continue": true, "continue_text": "Use the Refund",
 	},
 	PHASE_SELECT_REFUND_CARD: {
-		"id": PHASE_SELECT_REFUND_CARD, "lesson": 6, "lesson_total": 10,
+		"id": PHASE_SELECT_REFUND_CARD, "lesson": 7, "lesson_total": 11,
 		"icon": "card_play", "kicker": "REFUNDED PLAY", "title": "Play Brace",
 		"pointer_text": "Click the glowing Brace to spend the refunded Card Play and gain 6 Block.",
 		"controller_text": "Select the glowing Brace to spend the refunded Card Play and gain 6 Block.",
 		"controller_action": "controller_accept", "action_label": "Play", "attention_pulse": true,
 	},
 	PHASE_FINISH_REFUND_CARD: {
-		"id": PHASE_FINISH_REFUND_CARD, "lesson": 6, "lesson_total": 10,
+		"id": PHASE_FINISH_REFUND_CARD, "lesson": 7, "lesson_total": 11,
 		"icon": "card_play", "kicker": "REFUNDED PLAY", "title": "Raise Your Guard",
 		"pointer_text": "Confirm the glowing action to gain 6 Block.",
 		"controller_text": "Confirm the glowing action to gain 6 Block.",
 		"controller_action": "controller_accept", "action_label": "Resolve", "attention_pulse": true,
 	},
 	PHASE_TURN_CLOCK: {
-		"id": PHASE_TURN_CLOCK, "lesson": 7, "lesson_total": 10,
+		"id": PHASE_TURN_CLOCK, "lesson": 8, "lesson_total": 11,
 		"icon": "time", "kicker": "TURN CLOCK", "title": "Read the Turn Clock",
 		"pointer_text": "Card Time places your next turn. An unused Card Play still takes 5, so faster cards bring you back sooner.",
 		"controller_text": "Card Time places your next turn. An unused Card Play still takes 5, so faster cards bring you back sooner.",
@@ -364,14 +378,14 @@ const AUTHORED_PHASES: Dictionary = {
 		"requires_continue": true, "continue_text": "Continue",
 	},
 	PHASE_PASS_TURN: {
-		"id": PHASE_PASS_TURN, "lesson": 7, "lesson_total": 10,
+		"id": PHASE_PASS_TURN, "lesson": 8, "lesson_total": 11,
 		"icon": "", "kicker": "END TURN", "title": "Let the Enemy Act",
 		"pointer_text": "Your actions are spent. Pass so the crawler attacks into your Block.",
 		"controller_text": "Your actions are spent. Pass so the crawler attacks into your Block.",
 		"controller_action": "controller_pass", "action_label": "Pass", "attention_pulse": true,
 	},
 	PHASE_CORE_COMPLETE: {
-		"id": PHASE_CORE_COMPLETE, "lesson": 8, "lesson_total": 10,
+		"id": PHASE_CORE_COMPLETE, "lesson": 9, "lesson_total": 11,
 		"icon": "", "kicker": "BLOCK", "title": "Block Absorbed the Hit",
 		"pointer_text": "The crawler's 4-damage attack used 4 Block, so you lost no Health. Defeat it on your own.",
 		"controller_text": "The crawler's 4-damage attack used 4 Block, so you lost no Health. Defeat it on your own.",
@@ -379,14 +393,14 @@ const AUTHORED_PHASES: Dictionary = {
 		"requires_continue": true, "continue_text": "Finish the Fight",
 	},
 	PHASE_CHOOSE_REWARD: {
-		"id": PHASE_CHOOSE_REWARD, "lesson": 9, "lesson_total": 10,
+		"id": PHASE_CHOOSE_REWARD, "lesson": 10, "lesson_total": 11,
 		"icon": "", "kicker": "COMBAT REWARD", "title": "Shape Your Deck",
 		"pointer_text": "Choose one card, or Skip & Recover to heal instead.",
 		"controller_text": "Choose one card, or Skip & Recover to heal instead.",
 		"controller_action": "controller_accept", "action_label": "Choose",
 	},
 	PHASE_CHOOSE_PATH: {
-		"id": PHASE_CHOOSE_PATH, "lesson": 10, "lesson_total": 10,
+		"id": PHASE_CHOOSE_PATH, "lesson": 11, "lesson_total": 11,
 		"icon": "move", "kicker": "CHOOSE A PATH", "title": "Enter the Next Chamber",
 		"pointer_text": "Select a glowing doorway. The map previews where each route leads.",
 		"controller_text": "Select a glowing doorway. The map previews where each route leads.",
@@ -395,7 +409,7 @@ const AUTHORED_PHASES: Dictionary = {
 		"controller_action": "controller_accept", "action_label": "Travel",
 	},
 	PHASE_COMPLETE: {
-		"id": PHASE_COMPLETE, "lesson": 10, "lesson_total": 10,
+		"id": PHASE_COMPLETE, "lesson": 11, "lesson_total": 11,
 		"icon": "move", "kicker": "GUIDE COMPLETE", "title": "Tutorial Complete",
 		"pointer_text": "You know the basic combat controls. From here, you're on your own.",
 		"controller_text": "You know the basic combat controls. From here, you're on your own.",
@@ -528,8 +542,23 @@ static func merged_state(primary_progression: Dictionary, fallback_progression: 
 		"completed_steps": MILESTONE_ORDER.duplicate() if status == STATUS_COMPLETED else completed,
 	}
 
-static func phase_definition(phase_id: String, map_open: bool = false, legacy_starter: bool = false) -> Dictionary:
+static func phase_definition(
+	phase_id: String,
+	map_open: bool = false,
+	legacy_starter: bool = false,
+	step_has_gear: bool = true
+) -> Dictionary:
+	if legacy_starter and phase_id == PHASE_FLOOR_LOOT:
+		return {}
 	var definition: Dictionary = (AUTHORED_PHASES.get(phase_id, PHASES.get(phase_id, {})) as Dictionary).duplicate(true)
+	if legacy_starter and not definition.is_empty():
+		definition["lesson_total"] = 10
+		if int(definition["lesson"]) > 1:
+			definition["lesson"] -= 1
+	if phase_id == PHASE_CHOOSE_MOVE and (legacy_starter or not step_has_gear):
+		const RELEASE_MOVE_TEXT: String = "You begin each turn with 2 Movement. Use 1 to move onto the glowing tile."
+		definition["pointer_text"] = RELEASE_MOVE_TEXT
+		definition["controller_text"] = RELEASE_MOVE_TEXT
 	if phase_id == PHASE_SELECT_KILL_TARGET and legacy_starter:
 		const LEGACY_FOLLOW_UP_EXPLANATION: String = " Follow-up adds 3 after Pale Spark, so Quick Stab deals 9."
 		definition["pointer_text"] += LEGACY_FOLLOW_UP_EXPLANATION
@@ -552,6 +581,7 @@ static func prompt_ids() -> Array[String]:
 static func prompt_definition(prompt_id: String) -> Dictionary:
 	var phase_by_milestone: Dictionary = {
 		MILESTONE_MOVE: PHASE_SELECT_PLAYER,
+		MILESTONE_FLOOR_LOOT: PHASE_FLOOR_LOOT,
 		MILESTONE_INTENT: PHASE_INSPECT_ENEMY,
 		MILESTONE_PLAYS: PHASE_CARD_PLAYS,
 		MILESTONE_CANCEL: PHASE_CANCEL_CARD,

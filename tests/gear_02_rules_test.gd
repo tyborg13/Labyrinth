@@ -18,6 +18,8 @@ const RunSceneScript = preload("res://scripts/run_scene.gd")
 const ShopFixture = preload("res://tests/suites/magic_deck_suite.gd")
 const Boons = preload("res://scripts/opening_boon_rules.gd")
 const FIXTURE_SEED: int = 90211
+const LANTERN_APPROACH: Array = [Vector2i(1, -1), Vector2i(0, 1)]
+const LANTERN_GUARDIAN := Vector2i(2, -2)
 const CART_SEED: int = 382
 const FIRST_DROP_SEED_COUNT: int = 200
 const FALLBACK_REVIEW_SEED: int = 4
@@ -171,7 +173,7 @@ func _test_opening_fight(engine: RefCounted, run: Dictionary) -> void:
 	_expect(_is_single_non_trinket_pickup(pickups), "Authored tutorial places a non-trinket")
 	_expect(pickups == _equipment_pickups(guided_dossier), "Direct entry and dossier commit produce the same tutorial pickup")
 	if pickups.size() == 1:
-		_expect(pickups[0]["pos"] != Guided.move_tile(guided), "Tutorial pickup stays off the scripted movement destination")
+		_expect(pickups[0]["pos"] == Guided.move_tile(guided), "Tutorial pickup sits on the scripted movement destination")
 
 func _test_lantern(engine: RefCounted, run: Dictionary) -> void:
 	var coord: Vector2i = _first_combat_room(engine, run)
@@ -329,11 +331,18 @@ func _test_trinket_fallback_once(engine: RefCounted) -> void:
 		"Winning with the fallback resolves the reserve and the second dry room drops no gear (first %s, second %s)" % [first, second])
 
 func _test_guardian_award_analytics(engine: RefCounted, run: Dictionary) -> void:
-	var first: Dictionary = engine.move_to_room(run, Vector2i(1, -1))
-	var cleared: Dictionary = engine.skip_reward_for_heal(engine.finish_combat(first, _won_battle(first["combat_state"])))
-	var event: Dictionary = engine.move_to_room(cleared, Vector2i(2, -2))
-	var resolved: Dictionary = Events.continue_event(Events.choose_event(event, Events.first_available_choice_id(event), engine))
-	var guardian: Dictionary = engine.move_to_room(resolved, Vector2i(0, 2))
+	# Seed 90211 reaches the first Umbra Gallows Roc via two clear fights on revision 8.
+	var approach: Dictionary = run
+	for coord: Vector2i in LANTERN_APPROACH:
+		var entered: Dictionary = engine.move_to_room(approach, coord)
+		var in_combat: bool = entered["current_room"] == coord and entered["mode"] == "combat"
+		_expect(in_combat, "Lantern approach enters combat at %s" % [coord])
+		if not in_combat: return
+		approach = engine.skip_reward_for_heal(engine.finish_combat(entered, _won_battle(entered["combat_state"])))
+	var guardian: Dictionary = engine.move_to_room(approach, LANTERN_GUARDIAN)
+	var in_guardian: bool = guardian["current_room"] == LANTERN_GUARDIAN and guardian["mode"] == "combat"
+	_expect(in_guardian, "Lantern route enters the Guardian combat")
+	if not in_guardian: return
 	var battle: Dictionary = _won_battle(guardian["combat_state"])
 	var victory: Dictionary = engine.finish_combat(guardian, battle)
 	var lantern: String = Data.UMBRA_REWARD_EQUIPMENT_ID

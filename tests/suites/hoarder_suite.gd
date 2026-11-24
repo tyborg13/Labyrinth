@@ -13,6 +13,7 @@ const Library = preload("res://scripts/special_encounter_library.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const Run = preload("res://scripts/run_engine.gd")
 const Store = preload("res://scripts/progression_store.gd")
+const Events = preload("res://scripts/event_rules.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Analytics = preload("res://scripts/analytics_store.gd")
 const DeathBursts = preload("res://scripts/enemy_mechanics/death_burst.gd")
@@ -35,6 +36,12 @@ const EXPECTED_EMBLEM: String = "res://assets/art/icons/map/ember_hoarder.png"
 const EXPECTED_REWARD_LINE: String = "The Hoarder's hoard: +%d Embers"
 const SPECIAL_EMBER_MULTIPLIER: float = 1.5
 const ALLOWED_HOARDER_ACTIONS: Array = ["kindle", "move_away"]
+const NATURAL_ENTRY_SEED: int = 2
+const NATURAL_ENTRY_APPROACH: Array = [
+	Vector2i(1, -1), Vector2i(0, 1), Vector2i(2, -2),
+	Vector2i(1, 2), Vector2i(-2, 2), Vector2i(-2, 0),
+]
+const NATURAL_ENTRY_HOARDER := Vector2i(3, -2)
 
 static func run(expect: Callable) -> void:
 	_data(expect)
@@ -536,35 +543,43 @@ static func _fixture(expect: Callable) -> void:
 static func _natural_entry(expect: Callable) -> void:
 	var engine := Run.new()
 	var combat := Combat.new()
-	var run: Dictionary = {}
-	var selected: Dictionary = {}
-	for seed: int in range(1, 30):
-		run = engine.create_new_run(seed, Store.default_data())
-		for room: Dictionary in run["rooms"].values():
-			if room.get("special_type", "") != "ember_hoarder": continue
-			for parent: Dictionary in run["rooms"].values():
-				for link: Dictionary in parent["connections"]:
-					if link["coord"] == room["coord"]:
-						selected = room
-						run["current_room"] = parent["coord"]
-						parent["cleared"] = true
-						break
-				if not selected.is_empty(): break
-			if not selected.is_empty(): break
-		if not selected.is_empty(): break
-	expect.call(not selected.is_empty(), "Enabled Hoarder appears on a production map")
-	if selected.is_empty(): return
-	run["mode"] = "room"
-	run = engine.move_to_pre_battle(run, selected["coord"])
+	var run: Dictionary = engine.create_new_run(NATURAL_ENTRY_SEED, Store.default_data())
+	var has_hoarder: bool = Rules.is_room(engine.room_metadata(run, NATURAL_ENTRY_HOARDER))
+	expect.call(has_hoarder, "Enabled Hoarder appears on a production map")
+	if not has_hoarder: return
+	# Walk from the threshold so the map reveals the Hoarder through normal travel.
+	for coord: Vector2i in NATURAL_ENTRY_APPROACH:
+		run = _complete_approach_room(engine, engine.move_to_pre_battle(run, coord))
+		var reached: bool = run["current_room"] == coord and run["mode"] == "room"
+		expect.call(reached, "Natural Hoarder approach clears %s" % [coord])
+		if not reached: return
+	run = engine.move_to_pre_battle(run, NATURAL_ENTRY_HOARDER)
 	expect.call(run["mode"] == "pre_battle", "Natural Hoarder uses normal pre-battle entry")
 	var prepared: Dictionary = engine.prepare_pre_battle_combat(run)
 	expect.call(engine.prepared_pre_battle_matches_input(prepared, run), "Natural Hoarder prepared layout matches input")
 	run = engine.begin_pre_battle_combat(run, prepared)
-	expect.call(Rules.at_large(run["combat_state"]), "Natural Hoarder combat starts at large")
-	var caught: Dictionary = combat._damage_enemy(run["combat_state"], hoarder_index(run["combat_state"]), 999, true, true, false, false)
+	var battle: Dictionary = run["combat_state"]
+	var at_large: bool = Rules.at_large(battle)
+	expect.call(at_large, "Natural Hoarder combat starts at large")
+	if not at_large: return
+	var caught: Dictionary = combat._damage_enemy(battle, hoarder_index(battle), 999, true, true, false, false)
 	var result: Dictionary = engine.finish_combat(run, caught)
 	expect.call(result["pending_reward"]["cards"].size() == 4 and result["pending_reward"].has("special_bonus_line"), "Natural Hoarder catch meets its special goal")
 	print("Hoarder production entry: map node, pre-battle, combat and catch reward")
+
+static func _complete_approach_room(engine: Run, run: Dictionary) -> Dictionary:
+	if run["mode"] == "pre_battle":
+		run = engine.begin_pre_battle_combat(run)
+	if run["mode"] == "combat":
+		var battle: Dictionary = run["combat_state"].duplicate(true)
+		for enemy: Dictionary in battle["enemies"]: enemy["hp"] = 0
+		run = engine.finish_combat(run, battle)
+	match run["mode"]:
+		"reward": return engine.skip_reward_for_heal(run)
+		"treasure": return engine.claim_relic(run, run["pending_relics"][0])
+		"campfire": return engine.leave_campfire(run)
+		"event": return Events.continue_event(Events.choose_event(run, Events.first_available_choice_id(run), engine))
+	return run
 
 # ---------------------------------------------------------------- native probe (headless preconditions)
 

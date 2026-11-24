@@ -1,0 +1,20 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 14,
+  "required_images": [
+    {"pattern": "hover_grave_mortar.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_grave_mortar.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_molten_reach.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_molten_reach.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_volt_surge.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_volt_surge.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_arc_flash.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_arc_flash.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_stone_ward.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_stone_ward.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_gale_ward.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_gale_ward.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_hoarfrost_ward.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_hoarfrost_ward.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]}
+  ]
+}

@@ -1030,6 +1030,7 @@
       {
         "id": "faultline",
         "name": "Faultline",
+        "known_summary": "Each Worldspine: Burst 8, then Ranged 4 · Range 4",
         "time": 6,
         "weight": 1,
         "actions": [
@@ -1085,6 +1086,7 @@
       {
         "id": "kindle_ground",
         "name": "Meteorfall",
+        "known_summary": "Cinder Marks 7: Ranged 4 · Fire, then Ranged 4 · Range 4",
         "time": 5,
         "weight": 3,
         "actions": [
@@ -1128,6 +1130,7 @@
       {
         "id": "crownfire",
         "name": "Crownfire",
+        "known_summary": "Each Cinder Mark: Burst 8, then Move 2 · Melee 6",
         "time": 5,
         "weight": 0,
         "actions": [
@@ -1151,6 +1154,7 @@
       {
         "id": "cinder_maw",
         "name": "Cinder Maw",
+        "known_summary": "Move 2 · Melee 8, then Cinder Marks 7: Ranged 3 · Fire",
         "time": 5,
         "weight": 4,
         "actions": [
@@ -1234,6 +1238,7 @@
       {
         "id": "razor_dive",
         "name": "Razor Dive",
+        "known_summary": "Move 3 · Melee 7 · Hits each Marked tile.",
         "time": 5,
         "weight": 1,
         "actions": [
@@ -1257,6 +1262,7 @@
       {
         "id": "hollow_gale",
         "name": "Hollow Gale",
+        "known_summary": "Melee 6 · Range 2 · Push 1 · @pattern(ring_1:2)",
         "time": 6,
         "weight": 1,
         "actions": [
@@ -1278,6 +1284,7 @@
       {
         "id": "eye_of_storm",
         "name": "Eye of the Storm",
+        "known_summary": "Retreat 3 · Melee 8 · Range 5 · @pattern(ring_2:5), then Melee 4",
         "time": 6,
         "weight": 1,
         "actions": [
@@ -1377,6 +1384,7 @@
       {
         "id": "shatterstorm",
         "name": "Shatterstorm",
+        "known_summary": "Move 1 · Melee 7 · @pattern(ring_1:1) · Range 1, +1 per Crystal Mantle · removes all Crystal Mantle",
         "time": 6,
         "weight": 1,
         "actions": [
@@ -1490,6 +1498,7 @@
       {
         "id": "night_coil",
         "name": "Night Coil",
+        "known_summary": "Ranged 6 · Range 3 · Pull 1 · Area · puts out the nearest brazier",
         "time": 6,
         "weight": 1,
         "actions": [
@@ -1513,6 +1522,7 @@
       {
         "id": "last_eclipse",
         "name": "Last Eclipse",
+        "known_summary": "Marked: Ranged 8 · Eclipse 2, then Summon Veilbound Acolyte",
         "time": 6,
         "weight": 1,
         "actions": [
@@ -1602,6 +1612,7 @@
       {
         "id": "skybreak",
         "name": "Skybreak",
+        "known_summary": "Lightning Strikes 9: Ranged 5 · Electrified",
         "time": 6,
         "weight": 1,
         "actions": [

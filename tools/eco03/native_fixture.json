@@ -1,0 +1,26 @@
+{
+  "seed": 9,
+  "held_embers": 53,
+  "stock": [
+    "storm_beacon",
+    "frostbolt",
+    "searing_light",
+    "stormglass_orb",
+    "war_maul",
+    "monks_wraps",
+    "crimson_draught",
+    "smoke_bomb",
+    "pitch_firebomb"
+  ],
+  "rolled_stock": [
+    "storm_beacon",
+    "petrify",
+    "searing_light",
+    "stormglass_orb",
+    "war_maul",
+    "monks_wraps",
+    "crimson_draught",
+    "smoke_bomb",
+    "pitch_firebomb"
+  ]
+}

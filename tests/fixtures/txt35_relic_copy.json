@@ -1,0 +1,3 @@
+{
+  "crowncoal_heart": "Once per turn, when your single-target attack hits an enemy on a tile without @term(surface_fire), @term(surface_ice) or @term(surface_electrified), place @kw(surface_fire) on that tile. Once per turn, when your @kw(burst) destroys 2 or more @term(surface_fire) tiles, gain 6 @term(stoneskin)."
+}

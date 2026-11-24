@@ -1,0 +1,14 @@
+{
+  "min_images": 8,
+  "expected_sizes": ["1920x1080", "640x640"],
+  "required_images": [
+    {"pattern": "01_burrowed_peak.png", "width": 640, "height": 640},
+    {"pattern": "02_burrowed_trough.png", "width": 640, "height": 640},
+    {"pattern": "03_burrow_last.png", "width": 640, "height": 640},
+    {"pattern": "04_after_burrow.png", "width": 640, "height": 640},
+    {"pattern": "05_erupt_start.png", "width": 640, "height": 640},
+    {"pattern": "06_erupt_contact.png", "width": 640, "height": 640},
+    {"pattern": "07_erupt_contact_plus_233ms.png", "width": 640, "height": 640},
+    {"pattern": "08_burrowed_full.png", "width": 1920, "height": 1080}
+  ]
+}

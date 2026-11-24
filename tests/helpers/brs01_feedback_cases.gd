@@ -34,7 +34,7 @@ static func _rows_and_roster(check: Callable) -> void:
 	var burst: Dictionary = definition["intents"][1]
 	var charge_token: Dictionary = Capacitor.rows(charge)[0][0]
 	var burst_token: Dictionary = Capacitor.rows(burst)[0][0]
-	check.call(charge_token["icon"] == "charge" and charge_token["value"] == "Charge +1" and charge_token["tooltip"] == "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.", "Exact director Charge row and tooltip")
+	check.call(charge_token["icon"] == "charge" and charge_token["value"] == "Charge +1" and charge_token["tooltip"] == "At 3 Charge, this enemy's next attack is Arc Lash.", "Exact director Charge row and tooltip")
 	check.call(burst_token["icon"] == "chain" and burst_token["value"] == "Arc 6, Range 4, 3 extra hits" and burst_token["tooltip"] == "This enemy hits the nearest target within 4 tiles for 6 damage, then hits up to 3 more, each adjacent to the prior target and taking 1 less damage.", "Exact director Arc Lash row and tooltip")
 	var altered: Dictionary = burst.duplicate(true)
 	altered["actions"][0].merge({"damage": 9, "first_range": 7, "jumps": 2, "falloff": 4}, true)

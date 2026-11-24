@@ -2,6 +2,7 @@ extends SceneTree
 
 # Checkpoints use the live engine, including its additive presentation state.
 const HeirloomFixture = preload("res://tests/helpers/heirloom_fixture.gd")
+const OpeningBoonFixture = preload("res://tests/helpers/opening_boon_fixture.gd")
 const Persistence = preload("res://scripts/run_persistence.gd")
 const TerminalCrash = preload("res://tests/helpers/terminal_crash_fixture.gd")
 const CombatEngine = preload("res://scripts/hero_facing_combat.gd")
@@ -964,7 +965,7 @@ func _commit_test_defeat(host: TerminalCrash.Host, state: Dictionary) -> void:
 	host._analytics_log_combat_transition(state, "enemy_round", combat)
 
 func _test_live_defeat_with_blocked_checkpoint(base_run: Dictionary) -> void:
-	var profile := ProgressionStore.default_data()
+	var profile := OpeningBoonFixture.unlocked_profile()
 	var state := HeirloomFixture.equip(_run_engine.set_held_embers(base_run, TerminalCrash.HELD))
 	state["heirloom_end"] = {"done": false}
 	const RUN_ID := "run_fixture_blocked_defeat"
@@ -989,7 +990,7 @@ func _test_live_defeat_with_blocked_checkpoint(base_run: Dictionary) -> void:
 func _test_confirmed_heirloom_departure(base_run: Dictionary) -> void:
 	const Rules = preload("res://scripts/opening_boon_rules.gd")
 	const RUN_ID := "run_fixture_confirmed_heirloom"
-	var profile := ProgressionStore.default_data()
+	var profile := OpeningBoonFixture.unlocked_profile()
 	for blocked_on_departure: bool in [false, true]:
 		_assert(ProgressionStore.save_data(profile), "2 — reset the heirloom profile")
 		var terminal := HeirloomFixture.equip(_terminal_run_state(base_run, "defeat", TerminalCrash.HELD))
@@ -1049,7 +1050,7 @@ func _test_completion_ids_survive_revision_reconciliation(base_run: Dictionary) 
 func _test_failed_terminal_profile_then_departure() -> void:
 	await process_frame
 	for ending: String in ["dragon", "abandon"]:
-		var profile := ProgressionStore.default_data()
+		var profile := OpeningBoonFixture.unlocked_profile() if ending == "dragon" else ProgressionStore.default_data()
 		var active := _run_engine.create_new_run(TRAVEL_SOURCE_SEED, profile)
 		if ending == "dragon":
 			active = _run_engine.create_debug_boss_run(profile)

@@ -12,15 +12,23 @@ const Base = preload("res://tests/suites/board_surface_suite.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const Dialogue = preload("res://scripts/dialogue_engine.gd")
 const Analytics = preload("res://scripts/analytics_store.gd")
+const Boons = preload("res://scripts/opening_boon_rules.gd")
+const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const LOCKED_FINAL_SEED: int = 969501
+const UNLOCKED_FINAL_SEED: int = 979601
 var failed: int = 0
 
 func _initialize() -> void:
 	Store.set_storage_path("user://dragon_rewards_profile.json")
 	Store.set_run_storage_path("user://dragon_rewards_run.save")
+	call_deferred("_run")
+
+func _run() -> void:
 	_test_milestones()
 	_test_claim_outbox()
 	_test_final_fight_closes_from_reward_checkpoint()
-	_test_claim_with_pending_heirloom()
+	await _test_claim_heirloom_ending(false)
+	await _test_claim_heirloom_ending(true)
 	_test_wallet_recovery()
 	_test_wallet_event_context()
 	_test_gift_write_failure()
@@ -71,10 +79,10 @@ func _test_milestones() -> void:
 		for relic: String in engine._generate_relic_choices(offer_state, Vector2i(x, 1)):
 			expect(str(Data.relic_def(relic).get("exclusive_boss", "")).is_empty(), "Dragon trophies do not enter random relic offers")
 
-func _claim_fixture(id: String, seed: int) -> Dictionary:
+func _claim_fixture(id: String, seed: int, profile: Dictionary = {}) -> Dictionary:
 	var engine := Run.new()
 	var options := {"dragon_id":id, "dragon_depth":24 if id == "noctyrax" else 4, "dragon_case":"reward", "seed":seed}
-	var source := engine.create_new_run(Factory.seed_for_options(options), Store.default_data())
+	var source := engine.create_new_run(Factory.seed_for_options(options), Store.default_data() if profile.is_empty() else profile)
 	source["analytics"] = {"run_id":"dragon_claim_%d" % seed, "combat_counter":1}
 	var state: Dictionary = Factory.build(engine, Combat.new(), source, options)
 	# Receipt recovery owns a completed terminal choice; heirloom recovery has
@@ -433,16 +441,39 @@ func _pending_claim_count(profile: Dictionary, key: String) -> int:
 		if str(entry.get("idempotency_key", "")) == key and str(entry.get("event_type", "")) == "reward_claimed": count += 1
 	return count
 
-func _test_claim_with_pending_heirloom() -> void:
-	var state: Dictionary = _claim_fixture("noctyrax", 969501)
-	state["heirloom_end"] = {"done": false}
+func _test_claim_heirloom_ending(unlocked: bool) -> void:
+	var profile: Dictionary = Tutorial.complete_tutorial(Store.default_data())
+	profile = Store.add_moltshard_for_award(profile, "dragon_rewards_prior_award")
+	if unlocked: profile = Store.mark_emaciated_awakening_seen(profile)
+	profile = Store.prepare_for_new_run(profile)
+	var state: Dictionary = _claim_fixture("noctyrax", UNLOCKED_FINAL_SEED if unlocked else LOCKED_FINAL_SEED, profile)
+	state[Boons.HEIRLOOM_END_KEY] = {"done": false}
+	state["pending_reward"]["intro_pending"] = false
 	var key: String = "reward_claimed|%s" % state["pending_reward"]["milestone_id"]
 	var held: int = Run.new().held_embers(state)
-	expect(Store.save_data(Store.set_embers(state["progression"], 0)) and Store.save_run_state(state), "Pending heirloom fixture saves its original reward")
-	var host: RunScene = _claim_host(state)
-	expect(bool(host.call("_commit_dragon_reward_continue")), "Final Continue commits before the pending heirloom choice")
-	expect(Store.has_saved_run() and Store.load_saved_run().get("mode") == "victory", "Pending heirloom keeps the terminal continuation resumable")
-	expect(_claim_count(key) == 1 and int(Store.load_data()["embers"]) == held, "Pending heirloom retains exactly one claim and the settled bank")
-	expect(not bool(host.call("_commit_dragon_reward_continue")) and _claim_count(key) == 1, "Repeated Continue during heirloom selection cannot duplicate a reward")
-	host.free()
+	expect(Store.save_data(Store.set_embers(state["progression"], 0)) and Store.save_run_state(state), "Save the final dragon reward before Continue")
+	root.set_meta("labyrinth_resume_saved_run", true)
+	var host: RunScene = load("res://scenes/run_scene.tscn").instantiate()
+	root.add_child(host)
+	await process_frame
+	expect(not Boons.heirloom_pieces(host.get("_run_state")).is_empty(), "Both dragon endings have eligible equipped gear")
+	expect(bool(host.call("_commit_dragon_reward_continue")) and host.get("_run_state").get("mode") == "victory", "Final Continue commits the victory")
+	host.call("_refresh_ui")
+	await process_frame
+	var ending_profile: Dictionary = Store.load_data()
+	var recap: bool = host.get("_run_end_recap").is_visible_in_tree()
+	var prompt: bool = host.get("_opening_boon_flow").active()
+	var resumable: bool = Store.read_resumable_checkpoint().get("summary", {}).get("mode") == "victory"
+	expect(Store.emaciated_services_unlocked(ending_profile) == unlocked, "Final Continue preserves the recorded services flag")
+	if unlocked:
+		expect(prompt and not recap and host.get("_dialogue_script").get("id") == "opening_boon_heirloom_prompt", "Unlocked dragon victory presents the heirloom prompt before its recap")
+		expect(resumable and Boons.heirloom_prompt_pending(Store.load_saved_run()), "Unlocked heirloom prompt keeps the terminal continuation resumable")
+	else:
+		expect(recap and not prompt and not host.get("_dialogue_active"), "Locked dragon victory goes straight to recap without an heirloom prompt")
+		expect(not resumable and not Store.has_saved_run(), "Locked dragon victory leaves no resumable heirloom prompt")
+	expect(_claim_count(key) == 1 and int(ending_profile["embers"]) == held, "Dragon victory retains exactly one claim and the settled bank")
+	expect(not bool(host.call("_commit_dragon_reward_continue")) and _claim_count(key) == 1, "Repeated Continue cannot duplicate a dragon reward")
+	print("DRAGON HEIRLOOM ENDING: services_unlocked=%s recap=%s prompt=%s resumable=%s" % [Store.emaciated_services_unlocked(ending_profile), recap, prompt, resumable])
+	host.queue_free()
+	await process_frame
 	Store.clear_saved_run()

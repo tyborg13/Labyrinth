@@ -97,7 +97,7 @@ static func _choir(engine: RefCounted, fixture: RefCounted, expect: Callable) ->
 	var intent: Dictionary = Data.enemy_def("storm_cantor")["intents"][0].duplicate(true)
 	intent["actions"].pop_front()
 	var icons = preload("res://scripts/action_icon_library.gd")
-	expect.call(icons.plain_text_for_rows([icons.tokens_for_guardian_rule(intent["actions"][0])]).contains("%d linked tiles" % int(intent["actions"][0]["guardian_count"])),"Choir badge text reads the authored linked-tile count")
+	expect.call(icons.plain_text_for_rows([icons.tokens_for_guardian_rule(intent["actions"][0])]).contains("Up to %d tiles" % int(intent["actions"][0]["guardian_count"])),"Choir badge text reads the authored tile count")
 	state["enemies"][0]["intent"]=preload("res://scripts/guardian_combat_rules.gd").commit(engine,state,0,intent)
 	var shown: Array = engine.enemy_intent_plan(state,0)["projected_attack"]
 	expect.call(shown.size()==int(intent["actions"][0]["guardian_count"]),"Lay the Choir forecasts its authored charged-tile count on open ground")

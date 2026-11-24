@@ -44,7 +44,7 @@
   "ghost_stride": {
     "name": "Ghost Stride",
     "icon": "skill_ghost_stride",
-    "description": "Once per combat, activate to turn your next movement into @icon(blink) 2.",
+    "description": "Once per combat, activate to turn your next free Movement into @icon(blink) 2.",
     "branch": "traverse",
     "tier": "root",
     "position": [

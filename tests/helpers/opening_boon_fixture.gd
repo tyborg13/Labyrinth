@@ -10,9 +10,13 @@ const ALL_PREVIEWS_SEED: int = 5
 const BLOOD_PRICE_SEED: int = 1
 const RULE_FIXTURE_SECTION_MAPS: bool = false
 
-static func profile(with_heirloom: bool = false) -> Dictionary:
+static func unlocked_profile() -> Dictionary:
 	var result: Dictionary = Tutorial.complete_tutorial(Store.default_data())
 	result[Store.EMACIATED_AWAKENING_SEEN_KEY] = true
+	return result
+
+static func profile(with_heirloom: bool = false) -> Dictionary:
+	var result: Dictionary = unlocked_profile()
 	result["run_counter"] = 2
 	return Store.leave_heirloom(result, PROOF_HEIRLOOM) if with_heirloom else result
 

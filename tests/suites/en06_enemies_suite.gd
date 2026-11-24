@@ -131,7 +131,7 @@ static func _charge_and_grounded(expect: Callable) -> void:
 	var turn_result: Dictionary = engine.resolve_enemy_turn_with_steps(value, 0)
 	expect.call(turn_result["state"]["enemies"][0]["charge"] == 0 and turn_result["state"]["enemies"][0]["intent"]["id"] == "charge", "Discharge resets Charge and selects Charge afterward")
 	var badge: Dictionary = CapacitorView.badges(value["enemies"][0])[0]
-	expect.call(badge["icon"] == "charge" and badge["tooltip"] == "Charge\nAt 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.\n3/3", "Charge status shares the intent icon and exact tooltip")
+	expect.call(badge["icon"] == "charge" and badge["tooltip"] == "Charge\nAt 3 Charge, this enemy's next attack is Arc Lash.", "Charge status shares the intent icon and exact tooltip")
 	var frozen: Dictionary = value.duplicate(true)
 	frozen["enemies"][0]["freeze"] = 1
 	expect.call(engine.resolve_enemy_turn_with_steps(frozen, 0)["state"]["enemies"][0]["charge"] == 3, "A legacy skipped activation preserves Charge")
@@ -267,7 +267,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	Profile.mark("capacitor_hover")
 	for frame: int in range(LIVE_SETTLE_FRAMES): await tree.process_frame
 	expect.call(scene.board_view._damage_preview_map().get("enemy_2", {}).get("hp", -1) == int(value["enemies"][1]["hp"]) - 6, "Live RunScene shows capacitor friendly-fire HP preview")
-	expect.call(scene.board_view._unit_status_badges(value["enemies"][0])[0]["tooltip"] == "Charge\nAt 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.\n3/3", "Live board exposes exact Charge badge tooltip")
+	expect.call(scene.board_view._unit_status_badges(value["enemies"][0])[0]["tooltip"] == "Charge\nAt 3 Charge, this enemy's next attack is Arc Lash.", "Live board exposes exact Charge badge tooltip")
 	var animated: Dictionary
 	value = capacitor()
 	Fixtures.install(scene, value)

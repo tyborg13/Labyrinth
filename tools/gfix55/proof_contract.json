@@ -1,0 +1,9 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*board.png",
+      "regions": [{"rect": [420, 120, 1080, 690], "min_luma_range": 20, "min_luma_stdev": 3}]
+    }
+  ]
+}

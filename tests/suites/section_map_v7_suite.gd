@@ -39,7 +39,7 @@ static func run(expect: Callable) -> void:
 static func test_new_runs_use_revision_7(expect: Callable) -> void:
 	var state: Dictionary = {"seed": 83, "current_room": Vector2i.ZERO, "mode": "room"}
 	Graph.initialize(state)
-	expect.call(int(state["section_map_layout_revision"]) == 7, "New runs use layout revision 7")
+	expect.call(int(state["section_map_layout_revision"]) == 8, "New runs use layout revision 8")
 	for index: int in range(6):
 		var info: Dictionary = Graph.section(state, index)
 		expect.call(int(info["lane_count"]) == Graph.V7_LANE_COUNT and bool(info.get("scroll", false)), "Revision 7 sections have seven lanes and scroll")

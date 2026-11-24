@@ -57,7 +57,7 @@
     "sentence": "On each Upheaval beat, after every second Craghide turn, each Marked tile becomes an Outcrop."
   },
   "last_lamplighter": {
-    "sentence": "On each Shadowstep beat, after your turn, each hidden Wick Shade Blinks 1 tile toward you."
+    "sentence": "On each Shadowstep beat, after your turn, each hidden Wick Shade Blinks 1 tile toward you if there is room."
   },
   "vyraketh": {
     "sentence": "On each Wildfire beat, when Vyraketh breathes, each Fire tile spreads to each adjacent tile.",

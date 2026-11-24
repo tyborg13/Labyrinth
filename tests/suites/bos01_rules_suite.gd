@@ -70,25 +70,26 @@ static func _gust(engine: RefCounted, expect: Callable) -> void:
 			for beat: int in range(PROOF_BEATS):
 				var announcement: Vector2i = Rules.forecast(engine, state)["direction"]
 				expect.call(announcement == expected and Gust.active(engine, state)["direction"] == expected, "BOS01 announced next direction matches held dial")
-				# Move after the announcement. A resolution-time aim would reverse it.
+				# Move after announcing the beat and carry the old heading into Continue.
 				if mode == "toward_source": state["player"]["pos"] = Vector2i(8, 8) if beat % 2 == 0 else Vector2i(2, 2)
+				var current: Vector2i = engine._cardinal_direction(Vector2i(state["enemies"][0]["pos"]) - Vector2i(state["player"]["pos"])) if mode == "toward_source" else announcement
 				if beat == PROOF_BEATS / 2:
 					var saved := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 					saved.store_var({"combat_state": state}); saved.close()
 					var continued: Dictionary = Store._load_run_dictionary(SAVE_PATH)["combat_state"]
 					preload("res://scripts/enemy_mechanics/wind.gd").lock_legacy_intents(engine, continued)
-					expect.call(continued["battlefield_rule"]["locked_direction"] == announcement, "BOS01 Continue preserves new Gust announcement: " + mode)
+					expect.call(continued["battlefield_rule"]["locked_direction"] == current, "BOS01 Continue prepares the correct Gust heading: " + mode)
 					state = continued
 					DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
 				var before: Dictionary = state.duplicate(true)
-				expect.call(Rules.forecast(engine, state)["direction"] == announcement, "BOS01 toward_source stays locked a beat ahead")
+				expect.call(Rules.forecast(engine, state)["direction"] == current and Gust.active(engine, state)["direction"] == current, "BOS01 forecast follows the current dial: " + mode)
 				state = compare(engine, state, expect)
 				if anchored:
 					expect.call(state["player"]["pos"] == before["player"]["pos"] and state["enemies"][0]["pos"] == before["enemies"][0]["pos"], "BOS01 Anchored hero and source hold")
 				else:
 					# The public direction is now captured before simulation. Check
 					# landings independently so a late re-aim cannot hide behind it.
-					expect.call(state["player"]["pos"] == before["player"]["pos"] + announcement, "BOS01 held announcement controls Gust landing: " + mode)
+					expect.call(state["player"]["pos"] == before["player"]["pos"] + current, "BOS01 current heading controls Gust landing: " + mode)
 				if mode == "turn_clockwise":
 					expected = CLOCKWISE[(beat + 1) % CLOCKWISE.size()]
 					expect.call(state["battlefield_rule"]["locked_direction"] == expected, "BOS01 clockwise quarter turn after every beat")
@@ -178,9 +179,8 @@ static func _half_health(engine: RefCounted, expect: Callable) -> void:
 	changed_direction["at_half_health"]["dials"] = {"direction": "toward_source"}
 	Rules.install(engine, redirected, changed_direction)
 	redirected = committed_damage(engine, redirected, 0, 25, false)
-	var held: Vector2i = redirected["battlefield_rule"]["locked_direction"]
 	redirected["player"]["pos"] = Vector2i(2, 2)
-	expect.call(Rules.forecast(engine, redirected)["direction"] == held, "BOS01 changed half-Health direction locks at the damage boundary")
+	expect.call(Rules.forecast(engine, redirected)["direction"] == Vector2i.RIGHT, "BOS01 half-Health switch to toward_source tracks the hero after damage")
 	var odd: Dictionary = Base.battle(engine)
 	odd["enemies"][0]["max_hp"] = 51
 	Rules.install(engine, odd, switch_instance())

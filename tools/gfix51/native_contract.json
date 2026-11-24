@@ -1,0 +1,18 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "wheel_end_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [496, 736, 208, 44], "min_luma_range": 12, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "drag_end_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [496, 736, 208, 44], "min_luma_range": 12, "min_luma_stdev": 2}]
+    }
+  ]
+}

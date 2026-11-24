@@ -1,0 +1,18 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 12,
+  "required_images": [
+    {"pattern": "hover_flame_jet.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_flame_jet.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_hurricane_palm.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_hurricane_palm.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_cinderline_tempo.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_cinderline_tempo.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_thunderclap.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_thunderclap.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_kestrel_dive.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_kestrel_dive.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_stonefist.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_stonefist.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]}
+  ]
+}

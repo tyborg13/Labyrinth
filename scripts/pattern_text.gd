@@ -95,8 +95,7 @@ static func texture(token: RegExMatch, row_height: float) -> Texture2D:
 
 static func texture_for_offsets(pattern: Array, origin: String, row_height: float) -> Texture2D:
 	if pattern.is_empty(): return null
-	# Use the exact card-face drawing code. A transparent update-once viewport
-	# lets text layout treat the card's CanvasItem as an inline image.
+	# Use the same AoE painter and dimensions as the diagram controls.
 	var include_origin: bool = not origin.is_empty()
 	var scale_factor: float = _scale(pattern, origin, row_height)
 	var dimensions := Vector2i(View.measured_size(pattern, include_origin, scale_factor).ceil())
@@ -107,17 +106,31 @@ static func texture_for_offsets(pattern: Array, origin: String, row_height: floa
 		placeholder.size = dimensions
 		_textures[key] = placeholder
 		return placeholder
+	# RichTextLabel can lay out the image immediately. Publish the rendered
+	# pixels to that same texture only after the offscreen canvas has drawn.
+	var image := ImageTexture.create_from_image(Image.create_empty(dimensions.x, dimensions.y, false, Image.FORMAT_RGBA8))
+	_textures[key] = image
+	_render_texture.call_deferred(image, pattern, origin, scale_factor, dimensions)
+	return image
+
+static func _render_texture(image: ImageTexture, pattern: Array, origin: String, scale_factor: float, dimensions: Vector2i) -> void:
+	var tree := Engine.get_main_loop() as SceneTree
 	var viewport := SubViewport.new()
 	viewport.size = dimensions
 	viewport.transparent_bg = true
 	viewport.disable_3d = true
-	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	var view := View.new()
-	view.setup(pattern, include_origin, "", scale_factor, origin == "hero")
+	view.setup(pattern, not origin.is_empty(), "", scale_factor, origin == "hero")
 	view.size = dimensions
 	viewport.add_child(view)
-	var tree := Engine.get_main_loop() as SceneTree
-	tree.root.add_child.call_deferred(viewport)
-	var image: Texture2D = viewport.get_texture()
-	_textures[key] = image
-	return image
+	tree.root.add_child(viewport)
+	# Arm the one-shot after the diagram's draw commands have entered the canvas.
+	await view.draw
+	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	await RenderingServer.frame_post_draw
+	var pixels: Image = viewport.get_texture().get_image()
+	if pixels != null and not pixels.is_empty():
+		pixels.convert(Image.FORMAT_RGBA8)
+		image.update(pixels)
+	viewport.queue_free()

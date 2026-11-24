@@ -407,6 +407,9 @@ static func _cards(state: Dictionary, effect: Dictionary, rng: RandomNumberGener
 	var type: String = str(effect["type"])
 	var count: int = 1 if type == "card" else int(effect["count"])
 	var element: String = _resolved_element(state, str(effect.get("element", "any")))
+	var skill_state: Variant = state.get("skill_state")
+	var deferred_card: String = str(skill_state.get("pending_card", "")) if type == "card_choice" and skill_state is Dictionary else ""
+	var deferred_in_pool: bool = false
 	var pool_by_rarity: Dictionary = {}
 	if type == "card":
 		for index: int in range(GameData.CARD_RARITY_TIERS.find(str(effect["rarity"])), -1, -1):
@@ -420,6 +423,9 @@ static func _cards(state: Dictionary, effect: Dictionary, rng: RandomNumberGener
 		for rarity: String in GameData.CARD_RARITY_TIERS:
 			if type == "card_choice" and GameData.CARD_RARITY_TIERS.find(rarity) < GameData.CARD_RARITY_TIERS.find(str(effect.get("min_rarity", "common"))): continue
 			var pool: Array[String] = _magic_pool(element, rarity)
+			if pool.has(deferred_card):
+				pool.erase(deferred_card)
+				deferred_in_pool = true
 			if not pool.is_empty(): pool_by_rarity[rarity] = pool
 	while choices.size() < count and not pool_by_rarity.is_empty():
 		var rarities: Array = pool_by_rarity.keys()
@@ -434,6 +440,10 @@ static func _cards(state: Dictionary, effect: Dictionary, rng: RandomNumberGener
 		choices.append(pool[index])
 		pool.remove_at(index)
 		if pool.is_empty(): pool_by_rarity.erase(rarity)
+	# Preview and Continue insert the saved card into a full roll. If the pool
+	# runs out first, the saved card fills the slot its exclusion left vacant.
+	if deferred_in_pool and choices.size() < count:
+		choices.append(deferred_card)
 	return choices
 
 static func _weighted_index(rng: RandomNumberGenerator, weights: Array) -> int:

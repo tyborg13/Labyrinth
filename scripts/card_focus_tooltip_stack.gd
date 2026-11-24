@@ -116,11 +116,16 @@ func show_relic(owner: Control, relic: Dictionary) -> void:
 		var entry: Dictionary = Glossary.lookup(id)
 		var icon: String = str(entry.get("icon", id))
 		var title: String = ActionIcons.label(id)
-		entries.append({
+		var amount: Variant = Glossary.amount_in_text(id, description)
+		var definition: Dictionary = {
 			"icon": icon, "title": title,
-			"description": Glossary.definition(id, title, Glossary.amount_in_text(id, description)), "semantic_key": id,
+			"description": Glossary.definition(id, title, amount), "semantic_key": id,
 			"texture": AssetLoader.load_texture(icon) if icon.begins_with("res://") else ActionIcons.icon_texture(icon),
-		})
+		}
+		if id == "burst":
+			# The diagram table matches the authored X template, before amount filling.
+			definition["display_description"] = Glossary.fill_amount(InlineIconText.Patterns.display_rules(Glossary.definition(id, title)), amount)
+		entries.append(definition)
 	show_for(owner, entries, true)
 
 func hide_for(owner: Control) -> void:
@@ -201,7 +206,8 @@ static func make_entry_panel(entry: Dictionary, body_lines: PackedStringArray, r
 	if icon_texture == null:
 		return UiTooltipPanel.make_lines(title, body_lines)
 	var source: Dictionary = {} if relic_layout else ({"kind": "hero_card"} if card_id.is_empty() else {"kind": "hero_card", "id": card_id})
-	return UiTooltipPanel.make_icon_lines(icon_texture, title, body_lines, str(entry.get("glossary_key", "")), source)
+	var plain_body: String = str(entry["description"]) if relic_layout and entry.get("semantic_key") == "burst" else ""
+	return UiTooltipPanel.make_icon_lines(icon_texture, title, body_lines, str(entry.get("glossary_key", "")), source, plain_body)
 
 static func _apply_definition_bbcode(panel: PanelContainer, description: String, has_icon: bool) -> void:
 	# Reuse the shared panel's body slot and typography; plain definitions and

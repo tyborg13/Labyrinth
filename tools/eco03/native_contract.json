@@ -1,0 +1,11 @@
+{
+  "min_images": 1,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*/section_1_scavenger.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

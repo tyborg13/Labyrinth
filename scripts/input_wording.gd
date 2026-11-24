@@ -93,7 +93,7 @@ static func bind_dialogue(label: Label) -> void:
 
 static func grimoire_body(entry: Dictionary, controller: bool) -> String:
 	var paragraphs: Array[String]
-	for paragraph_var: Variant in entry.get("body", []):
+	for paragraph_var: Variant in entry.get("lore", entry.get("body", [])):
 		var paragraph: String = str(paragraph_var).strip_edges()
 		if paragraph.is_empty(): continue
 		for sentence: String in GRIMOIRE_KEY_SENTENCES:

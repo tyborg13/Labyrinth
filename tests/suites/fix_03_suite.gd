@@ -16,7 +16,7 @@ const TEST_DAMAGE: int = 2
 const LATER_CYCLE: int = 2
 const EXPECTED_TOKEN_CASES: int = 10
 const TOKEN_CAPTIONS: Dictionary = {
-	"burrow": "Burrow", "erupt": "Erupt %d · Push %d · Rubble · Expose %d", "kindle": "Burst +2",
+	"burrow": "Burrow", "erupt": "Erupt %d · Push %d · Rubble · Self: · Expose %d", "kindle": "Burst +2",
 	"gain_charge": "Charge +1", "chain_discharge": "Arc 4, Range 4, 3 extra hits"
 }
 
@@ -129,7 +129,7 @@ static func _test_tokens(expect: Callable) -> bool:
 				if entry["icon"] == "erupt":
 					expect.call(Icons.token_tooltip(token) == txt13["erupt_tooltip"], entry["name"] + " keeps the release Erupt tooltip")
 				if entry["name"] == "intent_gain_charge":
-					expect.call(Icons.token_tooltip(token) == "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.", "Charge uses its exact numeric rules")
+					expect.call(Icons.token_tooltip(token) == "At 3 Charge, this enemy's next attack is Arc Lash.", "Charge uses its exact numeric rules")
 				if entry["name"] == "intent_chain_discharge":
 					expect.call(Icons.token_tooltip(token) == "This enemy hits the nearest target within 4 tiles for 4 damage, then hits up to 3 more, each adjacent to the prior target and taking 1 less damage.", "Arc Lash uses every action-data number")
 			if entry["name"] == "lightning_strikes":

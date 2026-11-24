@@ -231,12 +231,12 @@ func _test_conditional_echo(engine: CombatEngine) -> void:
 	Surface.remove(state, remote, "fire", "test")
 	_paint(state, [remote], "rubble")
 	after = _play(engine, state, "dust_devil", [target])
-	_expect(_hp(after, 1) == HP - 2 and after["illusions"][0]["hp"] == 2, "Mirror Triptych echoes half damage when both Rubble sources are present")
+	_expect(_hp(after, 1) == HP - 4 and after["illusions"][0]["hp"] == 2, "Mirror Triptych echoes half damage when both Rubble sources are present")
 	var preview: Dictionary = _hover(engine, state, "dust_devil", target)
-	_expect(_hover_hp_loss(preview, "enemy_1") == 2 and preview.get("focus_tiles", []).has(remote + Vector2i.RIGHT) and not preview.get("focus_tiles", []).has(remote + Vector2i.ONE), "Hover includes the damage and cross of the fueled echo after Dust Devil's follow-up")
+	_expect(_hover_hp_loss(preview, "enemy_1") == 4 and preview.get("focus_tiles", []).has(remote + Vector2i.RIGHT) and not preview.get("focus_tiles", []).has(remote + Vector2i.ONE), "Hover includes the damage and cross of the fueled echo after Dust Devil's follow-up")
 	state["relics"].append("crown_of_surplus")
 	preview = _hover(engine, state, "dust_devil", target, "empower")
-	_expect(_hover_hp_loss(preview, "enemy_1") == 2 and preview.get("focus_tiles", []).has(remote + Vector2i.RIGHT) and not preview.get("focus_tiles", []).has(remote + Vector2i.ONE), "Empowered Dust Devil still previews the echo after spending its Rubble")
+	_expect(_hover_hp_loss(preview, "enemy_1") == 4 and preview.get("focus_tiles", []).has(remote + Vector2i.RIGHT) and not preview.get("focus_tiles", []).has(remote + Vector2i.ONE), "Empowered Dust Devil still previews the echo after spending its Rubble")
 
 func _test_keg_flying_victim(engine: CombatEngine) -> void:
 	var target := Vector2i(5, 4)
@@ -557,7 +557,7 @@ func _test_card_family(engine: CombatEngine) -> void:
 	_expect(_has_light(shard, Vector2i(5, 4)), "Shattered Reflection on an illusion also creates Light")
 	_expect(_hp(shard, 1) == HP - 6 and _hp(shard, 2) == HP, "Shattered Reflection Bursts the illusion, reaching the adjacent enemy (got %d)" % _hp(shard, 1))
 	_expect((shard.get("illusions", []) as Array).filter(func(entry: Dictionary) -> bool: return int(entry.get("hp", 0)) > 0).is_empty(), "The illusion is destroyed")
-	# Dust Devil: works on any tile; on Rubble, Burst 5 first.
+	# Dust Devil: works on any tile; on Rubble, Burst 8 first.
 	var devil: Dictionary = _state(engine, [_enemy(1, Vector2i(6, 4)), _enemy(2, Vector2i(6, 5))])
 	_expect(_targets(engine, devil, "dust_devil").has(Vector2i(5, 4)), "Dust Devil targets a tile without Rubble")
 	var blown: Dictionary = _play(engine, devil, "dust_devil", [Vector2i(5, 4)])
@@ -566,7 +566,7 @@ func _test_card_family(engine: CombatEngine) -> void:
 	var gritty: Dictionary = devil.duplicate(true)
 	_paint(gritty, [Vector2i(5, 4)], "rubble")
 	var gusted: Dictionary = _play(engine, gritty, "dust_devil", [Vector2i(5, 4)])
-	_expect(_hp(gusted, 1) == HP - 5 and _hp(gusted, 2) == HP, "On Rubble: Burst 5 first reaches the cross (got %d, %d)" % [_hp(gusted, 1), _hp(gusted, 2)])
+	_expect(_hp(gusted, 1) == HP - 8 and _hp(gusted, 2) == HP, "On Rubble: Burst 8 first reaches the cross (got %d, %d)" % [_hp(gusted, 1), _hp(gusted, 2)])
 	_expect(not Surface.has_surface(gusted, Vector2i(5, 4), "rubble"), "Dust Devil's Burst destroys the Rubble")
 	# Magma Vent: 4 damage on any tile; on Rubble also Burst 7, leaving Fire.
 	var vent: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 4)), _enemy(2, Vector2i(6, 4)), _enemy(3, Vector2i(6, 5))])

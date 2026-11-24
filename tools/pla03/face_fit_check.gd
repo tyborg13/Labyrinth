@@ -213,6 +213,7 @@ func _check_live_relic_faces() -> void:
 	var display = preload("res://scripts/card_display_overrides.gd")
 	var state: Dictionary = {"player": {"pos": Vector2i(2, 2), "hp": 30, "stoneskin": 1}, "relics": ["reinforced_shield"]}
 	for card_id: String in ["sun_flash", "hoarfrost_ward"]:
+		var expected_block: int = 9 if card_id == "hoarfrost_ward" else 8
 		var card: Dictionary = GameData.card_def_for_progression(card_id, state)
 		widget.configure(card_id, false, false, true, false, false, true, card)
 		display.apply_projection(widget, card, display.for_card(card_id, state, card))
@@ -220,8 +221,8 @@ func _check_live_relic_faces() -> void:
 		var shown: bool = false
 		for row: Array in widget.display_summary_rows():
 			for token: Dictionary in row:
-				if token.get("icon") == "block" and str(token.get("value")) == "8": shown = true
-		_expect(shown, card_id + " shows Reinforced Shield's Block 8")
+				if token.get("icon") == "block" and str(token.get("value")) == str(expected_block): shown = true
+		_expect(shown, "%s shows Reinforced Shield's Block %d" % [card_id, expected_block])
 	state["relics"] = ["sunlit_edge"]
 	state["umbra"] = {"light_sources": [{"pos": Vector2i(2, 2), "radius": 2}]}
 	var shatter: Dictionary = GameData.card_def_for_progression("shatter", state)

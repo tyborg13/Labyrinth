@@ -90,11 +90,11 @@ func _preview_and_copy() -> void:
 			_expect(rows[0][0] == token and " ".join(rules) == str(token["display_tooltip"]).trim_prefix("@pattern(cross:origin) "), "Combat trait above moves " + type)
 	var kindle_action: Dictionary = {"type": "kindle", "amount": 2}
 	var token: Dictionary = Icons.tokens_for_action(kindle_action)[0]
-	_expect(token["icon"] == "burst" and token["value"] == "Burst +2" and token["tooltip"] == "Its Burst deals 2 more.", "Exact Kindle row and tooltip")
+	_expect(token["icon"] == "burst" and token["value"] == "Burst +2" and token["tooltip"] == "This enemy's Burst deals 2 more damage.", "Exact Kindle row and tooltip")
 	_expect(Kindle.rows({"actions": [kindle_action]})[0][0] == token, "Board/pre-battle Kindle tokens agree")
 	var inspection = preload("res://scripts/pre_battle_inspection_view.gd")
 	var move: Control = inspection.build_move(scene, Data.enemy_def("ember_tick")["intents"][1])
-	_expect(move.tooltip_text == "Its Burst deals 2 more.", "Actual Kindle move plate exposes the exact tooltip")
+	_expect(move.tooltip_text == "This enemy's Burst deals 2 more damage.", "Actual Kindle move plate exposes the exact tooltip")
 	move.free()
 	var existing: Control = inspection.build_move(scene, Data.enemy_def("crawler")["intents"][0])
 	_expect(existing.tooltip_text.is_empty(), "Other known-move tooltip behavior stays unchanged")

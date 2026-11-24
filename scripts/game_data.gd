@@ -21,6 +21,7 @@ const EQUIPMENT_PATH: String = "res://data/equipment.json"
 const NPCS_PATH: String = "res://data/npcs.json"
 const EVENTS_PATH: String = "res://data/events.json"
 const RELICS_PATH: String = "res://data/relics.json"
+const SCAVENGER_PRICES_PATH: String = "res://data/scavenger_prices.json"
 const UPGRADES_PATH: String = "res://data/upgrades.json"
 const PROGRESSION_LEVELS_PATH: String = "res://data/progression_levels.json"
 ## Combat values are authored and resolved in the same natural, player-facing units.
@@ -98,6 +99,9 @@ static var _cache: Dictionary = {}
 
 static func cards() -> Dictionary:
 	return _load_json_dict(CARDS_PATH)
+
+static func scavenger_prices() -> Dictionary:
+	return _load_json_dict(SCAVENGER_PRICES_PATH)
 
 static func enemies() -> Dictionary:
 	return _load_json_dict(ENEMIES_PATH)

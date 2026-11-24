@@ -1,6 +1,7 @@
 extends RefCounted
 class_name SfxCueRouter
 
+const COLLISION_CUE: String = "push.collision"
 const Dragon = preload("res://scripts/dragon_presentation.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const Attacks = preload("res://scripts/attack_sfx_library.gd")
@@ -170,7 +171,7 @@ func attack_family(action: Dictionary, actor: Dictionary = {}, weapon: String = 
 
 func impact_cue(action: Dictionary, actor: Dictionary = {}, weapon: String = "", _target_before: Dictionary = {}, hp_loss: int = 1, absorbed: int = 0, collision: bool = false) -> String:
 	if hp_loss <= 0 and absorbed > 0: return "hit.blocked"
-	if collision or bool(action.get("collision", false)): return "push.collision"
+	if collision or bool(action.get("collision", false)): return COLLISION_CUE
 
 	var element: String = str(action.get("element", action.get("_card_element", "none")))
 	if str(action.get("type", "")) == "detonate": element = preload("res://scripts/burst_rules.gd").fx_element(action)

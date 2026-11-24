@@ -1126,7 +1126,8 @@ Update analytics instrumentation when changes affect:
 New surface events carry rules_version 5. `surface_conducted` records each
 unique conductor tile used by an attack, with its surface, tile, route reason
 (`chain` or `conduction`) and attack source. It does not imply removal.
-Ordinary Electrified persists; Stormcoal Fire also emits `surface_removed`.
+Ordinary Electrified persists. Stormcoal Fire conducts hero Lightning card hits
+and emits `surface_removed` when those hits spend Fire.
 Existing sequence-based append-only event deduplication applies unchanged.
 Historical v4 events and source metadata are preserved when a save upgrades.
 
@@ -1135,6 +1136,14 @@ A validated independent movement request now includes `resolved: true` in
 not infer non-resolution from zero distance. These zero-spend requests emit
 `player_movement_interrupted`; successful movement still emits `player_moved`.
 Both include the requested target, actual endpoint and movement expenditure.
+When the resolved walk reaches an Umbra bump, the event also includes
+`blocked_tile` (the hidden enemy's occupied tile, in the existing tile format)
+and `steps_reached` (the number of steps actually taken before contact, including
+zero). A step counts once even when its Movement cost differs. Ordinary moves
+and historical records omit these fields. The existing
+`umbra_movement_interruptions` counter continues to count interruptions from
+the hidden-body stop rule. Vaulting Sigil's occupied-landing fallback can report
+a bump without incrementing that counter.
 
 ### Boss section map v1
 

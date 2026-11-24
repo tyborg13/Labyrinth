@@ -1,0 +1,15 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 9,
+  "required_images": [
+    {"pattern": "hover_discharge.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_shatter.png", "width": 1920, "height": 1080},
+    {"pattern": "relic_burst.png", "width": 1920, "height": 1080},
+    {"pattern": "grimoire_burst.png", "width": 1920, "height": 1080},
+    {"pattern": "character_gear.png", "width": 1920, "height": 1080},
+    {"pattern": "character_magic.png", "width": 1920, "height": 1080},
+    {"pattern": "character_skills.png", "width": 1920, "height": 1080},
+    {"pattern": "character_mid_fade.png", "width": 1920, "height": 1080},
+    {"pattern": "character_closed.png", "width": 1920, "height": 1080}
+  ]
+}

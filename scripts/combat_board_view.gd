@@ -622,6 +622,9 @@ var attack_tiles: Array[Vector2i]
 var selected_tile: Vector2i = Vector2i(-1, -1)
 var status_label: String = ""
 var status_detail: String = ""
+var _status_title_alpha: float = 1.0
+var _status_title_fade_redraw: bool = false
+var _status_title_paint: Dictionary = {}
 var exit_tiles: Dictionary = {}
 var exit_icon_ids: Dictionary = {}
 var presentation: Dictionary = {}
@@ -767,6 +770,7 @@ var _tile_tooltip_refresh_pending: bool = false
 var _tooltip_loop_source: Dictionary = {}
 var _tooltip_loop_actor_key: String = ""
 var _tooltips_enabled: bool = true
+var _pointer_tooltips_suppressed: bool = false
 var equipment_tooltip_builder: Callable
 var item_tooltip_builder: Callable
 var _idle_frames_by_type: Dictionary = {}
@@ -4238,7 +4242,7 @@ func _queue_presentation_change_redraws(
 				# actor state can leave its old label over the windup banner.
 				if str((presentation.get("effect",{}) as Dictionary).get("enemy_type","")) == "noctyrax":
 					hud_changed = true
-			"floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect", "status_typography_role", "collision_markers":
+			"floating_texts", "floating_text_caption_global_rect", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect", "status_typography_role", "collision_markers":
 				effects_changed = true
 			"trap_effects", "trap_trigger_previews":
 				effects_changed = true
@@ -5257,8 +5261,13 @@ func set_tooltips_enabled(enabled: bool) -> void:
 			(child as Window).hide()
 			child.queue_free()
 
+func set_pointer_tooltips_suppressed(suppressed: bool) -> void:
+	# A stationary mouse can leave a popup open or waiting on the hover timer.
+	_pointer_tooltips_suppressed = suppressed
+	if suppressed: dismiss_tooltip_popups()
+
 func _get_tooltip(at_position: Vector2) -> String:
-	if not _tooltips_enabled:
+	if not _tooltips_enabled or _pointer_tooltips_suppressed:
 		return ""
 	var status_tooltip: String = plate_visibility.tooltip_at(at_position)
 	if not status_tooltip.is_empty(): return status_tooltip
@@ -5397,7 +5406,7 @@ func tile_tooltip_detail(text: String) -> Dictionary:
 			break
 	return {"text": BoardTileTooltip.plain_text(entries), "loot_key": loot_key}
 
-func _make_custom_tooltip(for_text: String) -> Object:
+func _make_custom_tooltip(for_text: String, status_route: Dictionary = {}) -> Object:
 	if for_text.begins_with(BoardTileTooltip.PREFIX):
 		return BoardTileTooltip.make_stack(BoardTileTooltip.decode(for_text), Callable(self, "_make_custom_tooltip"))
 	if for_text.begins_with(ActionIcons.label("bramble") + "\n"): return UiTooltipPanel.make_icon_lines(ActionIcons.icon_texture("bramble"), ActionIcons.label("bramble"), PackedStringArray([for_text.substr(for_text.find("\n") + 1)]))
@@ -5413,7 +5422,7 @@ func _make_custom_tooltip(for_text: String) -> Object:
 		if not equipment_id.is_empty() and equipment_tooltip_builder.is_valid():
 			return equipment_tooltip_builder.call(equipment_id)
 		return UiTooltipPanel.make_text(_equipment_loot_fallback_tooltip(equipment_id))
-	var route: Dictionary = preload("res://scripts/tooltip_loop_context.gd").board_route(self, for_text)
+	var route: Dictionary = status_route if not status_route.is_empty() else preload("res://scripts/tooltip_loop_context.gd").board_route(self, for_text)
 	return UiTooltipPanel.make_text(for_text, route.get("loop_source", {}), route.get("loop_term", ""))
 
 func _submit_pixel_fx(element: String, draw_call: Callable, args: Array) -> void:
@@ -11081,7 +11090,7 @@ func _unit_frame_rect(center: Vector2) -> Rect2:
 	return Rect2(center - Vector2(unit_size.x * 0.5, unit_size.y * 0.84), unit_size)
 
 func _unit_art_top_y(unit: Dictionary, center: Vector2) -> float:
-	if bool(unit.get("burrowed", false)): return center.y - _tile_height() * BurrowView.MOUND_TILE_HEIGHT * 0.5
+	if bool(unit.get("burrowed", false)): return BurrowView.mound_peak_top_y(self, unit["pos"])
 	var unit_type: String = str(unit.get("type", ""))
 	var rect: Rect2 = _unit_draw_rect_for_center(unit, center)
 	if ActorPresentation.has_profile(unit_type):
@@ -12041,8 +12050,34 @@ func _token_value_color(token: Dictionary, default_color: Color) -> Color:
 		_:
 			return default_color
 
+func get_status_title_alpha() -> float:
+	return _status_title_alpha
+
+func set_status_title_alpha(alpha: float) -> void:
+	if _status_title_alpha == alpha: return
+	_status_title_alpha = alpha
+	if status_label.is_empty(): return
+	var painter: Control = _effects_render_layer if is_instance_valid(_effects_render_layer) else self
+	painter._status_title_fade_redraw = true
+	painter.queue_redraw()
+
+func status_title_screen_rect() -> Rect2:
+	if status_label.is_empty(): return Rect2()
+	var painter: Control = _effects_render_layer if is_instance_valid(_effects_render_layer) else self
+	var layout: Dictionary = painter._status_title_paint
+	var bounds: Rect2 = layout.get("label", Rect2())
+	if layout.get("text") != status_label or layout.get("hint") != status_detail:
+		bounds = painter.status_text_local_bounds()
+	elif not status_detail.is_empty():
+		bounds = bounds.merge(layout["detail"])
+	return painter.get_global_transform_with_canvas() * bounds
+
 func _draw_status_text() -> void:
+	var fade_redraw: bool = _status_title_fade_redraw
+	_status_title_fade_redraw = false
+	var alpha: float = _render_instrumentation_owner.get_status_title_alpha() if is_instance_valid(_render_instrumentation_owner) else _status_title_alpha
 	if status_label.is_empty():
+		_status_title_paint.clear()
 		return
 	var role: String = str(presentation.get("status_typography_role", UiTypography.ROLE_SECTION))
 	var font: Font = UiTypography.font_for_role(role)
@@ -12051,25 +12086,32 @@ func _draw_status_text() -> void:
 	if font == null:
 		return
 	var label_font_size: int = UiTypography.scaled_size(self, UiTypography.role_size(role))
-	var layout: Dictionary = _status_text_layout(font, label_font_size)
+	# Board centering can move retained canvas commands after they were painted.
+	# A fade-only redraw preserves that placement so the title cannot jump.
+	if not fade_redraw or _status_title_paint.get("text") != status_label or _status_title_paint.get("hint") != status_detail:
+		_status_title_paint = _status_text_layout(font, label_font_size)
+		_status_title_paint["text"] = status_label
+		_status_title_paint["hint"] = status_detail
+	if alpha <= 0.0: return
+	var layout: Dictionary = _status_title_paint
 	var label_rect: Rect2 = layout.get("label", Rect2()) as Rect2
-	draw_string_outline(font, label_rect.position + Vector2(0.0, label_rect.size.y), status_label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, label_font_size, 4, Color(0.03, 0.02, 0.015, 0.9))
-	draw_string(font, label_rect.position + Vector2(0.0, label_rect.size.y), status_label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, label_font_size, STATUS_LABEL_COLOR)
+	draw_string_outline(font, label_rect.position + Vector2(0.0, label_rect.size.y), status_label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, label_font_size, 4, Color(0.03, 0.02, 0.015, 0.9 * alpha))
+	draw_string(font, label_rect.position + Vector2(0.0, label_rect.size.y), status_label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, label_font_size, Color(STATUS_LABEL_COLOR, alpha))
 	# Short gilded rules flank the room status so it reads as a placard.
 	var rule_y: float = label_rect.position.y + label_rect.size.y * 0.62
 	var rule_gap: float = 16.0
 	var rule_length: float = 64.0
-	GildedFrame.draw_fading_line(self, Vector2(label_rect.position.x - rule_gap, rule_y), Vector2(label_rect.position.x - rule_gap - rule_length, rule_y), Color(STATUS_RULE_COLOR, 0.8))
-	GildedFrame.draw_fading_line(self, Vector2(label_rect.end.x + rule_gap, rule_y), Vector2(label_rect.end.x + rule_gap + rule_length, rule_y), Color(STATUS_RULE_COLOR, 0.8))
-	GildedFrame.draw_diamond(self, Vector2(label_rect.position.x - rule_gap + 2.0, rule_y), 3.0, STATUS_RULE_COLOR, 1.0)
-	GildedFrame.draw_diamond(self, Vector2(label_rect.end.x + rule_gap - 2.0, rule_y), 3.0, STATUS_RULE_COLOR, 1.0)
+	GildedFrame.draw_fading_line(self, Vector2(label_rect.position.x - rule_gap, rule_y), Vector2(label_rect.position.x - rule_gap - rule_length, rule_y), Color(STATUS_RULE_COLOR, 0.8 * alpha))
+	GildedFrame.draw_fading_line(self, Vector2(label_rect.end.x + rule_gap, rule_y), Vector2(label_rect.end.x + rule_gap + rule_length, rule_y), Color(STATUS_RULE_COLOR, 0.8 * alpha))
+	GildedFrame.draw_diamond(self, Vector2(label_rect.position.x - rule_gap + 2.0, rule_y), 3.0, STATUS_RULE_COLOR, alpha)
+	GildedFrame.draw_diamond(self, Vector2(label_rect.end.x + rule_gap - 2.0, rule_y), 3.0, STATUS_RULE_COLOR, alpha)
 	if not status_detail.is_empty():
 		var detail_font: Font = UiTypography.text_font()
 		if detail_font == null:
 			detail_font = font
 		var detail_font_size: int = UiTypography.scaled_size(self, UiTypography.SIZE_BODY)
 		var detail_rect: Rect2 = layout.get("detail", Rect2()) as Rect2
-		draw_string(detail_font, detail_rect.position + Vector2(0.0, detail_rect.size.y), status_detail, HORIZONTAL_ALIGNMENT_CENTER, detail_rect.size.x, detail_font_size, Color("d8ccb6"))
+		draw_string(detail_font, detail_rect.position + Vector2(0.0, detail_rect.size.y), status_detail, HORIZONTAL_ALIGNMENT_CENTER, detail_rect.size.x, detail_font_size, Color(Color("d8ccb6"), alpha))
 
 func _status_text_layout(font: Font, label_font_size: int) -> Dictionary:
 	var safe_rect: Rect2 = Rect2(Vector2(280.0, 18.0), Vector2(maxf(1.0, size.x - 560.0), 82.0))
@@ -13407,6 +13449,9 @@ func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 		# Each popup envelope already reserves its complete rise and fall.
 		# Extending health bars down by that rise again displaced hits off-target.
 		obstacles.append((rect_var as Rect2).grow(FLOATING_TEXT_HEALTH_BAR_CLEARANCE))
+	var caption_rect: Rect2 = presentation.get("floating_text_caption_global_rect", Rect2())
+	if caption_rect.has_area():
+		obstacles.append(get_global_transform_with_canvas().affine_inverse() * caption_rect)
 	var placed: Array[Dictionary] = FloatingCombatText.place_screen_popups(popups, Rect2(Vector2(12.0, 16.0), size - Vector2(24.0, 44.0)), _floating_text_layout_cache, obstacles)
 	# Keep each number's start for its whole life, as its lane is kept.
 	for popup: Dictionary in placed:
@@ -17604,7 +17649,7 @@ func _support_target_token_for_action(unit: Dictionary, action: Dictionary) -> D
 	if action_type not in ["heal_ally", "guard_ally"]:
 		return {}
 	if action_type == "guard_ally" and str(action.get("target_mode", "")) == "all_other_enemies":
-		return ActionIcons.text_token("→ All Allies", "neutral", "Grants Block to every other living enemy.")
+		return ActionIcons.text_token("→ All Allies", "neutral", "Each other enemy gains Block.")
 	var source_enemy: Dictionary = _support_source_enemy(unit)
 	if source_enemy.is_empty():
 		return {}

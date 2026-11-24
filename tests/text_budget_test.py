@@ -152,6 +152,7 @@ class TextBudgetTest(unittest.TestCase):
         txt13 = TXT13_APPROVED_COPY["relic_descriptions"]
         superseded = FLURRY_RETIREMENT["relic_descriptions"] | txt13 | PLA04_COPY["relic_descriptions"] | PLA08_COPY["relic_descriptions"]
         edits = {edit["id"]: edit for edit in read("spec/peer_benchmark/staged/txt-26/text_edits.json")}
+        approved_copy = read("tests/fixtures/txt35_relic_copy.json")
 
         def apply_director_edit(relic_id, description):
             edit = edits.get(relic_id)
@@ -170,14 +171,14 @@ class TextBudgetTest(unittest.TestCase):
                     description = "Your @kw(element_earth) @kw(ranged) attacks and attacks that hit an area also raise a 3-@term(health) @kw(outcrop) on an empty floor target."
                 expected = TXT20_COPY["relic_descriptions"].get(source["id"], description)
                 expected = apply_director_edit(source["id"], expected)
+                expected = approved_copy.get(source["id"], expected)
                 self.assertEqual(actual["description"], expected)
                 is_rollout_copy = source["id"] in PLA08_COPY["relic_descriptions"]
                 if is_rollout_copy:
                     self.assertIsNone(ROLLOUT_PRONOUN.search(actual["description"]))
                 if is_rollout_copy or not source.get("retired_redirect_to"):
-                    # TXT-26 approves exact text beyond the historical budget
-                    # for some relics. Only those approved edits can raise it.
-                    budget = max(25, words(expected)) if source["id"] in edits else 25
+                    # Director-approved copy may exceed the historical budget.
+                    budget = max(25, words(expected)) if source["id"] in edits or source["id"] in approved_copy else 25
                     self.assertLessEqual(words(actual["description"]), budget)
                 if source.get("retired_redirect_to"):
                     retired += 1

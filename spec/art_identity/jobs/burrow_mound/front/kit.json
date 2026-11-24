@@ -1,0 +1,39 @@
+{
+  "K": 4,
+  "anatomy": "plinth",
+  "id": "burrow_mound",
+  "job_id": "id-burrow_mound-object_plinth",
+  "kind": "object",
+  "kit_version": "6a6788b05d32baefca5dd16e119b2b0792f6730f1538393355da1e994ba96d3c",
+  "peers": [
+    "crag_outcrop",
+    "raised_cover"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "c7d7907da06de40c8ebcbfe614d2a90fbb915c11869318a1965f335fa0c281e3",
+  "refs": [
+    {
+      "canon_id": "hero_front",
+      "file": "refs/01_hero_front.png",
+      "pixel_sha256": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f"
+    },
+    {
+      "canon_id": "crag_outcrop",
+      "file": "refs/02_crag_outcrop.png",
+      "pixel_sha256": "ce89fbecf29db98f5e6aee90a50bdca51ee205f455d9963356b96e67218d2838"
+    },
+    {
+      "canon_id": "raised_cover",
+      "file": "refs/03_raised_cover.png",
+      "pixel_sha256": "3a9ab5a799e75f41031833ac9a4d88d57a67e09d3455c72a37ed249c356741ae"
+    },
+    {
+      "file": "refs/footprint_guide.png",
+      "pixel_sha256": "b3795573189691d7e095915504fb1e3f95bffbee4e524f65a569cbab345ffc0f"
+    }
+  ],
+  "size_class": "small",
+  "target_h": 36,
+  "target_w": 152,
+  "view": "object_plinth"
+}

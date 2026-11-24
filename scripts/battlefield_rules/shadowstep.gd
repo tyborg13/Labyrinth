@@ -29,7 +29,7 @@ static func resolve_beat(engine: RefCounted, state: Dictionary, instance: Dictio
 	for enemy: Dictionary in enemies:
 		var old: Vector2i = enemy["pos"]
 		var landing: Vector2i = engine.INVALID_TILE
-		var nearest: int = 2147483647
+		var nearest: int = Paths.manhattan(old, hero)
 		var occupied: Dictionary = engine._enemy_blocking_tiles(state, int(enemy["id"]))
 		# Primitive: Blink's Manhattan tile range; deterministic row-major order.
 		for tile: Vector2i in Paths.diamond_tiles(old, int(instance["dials"]["blink"]), state["grid"]):

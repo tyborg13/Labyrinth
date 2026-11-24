@@ -498,6 +498,7 @@ func _capture_rollout_review() -> void:
 		await _shoot("review_%s_confirm" % fixture)
 	for card: String in ["sun_flash", "hoarfrost_ward", "shatter"]:
 		var pierce: bool = card == "shatter"
+		var expected_block: int = 9 if card == "hoarfrost_ward" else 8
 		var player: Dictionary = {"relics": ["sunlit_edge" if pierce else "reinforced_shield"]}
 		var ground: Dictionary = {"stoneskin": 1}
 		var light: Vector2i = Vector2i(2, 4) if pierce else Vector2i(-1, -1)
@@ -507,7 +508,7 @@ func _capture_rollout_review() -> void:
 		if widget != null:
 			for row: Array in widget.display_summary_rows():
 				shown = shown or row.any(func(token: Dictionary) -> bool:
-					return token.get("icon") == "pierce" if pierce else token.get("icon") == "block" and int(token.get("value", 0)) == 8)
+					return token.get("icon") == "pierce" if pierce else token.get("icon") == "block" and int(token.get("value", 0)) == expected_block)
 		_check_proof(shown, card + " shows the active relic on its live face")
 		var shot: String = "review_%s_relic" % card
 		_manifest[shot] = {"modifier_visible": shown}

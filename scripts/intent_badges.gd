@@ -124,7 +124,11 @@ static func movement_preview(engine: RefCounted, committed: Dictionary, known: D
 	result["enemies"] = enemies
 	return result
 
-static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary, focus_key: String = "", known_preview: Dictionary = {}, preview_orders: Variant = null, original_orders: Variant = null, resolve_orders: Callable = Callable()) -> Dictionary:
+static func for_collision_actor(engine: RefCounted, state: Dictionary, actor_key: String) -> Array:
+	var orders: Dictionary = enemy_orders(engine, state, {actor_key: true})
+	return build(engine, state, state, "", state, orders, null, Callable(), actor_key)["badges"]
+
+static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary, focus_key: String = "", known_preview: Dictionary = {}, preview_orders: Variant = null, original_orders: Variant = null, resolve_orders: Callable = Callable(), collision_actor_key: String = "") -> Dictionary:
 	var orders: Dictionary = enemy_orders(engine, preview) if preview_orders == null else preview_orders
 	var state_changed: bool = not is_same(committed, preview)
 	# atk-06: the turn order judges sight from where the previewed hero stands.
@@ -147,12 +151,14 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 	var source: GDScript = preload("res://scripts/pass_forecast_action_source.gd")
 	for enemy: Dictionary in committed.get("enemies", []):
 		if int(enemy.get("hp", 0)) <= 0: continue
-		if not engine.is_enemy_visible_to_player(committed, enemy):
+		var id: int = int(enemy.get("id", -1))
+		var actor_key: String = "enemy_%d" % id
+		if not collision_actor_key.is_empty() and actor_key != collision_actor_key: continue
+		if collision_actor_key.is_empty() and not engine.is_enemy_visible_to_player(committed, enemy):
 			var concealed: Dictionary = enemy if bool(preview.get(source.FORCE_BOARD, false)) else preview_enemies.get(int(enemy["id"]), enemy)
 			if project_lob: Lob.add_held_marks(lob_aim, engine, preview, concealed)
 			Stamps.append_concealed(engine, preview, enemy, concealed, threats, floor_threats)
 			continue
-		var id: int = int(enemy.get("id", -1))
 		var projected: Dictionary = preview_enemies.get(id, {}) as Dictionary
 		var held_lob: bool = project_lob and Lob.add_held_marks(lob_aim, engine, known_preview, projected)
 		var intent: Dictionary = projected.get("intent", enemy.get("intent", {})) as Dictionary
@@ -162,7 +168,6 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 		var primary: Dictionary = LobRules.presentation_action(engine, known_preview, enemy, primary_action(intent))
 		if primary.is_empty():
 			continue
-		var actor_key: String = "enemy_%d" % id
 		var threat: Dictionary = {}
 		var plan_state: Dictionary = preview if source.actions_use_force(engine, intent.get("actions", [])) else known_preview
 		var known_enemies: Array = plan_state.get("enemies", [])

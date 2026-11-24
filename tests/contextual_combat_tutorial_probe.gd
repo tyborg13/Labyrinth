@@ -2,6 +2,7 @@ extends SceneTree
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const GameData = preload("res://scripts/game_data.gd")
 const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const InputRouterScript = preload("res://scripts/input_router.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
@@ -21,6 +22,7 @@ const PATH_OUTPUT_ROOT: String = "user://probes/ui-25"
 const OUTPUT_DIR: String = "user://probes/contextual_combat_tutorial_v4"
 const STORAGE_PATH: String = "user://contextual_combat_tutorial_probe_progression.json"
 const RUN_STORAGE_PATH: String = "user://contextual_combat_tutorial_probe_run.save"
+const AUTHORED_FIXTURE_SEED: int = 11601
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 const INVALID_TILE: Vector2i = Vector2i(-999, -999)
 
@@ -49,6 +51,7 @@ func _initialize() -> void:
 	var active_progression: Dictionary = ProgressionStore.default_data()
 	active_progression[ContextualCombatTutorial.PROGRESSION_KEY] = ContextualCombatTutorial.default_state()
 	_assert(ProgressionStore.save_data(active_progression), "Probe should persist an explicit first-run tutorial profile")
+	_assert_legacy_pale_spark_health(active_progression)
 	await _capture_authored_guided_run(active_progression)
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	print("GUIDED COMBAT TUTORIAL PROBE: %s" % ("FAIL" if _failed else "PASS"))
@@ -222,7 +225,7 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
 	await _settle_ui()
-	await _load_authored_combat_fixture(instance, 11601, active_progression)
+	await _load_authored_combat_fixture(instance, AUTHORED_FIXTURE_SEED, active_progression)
 	var prompt: Control = instance.get("_contextual_combat_prompt") as Control
 	var board: Control = instance.get("board_view") as Control
 	var combat = instance.get("_combat_engine")
@@ -265,6 +268,9 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	instance.set("_settings", reduced_settings)
 	instance.call("_refresh_contextual_combat_tutorial")
 	await instance.call("_on_board_tile_clicked", move_tile)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_FLOOR_LOOT, false, "read the loot lesson after the first move")
+	instance.call("_on_contextual_combat_prompt_completed", ContextualCombatTutorial.PHASE_FLOOR_LOOT)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_INSPECT_ENEMY, true, "inspect the authored crawler")
 	var support_tile: Vector2i = GuidedCombatScenario.support_tile(instance.get("_combat_state") as Dictionary)
@@ -330,19 +336,20 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD, true, "play Pale Spark for real")
 
-	# First attack: 2 -> 1 play and 12 -> 9 HP.
+	# The current starter lesson spends one play and deals Pale Spark's 3 damage.
 	bone_index = _card_index(instance, GuidedCombatScenario.PREVIEW_CARD_ID)
 	await instance.call("_on_card_pressed", bone_index)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET, true, "aim Pale Spark at the authored crawler")
 	var target_tile: Vector2i = GuidedCombatScenario.target_tile(instance.get("_combat_state") as Dictionary)
+	var health_before_spark: int = _enemy_hp(instance.get("_combat_state"), GuidedCombatScenario.TARGET_ENEMY_ID)
 	await _save_root_screenshot("%s/10_bone_dart_target.png" % OUTPUT_DIR)
 	await instance.call("_on_board_tile_clicked", target_tile)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_FIRST_PLAY, true, "read the one-play counter")
 	var first_state: Dictionary = instance.get("_combat_state") as Dictionary
 	_assert(int(combat.call("cards_remaining_this_turn", first_state)) == 1, "Pale Spark should spend exactly one real card play")
-	_assert(_enemy_hp(first_state, GuidedCombatScenario.TARGET_ENEMY_ID) == 9, "Pale Spark should leave the authored crawler at 9 HP")
+	_assert(health_before_spark - _enemy_hp(first_state, GuidedCombatScenario.TARGET_ENEMY_ID) == 3, "Pale Spark should deal 3 damage to the authored crawler")
 	await _save_root_screenshot("%s/11_first_play_spent.png" % OUTPUT_DIR)
 	prompt.call("_on_completed_pressed")
 	await _settle_ui()
@@ -757,6 +764,29 @@ func _load_authored_combat_fixture(instance: Node, seed: int, progression: Dicti
 	instance.set("_animation_lock", false)
 	instance.call("_refresh_ui")
 	await _settle_ui()
+
+func _assert_legacy_pale_spark_health(progression: Dictionary) -> void:
+	var combat := CombatEngine.new()
+	var legacy_run: Dictionary = GuidedCombatScenario.mark_run_eligible({
+		"progression": progression,
+		GameData.LEGACY_STARTER_CARDS_KEY: true,
+	})
+	var base_state: Dictionary = combat.create_combat(AUTHORED_FIXTURE_SEED, _combat_layout(), {
+		"hp": RunEngine.BASE_MAX_HP,
+		"max_hp": RunEngine.BASE_MAX_HP,
+		"deck_cards": GameData.starting_deck(),
+		GameData.LEGACY_STARTER_CARDS_KEY: true,
+	})
+	var ready: Dictionary = GuidedCombatScenario.prepare_for_run(legacy_run, base_state)
+	ready = combat.apply_player_movement(ready, GuidedCombatScenario.move_tile(ready))
+	var target: Vector2i = GuidedCombatScenario.target_tile(ready)
+	var index: int = ready["deck"]["hand"].find(GuidedCombatScenario.PREVIEW_CARD_ID)
+	ready = combat.prepare_player_card(ready, index, "play")
+	var action: Dictionary = combat.card_play_actions(GuidedCombatScenario.PREVIEW_CARD_ID, ready)[0]
+	var first_state: Dictionary = combat.finish_player_card(
+		combat.apply_player_action(ready, action, target), index, 1, {"play_mode": "play"}
+	)
+	_assert(_enemy_hp(first_state, GuidedCombatScenario.TARGET_ENEMY_ID) == 9, "Pale Spark should leave the authored crawler at 9 HP")
 
 func _card_index(instance: Node, card_id: String) -> int:
 	return (((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array).find(card_id)

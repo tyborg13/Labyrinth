@@ -3158,6 +3158,60 @@
       "anatomy": "plinth",
       "art_scale": 1.0,
       "entry_kind": "kit",
+      "exceptions": [
+        {
+          "metric": "height_drawn",
+          "reason": "Low ground mound by design. The standing-prop band is 120–180.",
+          "value": 43.0
+        },
+        {
+          "metric": "base_v_left",
+          "reason": "The loose crumbs spread along the floor and flatten the measured base line. That spread is the owner's request (base sunk into the floor).",
+          "value": 0.15174069627851158
+        },
+        {
+          "metric": "base_v_right",
+          "reason": "The loose crumbs spread along the floor and flatten the measured base line. That spread is the owner's request (base sunk into the floor).",
+          "value": -0.1547659063625448
+        }
+      ],
+      "facing": "front",
+      "id": "burrow_mound",
+      "job_id": "id-burrow_mound-object_plinth",
+      "judge": {
+        "date": "2026-11-24",
+        "log": "spec/art_identity/jobs/burrow_mound/front/judge_6.md",
+        "verdict": "PASS"
+      },
+      "kind": "object",
+      "kit_path": "spec/art_identity/jobs/burrow_mound/front/kit.json",
+      "kit_sha256": "0fb829a1bde1b2fa3f35a96d90af49dff95caa5e38eec3269e42d201f9265b1c",
+      "kit_version": "6a6788b05d32baefca5dd16e119b2b0792f6730f1538393355da1e994ba96d3c",
+      "owner_approval": "pending (art-08 inbox capture)",
+      "path": "assets/art/enemies/burrow_mound.png",
+      "pixel_sha256": "02f77175e70069ea796564de334de3eb08e194462caa3583a1ecbbdc2f931d78",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/burrow_mound/front/prompt.md",
+      "prompt_sha256": "c7d7907da06de40c8ebcbfe614d2a90fbb915c11869318a1965f335fa0c281e3",
+      "raw_path": "spec/art_identity/jobs/burrow_mound/front/raw_6.png",
+      "raw_pixel_sha256": "c44819e7f66c9e0f415b4e5a89b4dcec98e010fd382a616420ac2d9ef8b3538a",
+      "raw_sha256": "799445e1623227e131be362e53328306b8e7feddc0dbe0400261b4578efce295",
+      "ref_pixel_sha256": {
+        "refs/01_hero_front.png": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f",
+        "refs/02_crag_outcrop.png": "ce89fbecf29db98f5e6aee90a50bdca51ee205f455d9963356b96e67218d2838",
+        "refs/03_raised_cover.png": "3a9ab5a799e75f41031833ac9a4d88d57a67e09d3455c72a37ed249c356741ae",
+        "refs/footprint_guide.png": "b3795573189691d7e095915504fb1e3f95bffbee4e524f65a569cbab345ffc0f"
+      },
+      "sheet_path": "spec/art_identity/jobs/burrow_mound/front/sheet.png",
+      "size_class": "small",
+      "source_path": "spec/art_identity/jobs/burrow_mound/front/processed.png",
+      "source_pixel_sha256": "02f77175e70069ea796564de334de3eb08e194462caa3583a1ecbbdc2f931d78",
+      "take": 6
+    },
+    {
+      "anatomy": "plinth",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
       "facing": "front",
       "id": "storm_capacitor",
       "job_id": "id-storm_capacitor-object_plinth",

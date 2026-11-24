@@ -1600,15 +1600,23 @@ func _resolved_sentence_face(rows: Array) -> Dictionary:
 	return face
 
 func _bind_face_value(target: Dictionary, icon_key: String, printed_number: int, printed: Dictionary, live: Dictionary) -> void:
+	var contextual_damage: bool = live.has("damage_target_tooltip")
+	if contextual_damage:
+		var face_token: Dictionary = live.duplicate()
+		face_token["icon"] = icon_key
+		target["tooltip"] = ActionIcons.token_tooltip(face_token, true)
 	if typeof(live.get("value", null)) not in [TYPE_INT, TYPE_FLOAT]:
 		return
 	var delta: int = int(live["value"]) - int(printed["value"])
 	target["display"] = str(printed_number + delta).replace("-", "−")
 	target["tone"] = str(live.get("tone", "neutral"))
-	var base: String = ActionIcons.token_tooltip(live, true) if str(live.get("icon", "")) == icon_key else ActionIcons.tooltip(icon_key, printed_number + delta)
-	if str(live.get("icon", "")) != icon_key:
-		base = ActionIcons.token_tooltip({"tooltip": base, "modifiers": live.get("modifiers", [])})
-	target["tooltip"] = base
+	if contextual_damage:
+		return
+	if str(live.get("icon", "")) == icon_key:
+		target["tooltip"] = ActionIcons.token_tooltip(live, true)
+	else:
+		var base: String = ActionIcons.tooltip(icon_key, printed_number + delta)
+		target["tooltip"] = ActionIcons.token_tooltip({"tooltip": base, "modifiers": live.get("modifiers", [])})
 
 func _printed_rows_for_face() -> Array:
 	var source: Variant = GameData.cards().get(card_id, {})
@@ -1653,6 +1661,8 @@ static func _match_face_token(tokens: Array, used: Dictionary, icon_key: String,
 			continue
 		var token: Dictionary = tokens[index]
 		var value: Variant = token.get("value", null)
+		if damage and token.has("damage_target_tooltip") and value is String and value == "+%d" % number:
+			return index
 		if typeof(value) not in [TYPE_INT, TYPE_FLOAT] or int(value) != number:
 			continue
 		var damage_field: bool = str(token.get("field", "")) == "damage"
@@ -1988,6 +1998,9 @@ func _center_precise_summary_groups() -> void:
 					row.position.x = (group.size.x - row.size.x) * 0.5
 
 func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size: float, label_size: int, conditional: bool = false) -> void:
+	if str(token.get("kind", "")) == "surface_condition":
+		_add_summary_condition(row, token, icon_size, label_size)
+		return
 	var icon_key: String = str(token.get("icon", ""))
 	var term: String = str(token.get("card_term", ""))
 	if term.is_empty(): term = str(token.get("glossary_key", icon_key))
@@ -2005,29 +2018,6 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 		return
 	if str(token.get("kind", "")) == "rules_text":
 		row.add_child(_summary_rules_label(ActionIcons.token_value_text(token)))
-		return
-	if str(token.get("kind", "")) == "surface_condition":
-		var condition_group := HBoxContainer.new()
-		condition_group.name = "SurfaceCondition"
-		# The keyword spans icon, label and their gap as one hover target.
-		condition_group.tooltip_text = tooltip
-		condition_group.set_meta("tooltip_loop_route", tooltip_route)
-		condition_group.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		condition_group.add_theme_constant_override("separation", 3)
-		if not str(token.get("prefix", "if")).is_empty():
-			condition_group.add_child(_summary_value_label(str(token.get("prefix", "if")), tooltip, label_size, token))
-		var surface_icon := TextureRect.new()
-		surface_icon.custom_minimum_size = Vector2(icon_size, icon_size)
-		surface_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		surface_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		var condition_icon: String = str(token.get("icon", "surface"))
-		surface_icon.texture = ActionIcons.icon_texture(condition_icon)
-		surface_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		surface_icon.tooltip_text = ActionIcons.tooltip(condition_icon)
-		surface_icon.set_meta("tooltip_loop_route", {"term": condition_icon, "icon": condition_icon})
-		condition_group.add_child(surface_icon)
-		condition_group.add_child(_summary_value_label(str(token.get("suffix", ":")), tooltip, label_size, token))
-		row.add_child(condition_group)
 		return
 	if str(token.get("kind", "")) == "text":
 		var text_label := _summary_value_label(ActionIcons.token_value_text(token), tooltip, label_size, token, conditional)
@@ -2064,6 +2054,26 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 		token_group.add_child(label)
 	if ActionIcons.token_is_modified(token):
 		_add_token_modifier_marker(token_group, tooltip, label_size, conditional, layout)
+
+func _add_summary_condition(row: HBoxContainer, token: Dictionary, icon_size: float, label_size: int) -> void:
+	# Focused cards explain conditions in the side stack. Keep the entire
+	# condition group inert so the icon cannot inherit a group popup.
+	var group := HBoxContainer.new()
+	group.name = "SurfaceCondition"
+	group.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	group.add_theme_constant_override("separation", 3)
+	var prefix: String = str(token.get("prefix", "if"))
+	if not prefix.is_empty():
+		group.add_child(_summary_value_label(prefix, "", label_size, token))
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(icon_size, icon_size)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = ActionIcons.icon_texture(str(token.get("icon", "surface")))
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	group.add_child(icon)
+	group.add_child(_summary_value_label(str(token.get("suffix", ":")), "", label_size, token))
+	row.add_child(group)
 
 func _summary_value_label(value_text: String, tooltip: String, label_size: int, token: Dictionary, conditional: bool = false) -> Label:
 	var label := Label.new()

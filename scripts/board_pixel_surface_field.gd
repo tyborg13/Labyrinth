@@ -29,7 +29,7 @@ func rebuild(state: Dictionary, rendered_tiles: Array[Vector2i], tile_visible: C
 				continue
 			var element: int = ELEMENT_IDS.get(Rules.kind(str(entry.get("elemental", ""))), 0)
 			var kind: int = element | (RUBBLE if bool(entry.get("rubble", false)) else 0)
-			if element == ELEMENT_IDS["fire"] and Rules.is_conductive(state, tile):
+			if element == ELEMENT_IDS["fire"] and Rules.is_conductive(state, tile, true):
 				kind |= STORMCOAL
 			if kind != 0:
 				next_tiles[tile] = kind

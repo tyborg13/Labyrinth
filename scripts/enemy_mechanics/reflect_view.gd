@@ -101,11 +101,7 @@ static func _loss_tooltip(title: String, losses: Dictionary, damage: int = 0) ->
 
 static func intent_rows(intent: Dictionary, return_damage: int = 0) -> Array:
 	if str(intent.get("id", "")) != "refraction": return []
-	var action: Dictionary = (intent["actions"][0] as Dictionary).duplicate(true)
-	var pattern: Array
-	for distance: int in range(1, int(action.get("pattern_line", 4)) + 1): pattern.append([distance, 0])
-	action["pattern"] = pattern # Existing area-pattern glyph; protected data is untouched.
-	var rows: Array = Icons.rows_for_actions([action])
+	var rows: Array = Icons.rows_for_actions(intent["actions"], [{"actor_kind": "enemy"}])
 	if return_damage > 0:
 		rows.append([Icons.token_for("reflect", return_damage, "neutral", "Reflect\nThis enemy takes %d damage." % return_damage)])
 	return rows

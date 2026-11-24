@@ -2,6 +2,7 @@ extends RefCounted
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const Paths = preload("res://scripts/path_utils.gd")
 
 static func run(expect: Callable) -> void:
 	# Other suites reuse _state without running these Snare regressions.
@@ -11,6 +12,7 @@ static func run(expect: Callable) -> void:
 	_test_turn_resource_exhaustion(expect)
 	_test_turn_reset_and_relic_capacity(expect)
 	_test_ghost_stride_translation(expect)
+	_test_ghost_stride_with_one_movement(expect)
 
 static func _test_default_pool_and_split_spending(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -79,6 +81,22 @@ static func _test_ghost_stride_translation(expect: Callable) -> void:
 	expect.call(not bool((state.get("skill_flags", {}) as Dictionary).get("movement_blink_armed", false)), "Resolved Ghost Stride movement should clear its armed state")
 	var illusions: Array = state.get("illusions", []) as Array
 	expect.call(illusions.size() == 1 and (illusions[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(2, 4), "Afterimage should continue to trigger from Ghost Stride's translated Blink")
+
+static func _test_ghost_stride_with_one_movement(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var origin := Vector2i(3, 4)
+	var target := Vector2i(3, 6)
+	var state: Dictionary = combat.apply_player_movement(_state(combat, [], ["ghost_stride"]), origin)
+	# Only distance-two targets are open when the player tries to arm.
+	for tile: Vector2i in Paths.DIRS_4:
+		var blocked: Vector2i = origin + tile
+		state["grid"][blocked.y][blocked.x] = "wall"
+	expect.call(combat.player_movement_remaining(state) == 1 and combat.skill_is_ready(state, "ghost_stride"), "Ghost Stride can arm with 1 Movement and only distance-two landing tiles")
+	state = combat.arm_ghost_stride(state)
+	expect.call(combat.player_movement_action(state).get("range") == 2 and combat.player_movement_targets(state).has(target), "Armed Ghost Stride offers a two-tile Blink with 1 Movement")
+	state = combat.apply_player_movement(state, target)
+	expect.call(state["player"]["pos"] == target and combat.skill_was_used(state, "ghost_stride"), "A legal two-tile Blink spends Ghost Stride")
+	expect.call(combat.player_movement_remaining(state) == 0 and state.get("last_player_movement", {}).get("spent") == 1, "The two-tile Blink spends the one remaining Movement")
 
 static func _state(combat: CombatEngine, relics: Array = [], skills: Array = []) -> Dictionary:
 	return combat.create_combat(611, _room(), {

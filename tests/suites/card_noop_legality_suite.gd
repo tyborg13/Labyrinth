@@ -127,7 +127,7 @@ static func _test_selectors(engine: Combat, scene: Node, expect: Callable) -> vo
 			Surface.place(state, ENEMY, "fire")
 		_check_legality(engine, scene, state, card_id, true, expect, card_id + " matching visible enemy")
 		var after: Dictionary = _play(engine, scene, state, card_id, expect)
-		var damage: int = {"white_silence": 6, "searing_light": 5, "stoke": 5}[card_id]
+		var damage: int = {"white_silence": 8, "searing_light": 5, "stoke": 5}[card_id]
 		expect.call(int(after["enemies"][0]["hp"]) == FIXTURE_HP - damage, card_id + " damage on matching ground")
 		if card_id == "white_silence": expect.call(int(engine.stagger_delays_between(state, after).get(int(after["enemies"][0]["id"]), 0)) == 6, "White Silence delays enemies on Ice")
 		if card_id == "stoke": expect.call(Surface.has_surface(after, ENEMY, "fire"), "Stoke leaves Fire unchanged")

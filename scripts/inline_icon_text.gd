@@ -30,7 +30,9 @@ static func glossary_panel_for_term(id: String, amount: Variant = null, source: 
 	var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows([[ActionIcons.token_for(id, amount)]])
 	if not entries.is_empty():
 		var entry: Dictionary = entries[0]
-		return load("res://scripts/ui_tooltip_panel.gd").make_icon_lines(entry["texture"], entry["title"], PackedStringArray([entry["description"]]), id if term_hint.is_empty() else term_hint, source)
+		var plain: String = entry["description"]
+		var description: String = entry.get("display_description", plain) if entry.get("glossary_key") == "burst" else plain
+		return load("res://scripts/ui_tooltip_panel.gd").make_icon_lines(entry["texture"], entry["title"], PackedStringArray([description]), id if term_hint.is_empty() else term_hint, source, plain if description != plain else "")
 	return load("res://scripts/ui_tooltip_panel.gd").make_text(ActionIcons.tooltip(id, amount))
 
 static func _tokens(markup: String) -> Array[RegExMatch]:

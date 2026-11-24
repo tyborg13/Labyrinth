@@ -692,7 +692,7 @@ static func _test_wave23_hand_display(expect: Callable) -> void:
 	expect.call(_display_damage((scene.call("_card_widget_display", "quick_stab", warm) as Dictionary).get("summary_rows", [])) == 9, "The hand shows Quick Stab's Follow-up 9 after a card")
 	var armored: Dictionary = state.duplicate(true)
 	(armored["player"] as Dictionary)["stoneskin"] = 3
-	expect.call(_display_damage((scene.call("_card_widget_display", "stonefist", armored) as Dictionary).get("summary_rows", [])) == 9, "The hand shows Stonefist's current Stoneskin-scaled damage")  # crd-14: base 6 + 3 Stoneskin
+	expect.call(_display_damage((scene.call("_card_widget_display", "stonefist", armored) as Dictionary).get("summary_rows", [])) == 12, "The hand shows Stonefist's current Stoneskin-scaled damage")  # 9 base + 3 Stoneskin
 	var walked: Dictionary = state.duplicate(true)
 	walked["turn_flags"]["tiles_moved"] = 2
 	expect.call(_display_damage((scene.call("_card_widget_display", "couched_lance", walked) as Dictionary).get("summary_rows", [])) == 6, "The hand shows Couched Lance's tiles-moved damage")

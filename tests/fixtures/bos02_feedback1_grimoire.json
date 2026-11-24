@@ -2,9 +2,9 @@
   "source": "bos-02 feedback 1 director copy, verbatim",
   "entries": {
     "enemy:zekarion": {
-      "body": [
-        "Storm dragon supported by Lightning Wisps. Skybreak and Storm Lash leave Electrified ground.",
-        "When Zekarion uses Overload, lightning strikes every Electrified tile for 5, with Chain 1. At half Health the Chain grows to 2. Stay off charged ground, or lure its Wisps onto it."
+      "lore": [
+        "The storm dragon of the Tempest Spire. Lightning crawls over its scales, and the air around it never settles. In the world outside, people pray to it for rain and curse it for the floods.",
+        "Zekarion scatters lightning across the floor and leaves that ground Electrified, then uses Overload to strike everyone standing on it. Between storms, it lashes you with lightning and calls Lightning Wisps to its side."
       ],
       "identity": {
         "id": "enemy:zekarion",
@@ -26,10 +26,8 @@
     },
     "combat:cinder_marks": {
       "body": [
-        "Meteorfall strikes marked tiles and leaves Fire. When Vyraketh breathes, every Fire tile spreads 1 tile in all four directions.",
-        "Crownfire detonates Vyraketh's own marked Fire while it pursues you. Replace the Fire to deny the blast, or lure the dragon into it.",
-        "The Meteorfall card marks a line of tiles the same way. The marks stay through enemy turns; at the start of your next turn, before you draw, each marked tile takes the damage (anyone standing there, including you) and becomes Fire.",
-        "Marks the shown tiles. When it lands, they take the shown damage and become Fire."
+        "When this attack lands, each unit on a Marked tile takes X damage, and each Marked tile becomes Fire.",
+        "Crownfire Bursts each of Vyraketh's Marked Fire tiles, then Vyraketh moves toward you and attacks. The Meteorfall card Marks tiles. At the start of your next turn, each unit on a Marked tile takes damage, and each Marked tile becomes Fire."
       ],
       "identity": {
         "id": "combat:cinder_marks",
@@ -52,9 +50,9 @@
       }
     },
     "enemy:tharokh": {
-      "body": [
-        "Earth dragon that walls you in, with Burrow Grubs at its side.",
-        "After every second turn of yours, Tharokh's marked tiles rise as Outcrops. At half Health they rise after each of your turns. Break through before the wall closes."
+      "lore": [
+        "An earth dragon so old that the Worldspine Roots grew around it. Its scales are slabs of bedrock. Outside these walls, kings are crowned on stones said to be its shed scales.",
+        "Tharokh sends lines of breaking stone across the room, breathes a wave of Rubble and rakes anything in reach of its claws. Upheaval raises Outcrops from the ground it Marks, and Burrow Grubs fight at its side."
       ],
       "identity": {
         "id": "enemy:tharokh",
@@ -63,9 +61,9 @@
       }
     },
     "enemy:vyraketh": {
-      "body": [
-        "Fire dragon that lays marked Fire, with Cinder Droplets that leave more of it.",
-        "When Vyraketh breathes, every Fire tile spreads 1 tile in all four directions. At half Health its Fire spreads after every second Vyraketh turn. Crownfire detonates its own marked Fire, and its bite renews the marks."
+      "lore": [
+        "The fire dragon that rules the Cinder Crown. Its scales glow like banked coals. Every hearth in the world above is lit in its name.",
+        "Vyraketh rains cinders that Mark the floor and set it burning, breathes flame and bites hard up close. Wildfire spreads its fires to the tiles around them, Crownfire sets off its Marked fires at once, and Cinder Droplets fight at its side."
       ],
       "identity": {
         "id": "enemy:vyraketh",
@@ -74,9 +72,9 @@
       }
     },
     "enemy:vaeloryx": {
-      "body": [
-        "Air dragon that strikes from the sky and dives at you, with Gust Shrikes riding its wind.",
-        "After each Vaeloryx turn, its wind Pushes everyone 1 tile, then turns a quarter clockwise. At half Health it Pushes 2 tiles. Its retreating storm combines a wide ring with a weaker close bite."
+      "lore": [
+        "The wind dragon of the Hollow Gale, pale as cloud. Its wings never stop moving. Sailors far from here still pour out wine to it before they leave port.",
+        "Vaeloryx hooks you from afar and drags you in, dives through anything in its path, and whips up wind that throws back everyone near it. Its Gust shoves units downwind after each of its turns, and Gust Shrikes fly at its side."
       ],
       "identity": {
         "id": "enemy:vaeloryx",
@@ -85,9 +83,9 @@
       }
     },
     "enemy:iskaldra": {
-      "body": [
-        "Ice dragon protected by visible Crystal Mantle layers, with Rime Spitters laying Ice around it.",
-        "When Iskaldra uses Rime Talon, Frostbite hits everyone on Ice for 3. At half Health, Frostbite hits after every second Iskaldra turn instead. Break Mantle layers to shrink Shatterstorm's reach."
+      "lore": [
+        "The ice dragon of the Rime Hall, armored in crystal that grows back as fast as it breaks. The north keeps its winters long in Iskaldra's honor.",
+        "Iskaldra wraps itself in layers of Crystal Mantle, lances the floor with Ice and claws at close range. Each layer widens Shatterstorm, Frostbite hurts each unit standing on Ice, and Rime Spitters fight at its side."
       ],
       "identity": {
         "id": "enemy:iskaldra",
@@ -96,9 +94,9 @@
       }
     },
     "enemy:noctyrax": {
-      "body": [
-        "Shadow dragon and final boss of the twenty-fourth depth, with Veilbound Acolytes hiding in its darkness.",
-        "When Noctyrax uses Void Claw, hidden Veilbound Acolytes Blink 3 tiles toward you. Night Coil snuffs a brazier; enter its tile to relight it. Light blocks Eclipse's darkness."
+      "lore": [
+        "The dragon at the heart of the Umbra. Its kin wear crowns in the world above. These walls, and everything that walks between them, are its making.",
+        "Noctyrax drags you closer with coils of night that snuff out braziers, rakes with its claws and breathes darkness that ignores Block. Its Last Eclipse strikes Marked ground and then swallows the room in dark, and Veilbound Acolytes rise to fight beside it."
       ],
       "identity": {
         "id": "enemy:noctyrax",

@@ -21,11 +21,14 @@ const PIP_ROW_OFFSET: float = 10.0
 static var _preview_engine := Combat.new()
 
 static func charge_tooltip(state: Dictionary, unit: Dictionary) -> String:
-	return Icons.tooltip("charge").replace("At 3 Charge", "At %d Charge" % Rules.MAX_CHARGE)
+	return Icons.label("charge") + "\n" + _charge_rule()
+
+static func _charge_rule() -> String:
+	return "At %d Charge, this enemy's next attack is Arc Lash." % Rules.MAX_CHARGE
 
 static func badges(unit: Dictionary, state: Dictionary = {}) -> Array[Dictionary]:
 	var result: Array[Dictionary]
-	if Rules.is_capacitor(unit): result.append({"status_class": "trait", "icon": "charge", "count": int(unit.get("charge", 0)), "show_count": true, "fill": EMPTY_COLOR, "border": COLOR, "icon_tint": Color.WHITE, "tooltip": charge_tooltip(state, unit) + "\n%d/%d" % [int(unit.get("charge", 0)), Rules.MAX_CHARGE]})
+	if Rules.is_capacitor(unit): result.append({"status_class": "trait", "icon": "charge", "count": int(unit.get("charge", 0)), "show_count": true, "fill": EMPTY_COLOR, "border": COLOR, "icon_tint": Color.WHITE, "tooltip": charge_tooltip(state, unit)})
 	return result
 
 static func draw_pips(board: Control, unit: Dictionary, health: Rect2) -> void:
@@ -52,8 +55,7 @@ static func rows(intent: Dictionary, state: Dictionary = {}, unit: Dictionary = 
 	var action: Dictionary = intent["actions"][0]
 	var token: Dictionary
 	if str(action["type"]) == "gain_charge":
-		var charge: Dictionary = preload("res://scripts/game_data.gd").enemies()["storm_capacitor"]["charge"]
-		token = Icons.icon_text_token("charge", "Charge +%d" % int(action["amount"]), "At %d Charge, this enemy's next attack is Arc Lash. Shock removes %d Charge." % [int(charge["max"]), int(charge["lose_on_shock"])])
+		token = Icons.icon_text_token("charge", "Charge +%d" % int(action["amount"]), _charge_rule())
 	else:
 		token = Icons.icon_text_token("chain", "Arc %d, Range %d, %d extra hits" % [int(action["damage"]), int(action["first_range"]), int(action["jumps"])], "This enemy hits the nearest target within %d tiles for %d damage, then hits up to %d more, each adjacent to the prior target and taking %d less damage." % [int(action["first_range"]), int(action["damage"]), int(action["jumps"]), int(action["falloff"])])
 	token["glossary_key"] = "charge"

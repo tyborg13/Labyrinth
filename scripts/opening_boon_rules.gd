@@ -33,7 +33,7 @@ static func event_key(context: Dictionary, index: int, event: Dictionary) -> Str
 static func initialize(state: Dictionary) -> void:
 	state[HEIRLOOM_END_KEY] = {"done": false}
 	var profile: Dictionary = state.get("progression", {})
-	if not Store.emaciated_services_unlocked(profile) or int(state.get("run_index", 0)) <= 1 or Tutorial.is_active(profile): return
+	if int(state.get("run_index", 0)) <= 1 or not _opening_offer_unlocked(profile): return
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(state["seed"])
 	var heirloom: String = Store.heirloom(profile)
@@ -52,6 +52,9 @@ static func initialize(state: Dictionary) -> void:
 		selected["column"] = columns[index]["label"]
 		offers.append(selected)
 	state[STATE_KEY] = {"offers": offers, "resolved": false, "offered": false}
+
+static func _opening_offer_unlocked(profile: Dictionary) -> bool:
+	return Store.emaciated_services_unlocked(profile) and not Tutorial.is_active(profile)
 
 static func spell_pool(rarity: String, element: String = "") -> Array[String]:
 	var result: Array[String]
@@ -227,7 +230,10 @@ static func price(state: Dictionary, base: int) -> int:
 	return base
 
 static func heirloom_end_pending(state: Dictionary) -> bool:
-	return state.has(HEIRLOOM_END_KEY) and str(state.get("mode", "")) in ["victory", "defeat"] and not bool(state.get("debug_boss_run", false)) and not bool((state.get(HEIRLOOM_END_KEY, {}) as Dictionary).get("done", false))
+	# Services can unlock mid-run. Check the ending profile, the source for the next descent.
+	return (state.has(HEIRLOOM_END_KEY) and str(state.get("mode", "")) in ["victory", "defeat"]
+		and not bool(state.get("debug_boss_run", false)) and not bool(state[HEIRLOOM_END_KEY].get("done", false))
+		and _opening_offer_unlocked(state.get("progression", {})))
 
 static func heirloom_pieces(state: Dictionary) -> Array[String]:
 	var result: Array[String]
@@ -247,9 +253,8 @@ static func leave_heirloom(state: Dictionary, item: String) -> Dictionary:
 	var next: Dictionary = state.duplicate(true)
 	next["progression"] = Store.leave_heirloom(next.get("progression", {}), item)
 	next[HEIRLOOM_END_KEY] = {"item": item, "done": item.is_empty()}
-	var payload: Dictionary = {"item": item, "none": item.is_empty()}
-	if pieces.is_empty(): payload["skipped_no_eligible"] = true
-	_event(next, "heirloom_left", payload)
+	if not pieces.is_empty():
+		_event(next, "heirloom_left", {"item": item, "none": item.is_empty()})
 	return next
 
 static func _event(state: Dictionary, type: String, payload: Dictionary) -> void:

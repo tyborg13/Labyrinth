@@ -26,7 +26,7 @@ static func _test_release_fallback(expect: Callable) -> void:
 		if stripped.begins_with("class_name "): continue
 		if stripped.begins_with("assert("):
 			line = line.substr(0, line.find("assert(")) + "pass"
-		elif stripped.begins_with("if revision >= 6 and not Specials.place_from_catalog("):
+		elif stripped.begins_with('if revision >= 6 and not layout.get("specials_placed", false) and not Specials.place_from_catalog('):
 			line = "\t\tif revision >= 6:"
 			forced = true
 		lines.append(line)
@@ -37,8 +37,8 @@ static func _test_release_fallback(expect: Callable) -> void:
 	expect.call(compiled == OK, "Release-style fallback copy compiles through Godot")
 	if compiled != OK: return
 	# Revision 6 falls back to the straight layout, whose legal slots hold one
-	# special; revision 7 falls back to a stored web, which can hold more.
-	for revision: int in [6, 7]:
+	# special. Revisions 7 and 8 fall back to a stored web, which can hold more.
+	for revision: int in [6, 7, 8]:
 		var state: Dictionary = {"seed": RELEASE_TEST_SEED, "current_room": Vector2i.ZERO, "mode": "room", "section_map_layout_revision": revision}
 		release_graph.initialize(state)
 		for index: int in range(6):
@@ -46,12 +46,12 @@ static func _test_release_fallback(expect: Callable) -> void:
 			for room: Dictionary in state["rooms"].values():
 				if int(room["section_index"]) == index and room["type"] == "special": count += 1
 			expect.call(count == 1 if revision == 6 else count >= 1, "Assertion-free revision %d fallback places an enabled special in section %d" % [revision, index + 1])
-			if revision == 7:
-				# The repaired section must still be a valid revision-7 web.
+			if revision >= 7:
+				# The repaired section must still satisfy the web layout rules.
 				V7Suite.test_section_rules(state, index, expect)
 				V7Suite.test_doors(state, index, expect)
 				V7Suite.test_layout(state, index, expect)
-	print("SPX release fallback regression: checked 6 sections of revisions 6 and 7 with assertions removed")
+	print("SPX release fallback regression: checked 6 sections of revisions 6, 7 and 8 with assertions removed")
 
 static func _test_snare_exits(expect: Callable) -> void:
 	var data: Dictionary = Specials.catalog()

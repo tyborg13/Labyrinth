@@ -35,8 +35,8 @@ func _test_curriculum_catalog() -> void:
 		_assert(intent[input_key] == "This crawler will move up to 2 tiles, then hit you for 5.", "Both input paths pin the production crawler rules")
 	var phases: Array[String] = ContextualCombatTutorial.phase_ids()
 	var milestones: Array[String] = ContextualCombatTutorial.milestone_ids()
-	_assert(phases.size() == 23, "Authored curriculum should expose all twenty-three motor, rule, and decision phases")
-	_assert(milestones.size() == 14, "Authored curriculum should persist exactly fourteen committed milestones")
+	_assert(phases.size() == 24, "Authored curriculum should expose all twenty-four motor, rule, and decision phases")
+	_assert(milestones.size() == 15, "Authored curriculum should persist exactly fifteen committed milestones")
 	_assert(phases.front() == ContextualCombatTutorial.PHASE_SELECT_PLAYER, "Curriculum should begin by selecting the player")
 	_assert(phases.back() == ContextualCombatTutorial.PHASE_COMPLETE, "Curriculum should end with an explicit completion phase")
 	for phase_id: String in phases:
@@ -45,13 +45,13 @@ func _test_curriculum_catalog() -> void:
 		_assert(not str(definition.get("title", "")).is_empty(), "%s should have a concise player-facing title" % phase_id)
 		_assert(not str(definition.get("pointer_text", "")).is_empty(), "%s should provide pointer instructions" % phase_id)
 		_assert(not str(definition.get("controller_text", "")).is_empty(), "%s should provide controller instructions" % phase_id)
-		_assert(int(definition.get("lesson", 0)) in range(1, 11), "%s should belong to one of ten lessons" % phase_id)
+		_assert(int(definition.get("lesson", 0)) in range(1, 12), "%s should belong to one of eleven lessons" % phase_id)
 	var select_player: Dictionary = ContextualCombatTutorial.phase_definition(ContextualCombatTutorial.PHASE_SELECT_PLAYER)
 	_assert(str(select_player.get("pointer_text", "")) == "Click the glowing tile to choose a move.", "Step one should describe choosing a move without plan language")
 	var choose_move: Dictionary = ContextualCombatTutorial.phase_definition(ContextualCombatTutorial.PHASE_CHOOSE_MOVE)
-	_assert(str(choose_move.get("pointer_text", "")) == "You begin each turn with 2 Movement. Use 1 to move onto the glowing tile.", "The destination prompt should teach the movement allowance before the action")
+	_assert(str(choose_move.get("pointer_text", "")) == "You begin each turn with 2 Movement. Use 1 to step onto the gear.", "The destination prompt should teach the movement allowance before the action")
 	var select_bone_dart: Dictionary = ContextualCombatTutorial.phase_definition(ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL)
-	_assert(str(select_bone_dart.get("title", "")) == "Select Pale Spark", "Step three should directly tell the player to select Pale Spark")
+	_assert(str(select_bone_dart.get("title", "")) == "Select Pale Spark", "Lesson four should directly tell the player to select Pale Spark")
 	_assert(ContextualCombatTutorial.phase_definition("unknown_phase").is_empty(), "Unknown phases should not synthesize tutorial content")
 	for table: Dictionary in [ContextualCombatTutorial.PHASES, ContextualCombatTutorial.AUTHORED_PHASES]:
 		var path: Dictionary = table[ContextualCombatTutorial.PHASE_CHOOSE_PATH]
@@ -149,7 +149,7 @@ func _test_milestones_and_revision_semantics() -> void:
 	progression = ContextualCombatTutorial.complete_tutorial(progression)
 	_assert(ContextualCombatTutorial.is_completed(progression), "Explicit final acknowledgement should complete onboarding")
 	_assert(ContextualCombatTutorial.completed_steps(progression).size() == ContextualCombatTutorial.milestone_ids().size(), "Completion should seal every milestone")
-	_assert(int(progression.get("progression_revision", -1)) == 15, "Fourteen milestone commits plus completion should produce fifteen revisions")
+	_assert(int(progression.get("progression_revision", -1)) == 16, "Fifteen milestone commits plus completion should produce sixteen revisions")
 
 func _test_terminal_states_and_replay() -> void:
 	var progression: Dictionary = ProgressionStore.default_data()

@@ -1,6 +1,7 @@
 extends SceneTree
 
 const HeirloomFixture = preload("res://tests/helpers/heirloom_fixture.gd")
+const OpeningBoonFixture = preload("res://tests/helpers/opening_boon_fixture.gd")
 const TerminalCrash = preload("res://tests/helpers/terminal_crash_fixture.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -158,7 +159,7 @@ func _defeat_closing_types() -> Array:
 	return records.map(func(event: Dictionary) -> String: return event["event_type"])
 
 func _test_completed_checkpoint_selection() -> void:
-	var profile := ProgressionStore.default_data()
+	var profile := OpeningBoonFixture.unlocked_profile()
 	var finished := _valid_combat_run(profile)
 	finished["run_index"] = 0
 	finished["analytics"] = {"run_id": FINISHED_RUN_ID}

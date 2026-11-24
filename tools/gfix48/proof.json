@@ -1,0 +1,25 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "first_normal_strip_*.png", "min_count": 20},
+    {"pattern": "first_normal_offer_before.png", "regions": [{"rect": [0,0,1920,1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "first_normal_offer_after.png", "regions": [{"rect": [0,0,1920,1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "first_reduced_strip_*.png", "min_count": 31},
+    {"pattern": "first_reduced_offer_before.png", "regions": [{"rect": [0,0,1920,1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "first_reduced_offer_after.png", "regions": [{"rect": [0,0,1920,1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "one_step_normal_strip_*.png", "min_count": 20},
+    {"pattern": "one_step_normal_offer_before.png", "regions": [{"rect": [0,0,1920,1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "one_step_normal_offer_after.png", "regions": [{"rect": [0,0,1920,1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "one_step_reduced_strip_*.png", "min_count": 31},
+    {"pattern": "one_step_reduced_offer_before.png", "regions": [{"rect": [0,0,1920,1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "one_step_reduced_offer_after.png", "regions": [{"rect": [0,0,1920,1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "first_normal_contact.png", "regions": [{"rect": [0,0,1920,1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "first_reduced_contact.png", "regions": [{"rect": [0,0,1920,1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "one_step_normal_contact.png", "regions": [{"rect": [0,0,1920,1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "one_step_reduced_contact.png", "regions": [{"rect": [0,0,1920,1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "first_normal_contact_plus_0060ms.png", "regions": [{"rect": [1700, 104, 220, 590], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "first_reduced_contact_plus_0060ms.png", "regions": [{"rect": [1700, 104, 220, 590], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "one_step_normal_contact_plus_0060ms.png", "regions": [{"rect": [1700, 104, 220, 590], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "one_step_reduced_contact_plus_0060ms.png", "regions": [{"rect": [1700, 104, 220, 590], "min_luma_range": 12, "min_luma_stdev": 3}]}
+  ]
+}

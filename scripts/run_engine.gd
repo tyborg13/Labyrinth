@@ -42,8 +42,6 @@ const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
 const MAGIC_DECK_SAVE_VERSION: int = 1
 const MAGIC_DECK_SAVE_VERSION_KEY: String = "magic_deck_save_version"
-const SCAVENGER_PURGE_BASE_PRICE: int = 50
-const SCAVENGER_PURGE_PRICE_STEP: int = 25
 const REWARD_HEAL: int = 3
 const CAMPFIRE_LINGER_HEAL: int = 6
 const BOSS_VICTORY_HEAL_FRACTION: float = 0.25
@@ -76,25 +74,6 @@ const MERCHANT_ARCANIST: String = LEGACY_MERCHANT_ARCANIST
 const CHOICE_CATEGORY_COMBAT: String = "combat"
 const CHOICE_CATEGORY_NON_COMBAT: String = "non_combat"
 const CHOICE_NON_COMBAT_ROOM_TYPES = ["treasure", MERCHANT_SCAVENGER]
-const MERCHANT_EQUIPMENT_BUY_COST_BY_RARITY := {
-	"common": 150,
-	"rare": 240,
-	"epic": 360,
-	"legendary": 540
-}
-const MERCHANT_MAGIC_BUY_COST_BY_RARITY := {
-	"common": 110,
-	"rare": 175,
-	"epic": 265,
-	"legendary": 400
-}
-const MERCHANT_ITEM_BUY_COST_BY_RARITY := {
-	"common": 25,
-	"rare": 40,
-	"epic": 60,
-	"legendary": 90
-}
-const MERCHANT_SELL_VALUE_RATIO: float = 0.35
 const MERCHANT_OFFERS_PER_CATEGORY: int = 3
 const MERCHANT_OFFER_COUNT: int = MERCHANT_OFFERS_PER_CATEGORY * 3
 const MERCHANT_ITEM_KIND_MAGIC: String = "magic"
@@ -117,6 +96,11 @@ const COMBAT_UNITS_SCHEMA: int = 1
 const COMBAT_CONTINUATION_KEY: String = "pending_combat_checkpoints"
 const DEFIANCE_CAPACITY_KEY: String = "defiance_capacity"
 const DEFIANCE_REMAINING_KEY: String = "defiance_remaining"
+
+# Retain the established read access while the authored value lives in GameData.
+static var MERCHANT_SELL_VALUE_RATIO: float:
+	get:
+		return float(GameData.scavenger_prices()["sell_value_ratio"])
 
 var _combat_engine = CombatEngineScript.new()
 var _room_generator = RoomGeneratorScript.new()
@@ -1360,8 +1344,9 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	next_state["combat_state"] = {}
 	next_state["player_hp"] = int((resolved_combat_state.get("player", {}) as Dictionary).get("hp", next_state.get("player_hp", 1)))
 	if outcome == "defeat":
-		if _can_last_door_retreat(next_state):
-			return _retreat_through_last_door(next_state)
+		var return_direction: Variant = _last_door_return_direction(next_state)
+		if return_direction != null:
+			return _retreat_through_last_door(next_state, return_direction)
 		# The HUD includes earnings from this fight. Settle them once here,
 		# before terminal persistence records the loss and recovery marker.
 		next_state = add_held_embers(next_state, int(resolved_combat_state.get("room_embers", 0)))
@@ -1511,28 +1496,38 @@ func _mark_salvaged_loot_resolution(combat_state: Dictionary, equipment_id: Stri
 	next_state["loot"] = loot_entries
 	return next_state
 
-func _can_last_door_retreat(run_state: Dictionary) -> bool:
+func _last_door_return_direction(run_state: Dictionary) -> Variant:
 	if not run_skill_is_ready(run_state, "last_door"):
-		return false
+		return null
 	var current_coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	var current_room: Dictionary = room_metadata(run_state, current_coord)
 	if str(current_room.get("type", "combat")) == "boss":
-		return false
-	var skill_state: Dictionary = _normalized_skill_state(run_state.get(SKILL_STATE_KEY, {}))
+		return null
+	var skill_state: Dictionary = run_state.get(SKILL_STATE_KEY, {})
 	var previous_coord: Variant = skill_state.get("previous_room", null)
 	if typeof(previous_coord) != TYPE_VECTOR2I or previous_coord == current_coord:
-		return false
-	return not _connection_to_room(current_room, previous_coord as Vector2i).is_empty()
+		return null
+	var previous_room: Dictionary = SectionMapGraph.room(run_state, previous_coord)
+	if previous_room.is_empty():
+		return null
+	var return_connection: Dictionary = _connection_to_room(current_room, previous_coord)
+	if not return_connection.is_empty():
+		return return_connection.get("door_dir", Vector2i.ZERO)
+	# Section travel seals the room just left and records only its outward link.
+	# Last Door reopens that visited room and arrives through the door it left by.
+	if not current_room.has("section_index") or previous_room.get("section_index") != current_room["section_index"] or not bool(previous_room.get("visited", false)):
+		return null
+	var entry_connection: Dictionary = _connection_to_room(previous_room, current_coord)
+	if entry_connection.is_empty():
+		return null
+	var departure_direction: Vector2i = entry_connection.get("door_dir", Vector2i.ZERO)
+	return -departure_direction
 
-func _retreat_through_last_door(run_state: Dictionary) -> Dictionary:
+func _retreat_through_last_door(run_state: Dictionary, return_direction: Vector2i) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	var current_coord: Vector2i = next_state.get("current_room", Vector2i.ZERO)
 	var current_room: Dictionary = room_metadata(next_state, current_coord)
-	var skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
-	var previous_coord: Vector2i = skill_state.get("previous_room", Vector2i.ZERO)
-	var return_connection: Dictionary = _connection_to_room(current_room, previous_coord)
-	if return_connection.is_empty():
-		return next_state
+	var previous_coord: Vector2i = next_state[SKILL_STATE_KEY]["previous_room"]
 	var last_door_effect: Dictionary = SkillTreeLibrary.effect("last_door")
 	var return_health: int = GameData.fixed_point_amount(maxi(1, int(last_door_effect.get("minimum_health_visible", 1))))
 	var return_notice: String = "Last Door returns you to the previous chamber at %d Health." % return_health
@@ -1555,7 +1550,7 @@ func _retreat_through_last_door(run_state: Dictionary) -> Dictionary:
 	next_state["current_room_layout"] = _display_layout_for_room(
 		int(next_state.get("seed", 0)),
 		previous_room,
-		return_connection.get("door_dir", Vector2i.ZERO)
+		return_direction
 	)
 	next_state["run_stats"]["killer"] = {}
 	next_state["player_hp"] = return_health
@@ -1607,7 +1602,10 @@ func grant_magic_to_reserve(run_state: Dictionary, card_id: String) -> Dictionar
 	return grant_magic_to_deck(run_state, card_id)
 
 func scavenger_purge_price(run_state: Dictionary) -> int:
-	return OpeningBoons.price(run_state, SCAVENGER_PURGE_BASE_PRICE + SCAVENGER_PURGE_PRICE_STEP * maxi(0, int(run_state.get("priced_magic_purges", 0))))
+	var prices: Dictionary = GameData.scavenger_prices()
+	var count: int = maxi(0, int(run_state.get("priced_magic_purges", 0)))
+	var base: int = int(prices["purge_base_price"]) + int(prices["purge_price_step"]) * count
+	return OpeningBoons.price(run_state, base)
 
 func can_purge_magic(run_state: Dictionary, source: String) -> bool:
 	if source == "campfire": return str(run_state.get("mode", "")) == "campfire"
@@ -1841,17 +1839,11 @@ func merchant_buy_cost(merchant_kind: String, item_id: String, run_state: Dictio
 	return OpeningBoons.price(run_state, price) if merchant_kind == MERCHANT_SCAVENGER else price
 
 func _merchant_base_buy_cost(_merchant_kind: String, item_id: String) -> int:
-	match merchant_item_kind(item_id):
-		MERCHANT_ITEM_KIND_GEAR:
-			var equipment_rarity: String = GameData.equipment_rarity(item_id)
-			return int(MERCHANT_EQUIPMENT_BUY_COST_BY_RARITY.get(equipment_rarity, MERCHANT_EQUIPMENT_BUY_COST_BY_RARITY["common"]))
-		MERCHANT_ITEM_KIND_MAGIC:
-			var magic_rarity: String = GameData.card_rarity(item_id)
-			return int(MERCHANT_MAGIC_BUY_COST_BY_RARITY.get(magic_rarity, MERCHANT_MAGIC_BUY_COST_BY_RARITY["common"]))
-		MERCHANT_ITEM_KIND_ITEM:
-			var item_rarity: String = GameData.card_rarity(item_id)
-			return int(MERCHANT_ITEM_BUY_COST_BY_RARITY.get(item_rarity, MERCHANT_ITEM_BUY_COST_BY_RARITY["common"]))
-	return 0
+	var category: String = merchant_item_kind(item_id)
+	if category.is_empty():
+		return 0
+	var costs: Dictionary = GameData.scavenger_prices()["buy_cost_by_rarity"][category]
+	return int(costs.get(_merchant_offer_rarity(category, item_id), costs["common"]))
 
 func merchant_sell_value(merchant_kind: String, item_id: String) -> int:
 	var buy_cost: int = _merchant_base_buy_cost(merchant_kind, item_id)
@@ -2865,6 +2857,9 @@ func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 
 	rng.seed = _coord_hash(int(run_state.get("seed", 0)), coord, salt)
 	var choices: Array[String]
 	var excluded: Array[String] = _string_array_typed(excluded_cards)
+	var insert_deferred: bool = not deferred_card.is_empty() and not excluded.has(deferred_card) and not GameData.card_def(deferred_card).is_empty()
+	if insert_deferred:
+		excluded.append(deferred_card)
 	var room: Dictionary = room_metadata(run_state, coord)
 	var room_element: String = str(room.get("element", ElementData.NONE))
 	if ElementData.is_elemental(room_element):
@@ -2889,7 +2884,7 @@ func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 
 		choices.append_array(_draw_reward_cards_for_element(rng, filter, count - choices.size(), blocked, run_state))
 	if special_reward:
 		choices = _special_rarity_floor(rng, choices, excluded, run_state, special_filter)
-	if not excluded.has(deferred_card):
+	if insert_deferred:
 		var deferred_slot: int = choices.size() - 1
 		if special_reward:
 			# The legacy enhanced placement is used when deck matching gives no preference.
@@ -3047,16 +3042,19 @@ func _prepare_guided_combat(run_state: Dictionary, combat_state: Dictionary) -> 
 	for loot: Dictionary in combat_state.get("loot", []):
 		if str(loot.get("kind", "")) != "equipment":
 			continue
-		var occupied: Dictionary = {
-			prepared["player"]["pos"]: true,
-			GuidedCombatScenario.move_tile(prepared): true,
-		}
-		for enemy: Dictionary in prepared["enemies"]:
-			occupied[enemy["pos"]] = true
-		var loot_rng := RandomNumberGenerator.new()
-		loot_rng.seed = _room_generator._room_seed(int(run_state.get("seed", 0)), combat_state["room_coord"], Specials.EQUIPMENT_LOOT_SEED_SALT)
-		var pickup: Dictionary = _room_generator.equipment_pickup(prepared["grid"], str(loot["equipment_id"]), loot_rng, occupied)
-		if not pickup.is_empty(): prepared["loot"].append(pickup)
+		var tile: Vector2i = GuidedCombatScenario.move_tile(prepared)
+		if (
+			PathUtils.tile_id(prepared["grid"], tile) != RoomGeneratorScript.TILE_STONE
+			or not BoardSurfaceRules.surface_at(prepared, tile).is_empty()
+			or not (prepared["traps"] as Array).is_empty()
+		):
+			push_error("The guided combat step tile must be plain floor to hold reserved equipment.")
+			return prepared
+		var equipment_id: String = str(loot["equipment_id"])
+		var pickup: Dictionary = loot.duplicate(true)
+		pickup["id"] = "loot_equipment_%s_%d_%d" % [equipment_id, tile.x, tile.y]
+		pickup["pos"] = tile
+		prepared["loot"].append(pickup)
 		break
 	return prepared
 
@@ -3137,16 +3135,14 @@ func _initial_merchant_stock(run_state: Dictionary, merchant_kind: String, room:
 	if merchant_kind != MERCHANT_SCAVENGER:
 		return []
 	var coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	var seed_value: int = int(run_state.get("seed", 0))
+	var sold_ids: Array = _merchant_room_sold_ids(room)
 	var stock: Array = []
 	for category: String in [MERCHANT_ITEM_KIND_MAGIC, MERCHANT_ITEM_KIND_GEAR, MERCHANT_ITEM_KIND_ITEM]:
-		stock.append_array(_weighted_merchant_choices(
-			int(run_state.get("seed", 0)),
-			coord,
-			_available_merchant_offer_ids(run_state, category, _merchant_room_sold_ids(room)),
-			MERCHANT_OFFERS_PER_CATEGORY,
-			_merchant_offer_salt(category),
-			category
-		))
+		var available: Array = _available_merchant_offer_ids(run_state, category, sold_ids)
+		var offers: Array = _weighted_merchant_choices(seed_value, coord, available, MERCHANT_OFFERS_PER_CATEGORY, _merchant_offer_salt(category), category)
+		_ensure_common_merchant_offer(seed_value, coord, category, offers, available)
+		stock.append_array(offers)
 	return stock
 
 func _merchant_room_with_stock(run_state: Dictionary, room: Dictionary, merchant_kind: String) -> Dictionary:
@@ -3181,7 +3177,18 @@ func _inject_reserved_merchant_offer(run_state: Dictionary, coord: Vector2i, mer
 		if merchant_item_kind(str(stock[index])) == reserved_category:
 			category_indices.append(index)
 	if category_indices.size() >= MERCHANT_OFFERS_PER_CATEGORY:
-		stock.remove_at(category_indices.back())
+		var eviction_index: int = category_indices.back()
+		if reserved_category != MERCHANT_ITEM_KIND_ITEM and _merchant_offer_rarity(reserved_category, item_id) != "common":
+			var common_count: int = 0
+			var last_non_common: int = eviction_index
+			for index: int in category_indices:
+				if _merchant_offer_rarity(reserved_category, str(stock[index])) == "common":
+					common_count += 1
+				else:
+					last_non_common = index
+			if common_count == 1 and _merchant_offer_rarity(reserved_category, str(stock[eviction_index])) == "common":
+				eviction_index = last_non_common
+		stock.remove_at(eviction_index)
 	var insert_index: int = category_indices.front() if not category_indices.is_empty() else stock.size()
 	stock.insert(mini(insert_index, stock.size()), item_id)
 	room[MERCHANT_STOCK_KEY] = stock
@@ -3219,14 +3226,14 @@ func _refill_merchant_stock_slot(run_state: Dictionary, merchant_kind: String, s
 		excluded.append(purchased_item_id)
 	var refill_count: int = maxi(0, int(room.get(MERCHANT_REFILL_COUNT_KEY, 0)))
 	var category: String = merchant_item_kind(purchased_item_id)
+	var seed_value: int = int(next_state.get("seed", 0))
+	var available: Array = _available_merchant_offer_ids(next_state, category, excluded)
 	var replacement: Array = _weighted_merchant_choices(
-		int(next_state.get("seed", 0)),
-		coord,
-		_available_merchant_offer_ids(next_state, category, excluded),
-		1,
-		_merchant_offer_salt(category) + 503 + refill_count * 29 + slot_index * 7,
-		category
+		seed_value, coord, available, 1, _merchant_offer_salt(category) + 503 + refill_count * 29 + slot_index * 7, category
 	)
+	# Keep the other offers stable when the player buys the row's only common.
+	if category != MERCHANT_ITEM_KIND_ITEM and not _merchant_row_has_common(category, stock):
+		_ensure_common_merchant_offer(seed_value, coord, category, replacement, available)
 	if not replacement.is_empty():
 		stock.insert(slot_index, str(replacement[0]))
 	room[MERCHANT_STOCK_KEY] = stock
@@ -3302,8 +3309,31 @@ func _merchant_valid_stock_ids(run_state: Dictionary, merchant_kind: String, roo
 				_merchant_offer_salt(category) + 313,
 				category
 			))
+		_ensure_common_merchant_offer(int(run_state.get("seed", 0)), coord, category, category_items, available, reserved_item_id)
 		result.append_array(category_items)
 	return result
+
+func _merchant_offer_rarity(category: String, item_id: String) -> String:
+	return GameData.equipment_rarity(item_id) if category == MERCHANT_ITEM_KIND_GEAR else GameData.card_rarity(item_id)
+
+func _merchant_row_has_common(category: String, offers: Array) -> bool:
+	for item_id: String in offers:
+		if merchant_item_kind(item_id) == category and _merchant_offer_rarity(category, item_id) == "common":
+			return true
+	return false
+
+func _ensure_common_merchant_offer(seed_value: int, coord: Vector2i, category: String, offers: Array, available: Array, reserved_id: String = "") -> void:
+	if category == MERCHANT_ITEM_KIND_ITEM or offers.is_empty() or _merchant_row_has_common(category, offers):
+		return
+	var commons: Array[String]
+	for item_id: String in available:
+		if item_id != reserved_id and _merchant_offer_rarity(category, item_id) == "common":
+			commons.append(item_id)
+	if commons.is_empty():
+		return
+	var salt: int = _merchant_offer_salt(category)
+	var replacement: Array = _weighted_merchant_choices(seed_value, coord, commons, 1, salt, category)
+	offers[_coord_hash(seed_value, coord, salt) % offers.size()] = replacement[0]
 
 func _available_merchant_offer_ids(run_state: Dictionary, category: String, excluded_ids: Array) -> Array:
 	var excluded: Dictionary = {}

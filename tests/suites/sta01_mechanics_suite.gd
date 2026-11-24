@@ -41,7 +41,7 @@ static func run(expect: Callable) -> void:
 	before["player"]["pos"] = TEST_FADE_HERO
 	var faded: Dictionary = engine._resolve_enemy_intent(before, 0, before["enemies"][0]["intent"])
 	var fade_tokens: Array = preload("res://scripts/action_icon_library.gd").tokens_for_action(before["enemies"][0]["intent"]["actions"][0])
-	expect.call(fade_tokens[0]["tooltip"] == "This enemy Blinks behind you, or to another adjacent tile, then Ambushes on this enemy’s next turn.", "Fade tooltip is the approved exact copy")
+	expect.call(fade_tokens[0]["tooltip"] == "This enemy Blinks behind you, or to an empty tile adjacent to you, then Ambushes on this enemy's next turn.", "Fade tooltip is the approved exact copy")
 	expect.call(not faded["enemies"][0].has("veiled"), "Fade never installs Veiled")
 	var rng := RandomNumberGenerator.new()
 	rng.seed = TEST_SEED

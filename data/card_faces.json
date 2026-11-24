@@ -8,7 +8,7 @@
       {"text": " away from the tile. On "},
       {"term": "surface_rubble", "word": "Rubble", "number": null},
       {"text": ": also "},
-      {"term": "burst", "word": "Burst", "number": 5},
+      {"term": "burst", "word": "Burst", "number": 8},
       {"text": " that "},
       {"term": "surface_rubble", "word": "Rubble", "number": null},
       {"text": " before the Push."}
@@ -132,7 +132,7 @@
   "cinderline_tempo": {
     "chip": {"icon": null, "word": "Enemy", "range": 2},
     "sentence": [
-      {"damage": "ranged", "number": 2},
+      {"damage": "ranged", "number": 4},
       {"text": ". On "},
       {"term": "surface_fire", "word": "Fire", "number": null},
       {"text": ": also "},
@@ -319,7 +319,7 @@
   "white_silence": {
     "chip": null,
     "sentence": [
-      {"damage": "ranged", "number": 6},
+      {"damage": "ranged", "number": 8},
       {"text": " and "},
       {"term": "stagger", "word": "Stagger", "number": 6},
       {"text": " each enemy you can see on "},
@@ -374,7 +374,7 @@
     "chip": null,
     "sentence": [
       {"text": "Gain "},
-      {"term": "block", "word": "Block", "number": 5},
+      {"term": "block", "word": "Block", "number": 6},
       {"text": ". Leave "},
       {"term": "surface_ice", "word": "Ice", "number": null},
       {"text": " on each adjacent enemy’s tile."}

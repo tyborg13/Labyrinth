@@ -20,7 +20,7 @@
     "move": "Walk up to X tiles.",
     "retreat": "This enemy moves up to X tiles away from its target.",
     "blink": "Move to a visible open tile up to X tiles away, ignoring intervening tiles.",
-    "range": "Maximum distance to the target in tiles, counted without diagonals.",
+    "range": "How far this attack reaches in tiles, counted without diagonals.",
     "block": "Block absorbs damage until the start of the holder's next turn.",
     "stoneskin": "Stoneskin absorbs damage after Block and stays until used up.",
     "heal": "Restore X Health.",
@@ -47,7 +47,7 @@
     "surface_convert": "Change the chosen ground into the named ground, then damage each enemy on the changed tiles.",
     "all_enemies": "Hit each visible enemy that meets the named condition.",
     "illusion_swap": "Trade places with one of your illusions.",
-    "shock": "Shocked units can only Move or Blink on their next turn.",
+    "shock": "Shocked units can't attack on their next turn.",
     "immobilize": "Immobilized units can't Move, Blink or Swap on their next turn.",
     "chain": "After each hit, hit 1 new target within X tiles, with Electrified tiles as relays.",
     "push": "Move the target X tiles straight away from the source, causing a Collision if blocked.",
@@ -60,11 +60,11 @@
     "terrain_burst": "This enemy damages each unit adjacent to terrain this enemy raised.",
     "cinder_marks": "When this attack lands, each unit on a Marked tile takes X damage, and each Marked tile becomes Fire.",
     "detonate_cinders": "This enemy Bursts the Fire on each tile from this enemy's last Cinder Marks.",
-    "gale_force": "This enemy damages each unit within 2 tiles, then Pushes each unit hit 1 tile.",
+    "gale_force": "This enemy damages you and your Illusions on Marked tiles, then Pushes you 1 tile away.",
     "frost_armor": "Each Crystal Mantle layer prevents damage from 1 direct hit, then breaks.",
     "guard_ally": "This enemy gives X Block to each shown ally.",
     "heal_ally": "This enemy restores X Health to the named ally.",
-    "umbra_eclipse": "This enemy hits you and your illusions on Marked tiles, then starts Eclipse for X turns.",
+    "umbra_eclipse": "This enemy starts Eclipse for your next X turns, then hits you and your Illusions on Marked tiles.",
     "ember": "Currency spent on wares and levels, and dropped when you die.",
     "turn_clock": "The unit with the lowest Time acts next, and you act first on a tie.",
     "defiance": "Each Defiance charge saves you from 1 lethal hit and leaves you at 25% Health.",
@@ -79,7 +79,7 @@
     "element_earth": "Earth cards leave Rubble, raise terrain and give Stoneskin.",
     "skill_quick_wits": "Once per combat, discard a card to @icon(draw) 1 card. Costs no @icon(card_play) or @icon(time).",
     "skill_measured_breath": "At turn end, bank up to one unused @icon(card_play) for your next turn.",
-    "skill_ghost_stride": "Once per combat, activate to turn your next movement into @icon(blink) 2.",
+    "skill_ghost_stride": "Once per combat, activate to turn your next free Movement into @icon(blink) 2.",
     "skill_discerning_eye": "Once between bosses, replace each card in a non-boss combat reward.",
     "skill_rehearsed_escape": "Once per combat, activate to discard your next non-item card with @icon(exhaust) instead.",
     "skill_makeshift_tool": "Once per combat, activate to discard your next @kw(item) instead of using @icon(consume).",
@@ -103,7 +103,7 @@
     "frostbite": "On each Frostbite beat, each unit on Ice takes X damage.",
     "lightning_storm": "On each Lightning Storm beat, each unit on an Electrified tile takes X damage.",
     "upheaval": "On each Upheaval beat, Marked tiles become Outcrops and move units to free adjacent tiles.",
-    "shadowstep": "On each Shadowstep beat, each hidden enemy Blinks toward you."
+    "shadowstep": "On each Shadowstep beat, each hidden enemy Blinks toward you if there is room."
   },
   "relic_descriptions": {
     "iron_lung": "Pay @term(health_cost) and @kw(empower) costs in @term(stoneskin) first. Each @term(health) costs 2 @kw(stoneskin).",
@@ -204,15 +204,16 @@
       "At the start of a unit's turn, Block clears before Fire deals damage. Stoneskin persists and absorbs Fire damage."
     ],
     "combat:defiance": [
-      "Each Defiance charge saves you from 1 lethal hit and leaves you at 25% Health.",
+      "Each Defiance charge saves you from 1 lethal hit and leaves you at 25% of your maximum Health, rounded up.",
       "Gain 1 Defiance per 4 permanent levels at the start of a run. Reaching a milestone during a run adds the new charge. Defiance does not refill during a run."
     ],
     "combat:targeting": [
-      "A target must be visible and within Range. Walls and Outcrops block the line of sight required by ranged attacks.",
-      "Area actions hit the tiles shown in the preview. Push and Pull move the target from or toward the source until the target reaches the distance or stops."
+      "Attacks need a visible target within Range. Ranged attacks also need line of sight. A card that ignores Range or line of sight says so.",
+      "Walls and Outcrops block the line of sight required by ranged attacks. Area actions hit the tiles shown in the preview. Push and Pull move the target from or toward the source until the target reaches the distance or stops."
     ],
     "combat:fatigue": [
-      "When you Draw from an empty draw pile, shuffle your discard pile into your draw pile and lose 2 Health, +1 each time. Fatigue bypasses Block."
+      "Drawing from an empty draw pile shuffles your discard into your draw pile and costs Health.",
+      "Each Fatigue in a combat costs 1 more Health than the last. Fatigue bypasses Block. Draw and Pass previews show the Health that Fatigue costs."
     ],
     "combat:traps": [
       "A trap triggers when entered or attacked, damaging the unit on the trap, then leaving the trap's element on that tile and each adjacent tile.",
@@ -261,7 +262,8 @@
       "Draw X cards. Your hand holds at most 7 cards."
     ],
     "keyword:card_play": [
-      "Playing a card spends 1 Card Play. Card Plays refill each turn. Killing an enemy on your turn gives 1 more, except summons."
+      "Spend 1 Card Play per card, refilling each turn and gaining 1 per kill.",
+      "Each enemy summon gives you 1 more Card Play next turn. Killing a summoned enemy gives none."
     ],
     "keyword:follow_up": [
       "Gain the Follow-up bonus if you already played a card this turn. Follow-up is checked when the card starts. Your hand shows the bonus while Follow-up is active."
@@ -312,7 +314,7 @@
       "Damage from this attack ignores Block and Stoneskin."
     ],
     "keyword:shock": [
-      "Shocked units can only Move or Blink on their next turn.",
+      "Shocked units can't attack on their next turn.",
       "When a card Shocks on each hit, Chain and conducted hits also Shock."
     ],
     "keyword:expose": [
@@ -345,48 +347,13 @@
     "keyword:vision": [
       "For X turns, each hidden enemy is visible to you."
     ],
-    "enemy:acolyte": [
-      "A ranged enemy whose intents alternate between damage, defense and Health loss."
-    ],
-    "enemy:harrier": [
-      "The Harrier often moves before a ranged attack with Pierce."
-    ],
-    "enemy:warden": [
-      "The Stone Warden uses melee attacks and gains Block. The Stone Warden's Block absorbs damage before Health."
-    ],
-    "enemy:cinder_ooze": [
-      "The Cinder Ooze leaves Fire. Slag Shell removes adjacent Fire for extra Block. When this enemy dies, this enemy splits into Cinder Droplets."
-    ],
-    "enemy:cinder_droplet": [
-      "A Cinder Droplet spawns when a Cinder Ooze dies. Cinder Droplet attacks leave Fire."
-    ],
-    "enemy:bile_bloomer": [
-      "The Bile Bloomer's attacks leave Rubble on hit tiles and Expose targets. Shale Shell removes adjacent Rubble for extra Stoneskin."
-    ],
-    "enemy:chainbound_gaoler": [
-      "The Chainbound Gaoler uses Push, Pull and Immobilize to restrict movement."
-    ],
-    "enemy:grave_surgeon": [
-      "The Grave Surgeon heals allies and gives Block. The guard removes elemental ground from the target's tile."
-    ],
-    "enemy:frostglass_lancer": [
-      "The Frostglass Lancer leaves Ice. Refract Guard removes Ice from the Lancer's tile."
-    ],
-    "enemy:zekarion": [
-      "Zekarion is supported by Lightning Wisps. Skybreak and Storm Lash leave Electrified.",
-      "When Zekarion uses Overload, each unit on Electrified takes 6 damage. At half Health, each unit on Electrified takes 7 damage. Stay off Electrified or lure Zekarion's Wisps onto Electrified."
-    ],
-    "enemy:lightning_wisp": [
-      "The Lightning Wisp leaves Electrified. Capacitor Arc Shocks targets hit through Electrified."
-    ],
     "combat:worldspines": [
       "Tharokh Marks tiles between you and Tharokh. After every second turn of yours, the Marked tiles become Outcrops. At half Health, Tharokh's Marked tiles become Outcrops after each of your turns.",
       "A Marked tile stays flat if the unit on that tile cannot be moved to an open tile. Outcrops also block Tharokh and Burrow Grubs. Destroy an Outcrop to open a route."
     ],
     "combat:cinder_marks": [
-      "Meteorfall hits each Marked tile and leaves Fire. Whenever Vyraketh breathes, Fire spreads to each adjacent tile.",
-      "Crownfire Bursts Vyraketh's Marked Fire while Vyraketh moves toward you. Replace that Fire to stop Crownfire's Burst, or lure the dragon into the Burst.",
-      "The Meteorfall card leaves Marked tiles through enemy turns. At the start of your next turn before you Draw, deal damage to each unit on a Marked tile, then leave Fire on each Marked tile."
+      "When this attack lands, each unit on a Marked tile takes X damage, and each Marked tile becomes Fire.",
+      "Crownfire Bursts each of Vyraketh's Marked Fire tiles, then Vyraketh moves toward you and attacks. The Meteorfall card Marks tiles. At the start of your next turn, each unit on a Marked tile takes damage, and each Marked tile becomes Fire."
     ],
     "combat:hollow_gale": [
       "Hollow Gale damages each unit within 2 tiles of Vaeloryx, then Pushes each unit hit away.",
@@ -396,7 +363,7 @@
     "combat:area_force": [
       "An area Push or Pull moves each enemy in the area in a straight line away from or toward the source. The source is you or the tile the card names. An enemy at the source of a Pull stays in place.",
       "A Push starts with the farthest enemy. A Pull starts with the nearest enemy. A Collision deals 2 damage per unmoved tile to the moving unit and each blocker hit.",
-      "Squall Shot Pushes each enemy hit 2 tiles away from you."
+      "Squall Pushes each enemy hit 2 tiles away from you."
     ],
     "combat:swap": [
       "Swap with a visible enemy that occupies 1 tile or one of your Illusions within Range and line of sight.",
@@ -411,38 +378,11 @@
     ],
     "combat:crystal_armor": [
       "Each Crystal Mantle layer prevents damage from 1 direct hit, then breaks. Ground, Collision, traps and Health costs bypass Crystal Mantle.",
-      "Each layer extends Shatterstorm by 1 tile. Break layers before Shatterstorm to reduce the area. Shatterstorm breaks the remaining layers.",
-      "Ice on Iskaldra's tile gives Iskaldra an extra layer. Remove that Ice before Iskaldra's turn.",
-      "Crystal Mantle cards give you layers that last until broken or combat ends."
+      "Each layer extends Iskaldra's Shatterstorm by 1 tile, and Shatterstorm breaks the remaining layers. Crystal Mantle cards give you layers that last until broken or combat ends."
     ],
     "combat:boss_eclipse": [
-      "Night Coil puts out a Marked brazier before Noctyrax announces Last Eclipse. Walk or Blink onto that brazier's tile to relight the brazier.",
-      "Light blocks Eclipse's darkness. Relight a brazier or create Light, then avoid or guard against the Marked tiles.",
-      "Noctyrax replaces defeated Acolytes, up to 2 alive. Light and Vision reveal hidden Acolytes.",
-      "Last Eclipse hits you and your Illusions on Marked tiles, then starts Eclipse for 2 turns."
-    ],
-    "enemy:veilbound_acolyte": [
-      "The Umbra hides the Veilbound Acolyte's tile. Light and Vision reveal the Acolyte before the Acolyte attacks."
-    ],
-    "enemy:tharokh": [
-      "Earth dragon supported by Burrow Grubs.",
-      "After every second turn of yours, Tharokh's Marked tiles become Outcrops. A Marked tile stays flat if the unit on that tile cannot be moved to an open tile. At half Health, Tharokh's Marked tiles become Outcrops after each of your turns."
-    ],
-    "enemy:vyraketh": [
-      "Fire dragon that creates Marked Fire. Cinder Droplets also leave Fire.",
-      "Whenever Vyraketh breathes, Fire spreads to each adjacent tile. At half Health, Fire spreads after every second Vyraketh turn. Crownfire Bursts Vyraketh's Marked Fire. Vyraketh's bite Marks tiles again."
-    ],
-    "enemy:vaeloryx": [
-      "Air dragon that strikes from the sky and dives at you, supported by Gust Shrikes.",
-      "After each Vaeloryx turn, Gust Pushes each unit 1 tile, then turns a quarter clockwise. At half Health, Gust Pushes 2 tiles. Move closer to Vaeloryx after the retreat to take less damage from Eye of the Storm."
-    ],
-    "enemy:iskaldra": [
-      "Ice dragon protected by Crystal Mantle layers. Rime Spitters leave Ice.",
-      "When Iskaldra uses Rime Talon, Frostbite deals 3 damage to each unit on Ice. At half Health, Frostbite hits after every second Iskaldra turn instead. Break Crystal Mantle layers to shrink Shatterstorm's area."
-    ],
-    "enemy:noctyrax": [
-      "Shadow dragon and final boss of depth 24, supported by Veilbound Acolytes.",
-      "When Noctyrax uses Void Claw, hidden Veilbound Acolytes Blink 3 tiles toward you. Night Coil puts out a brazier. Enter that brazier's tile to relight the brazier. Light blocks Eclipse's darkness."
+      "Last Eclipse hits you and your Illusions on Marked tiles, then starts Eclipse for 2 turns.",
+      "Night Coil puts out the nearest brazier. Walk or Blink onto a dark brazier's tile to relight that brazier. Light blocks Eclipse's darkness."
     ],
     "keyword:surface": [
       "A tile holds Rubble and 1 of Fire, Ice or Electrified. Ground stays until destroyed, replaced, removed or combat ends."
@@ -491,7 +431,7 @@
       "Hover the card to see each tile the Burst hits."
     ],
     "keyword:range": [
-      "Maximum distance to the target in tiles, counted without diagonals."
+      "How far this attack reaches in tiles, counted without diagonals."
     ],
     "keyword:time": [
       "Spending Time makes your next turn come later. Each of your first 2 unused Card Plays adds 5 Time."
@@ -999,5 +939,79 @@
       "legacy": "Empower{active}\nEmpower for {cost}: {bonus}.",
       "term": "empower"
     }
+  },
+  "grimoire_lore": {
+    "enemy:crawler": [
+      "A hairless, milk-eyed thing bred in the dark beneath the Labyrinth. It hunts by the tremor of footsteps on stone.",
+      "It scuttles straight at you and rakes with its claws, or curls up behind its thick hide."
+    ],
+    "enemy:acolyte": [
+      "A robed skeleton still keeping the rites of an order that once knelt to the dragons. The orb in its hand is packed with the dust of the dead.",
+      "It prefers to fight from a distance, hurling bolts of grave dust, warding itself with Block and mending its own bones."
+    ],
+    "enemy:harrier": [
+      "The bones of a hunter who came into the Labyrinth and never left. The dark stood it back up, spear and all.",
+      "It harries you with its spear from range, and its hardest throws punch through Block. It skips back out of reach, or rushes in to stab."
+    ],
+    "enemy:warden": [
+      "A dead knight raised to guard these halls. It no longer remembers whose watch it keeps, only that no one may leave.",
+      "It marches in behind its shield and swings a spiked mace, or stamps down to hit everything beside it. It can also give Block to each other enemy."
+    ],
+    "enemy:cinder_ooze": [
+      "Slag that crawls the Labyrinth's furnace halls, shaped in the likeness of a fire it has never seen. A cracked crust holds in a core that never cools.",
+      "It oozes after you and leaves Fire wherever it strikes, and it soaks up nearby flames to harden its crust. When it dies, it can split into two Cinder Droplets."
+    ],
+    "enemy:cinder_droplet": [
+      "A burning gobbet of slag, thrown off when a Cinder Ooze dies. It is small, quick and just as hot.",
+      "It darts in to spatter you and leaves Fire on your tile, then hisses back behind a thin crust of Block."
+    ],
+    "enemy:bile_bloomer": [
+      "A flower of living stone, grown where no light has ever reached. Its petals are slate, and its seeds are shards.",
+      "It bursts in a spray of flying stone that leaves Rubble around it, and flicks shards that make the next hit on you land harder. It grows Stoneskin, and Rubble beside it makes that skin thicker."
+    ],
+    "enemy:chainbound_gaoler": [
+      "The Labyrinth's jailer, still walking the rounds of cells no one has left in centuries. It carries a hook on a length of chain for new prisoners.",
+      "It hooks you with its chain and drags you in, shackles you in place and batters you up close. It also hides behind Block."
+    ],
+    "enemy:grave_surgeon": [
+      "A plague doctor's coat with something patient inside it. It stitches up the Labyrinth's dead and sends them back to fight.",
+      "It hangs back to heal the other enemies and brace them with Block, and the bracing removes Fire, Ice or Electrified from under them. Up close, it cuts at you with a serrated saw."
+    ],
+    "enemy:frostglass_lancer": [
+      "Ice given the shape of a knight and set to stand watch in the Rime Hall. Its spear is a single shard of glacier ice.",
+      "It drives its spear through a line of tiles and leaves Ice behind, or throws it from range, and its hardest strikes Stagger anyone standing on Ice. It also falls back behind a guard of Block."
+    ],
+    "enemy:zekarion": [
+      "The storm dragon of the Tempest Spire. Lightning crawls over its scales, and the air around it never settles. In the world outside, people pray to it for rain and curse it for the floods.",
+      "Zekarion scatters lightning across the floor and leaves that ground Electrified, then uses Overload to strike everyone standing on it. Between storms, it lashes you with lightning and calls Lightning Wisps to its side."
+    ],
+    "enemy:lightning_wisp": [
+      "A scrap of thundercloud given a will of its own. Zekarion calls Wisps down to fight for it.",
+      "It zips in to sting, charges the ground beneath it with Electrified, and fires arcs that leap along Electrified ground and Shock whoever they reach there."
+    ],
+    "enemy:veilbound_acolyte": [
+      "An acolyte who walked into the Umbra and came back wearing it. It serves Noctyrax at the heart of the dark.",
+      "It pricks you with needles of shadow from a short distance, then slips away again."
+    ],
+    "enemy:tharokh": [
+      "An earth dragon so old that the Worldspine Roots grew around it. Its scales are slabs of bedrock. Outside these walls, kings are crowned on stones said to be its shed scales.",
+      "Tharokh sends lines of breaking stone across the room, breathes a wave of Rubble and rakes anything in reach of its claws. Upheaval raises Outcrops from the ground it Marks, and Burrow Grubs fight at its side."
+    ],
+    "enemy:vyraketh": [
+      "The fire dragon that rules the Cinder Crown. Its scales glow like banked coals. Every hearth in the world above is lit in its name.",
+      "Vyraketh rains cinders that Mark the floor and set it burning, breathes flame and bites hard up close. Wildfire spreads its fires to the tiles around them, Crownfire sets off its Marked fires at once, and Cinder Droplets fight at its side."
+    ],
+    "enemy:vaeloryx": [
+      "The wind dragon of the Hollow Gale, pale as cloud. Its wings never stop moving. Sailors far from here still pour out wine to it before they leave port.",
+      "Vaeloryx hooks you from afar and drags you in, dives through anything in its path, and whips up wind that throws back everyone near it. Its Gust shoves units downwind after each of its turns, and Gust Shrikes fly at its side."
+    ],
+    "enemy:iskaldra": [
+      "The ice dragon of the Rime Hall, armored in crystal that grows back as fast as it breaks. The north keeps its winters long in Iskaldra's honor.",
+      "Iskaldra wraps itself in layers of Crystal Mantle, lances the floor with Ice and claws at close range. Each layer widens Shatterstorm, Frostbite hurts each unit standing on Ice, and Rime Spitters fight at its side."
+    ],
+    "enemy:noctyrax": [
+      "The dragon at the heart of the Umbra. Its kin wear crowns in the world above. These walls, and everything that walks between them, are its making.",
+      "Noctyrax drags you closer with coils of night that snuff out braziers, rakes with its claws and breathes darkness that ignores Block. Its Last Eclipse strikes Marked ground and then swallows the room in dark, and Veilbound Acolytes rise to fight beside it."
+    ]
   }
 }

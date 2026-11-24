@@ -137,6 +137,11 @@ def inventory(project):
     for directory, category in [('assets/art/enemies', 'enemy_images'), ('assets/art/npcs', 'npc_bodies'),
                                 ('assets/placeholders/units', 'legacy_fallbacks'), ('assets/art/portraits', 'portraits')]:
         for path in sorted((project / directory).glob('*.png')):
+            if directory == 'assets/art/enemies' and path.name == 'burrow_mound.png':
+                # One board canvas for the submerged Grub, with its own paint
+                # fitted using the Grub's front-facing cel settings.
+                add(path, path, 'burrow_grub/front', 'actor')
+                continue
             stem = path.stem.removesuffix('_idle').removesuffix('_death')
             base = path.with_name(stem + '.png')
             # Rear sheets use their rear still; otherwise the actor's base.

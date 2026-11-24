@@ -346,15 +346,22 @@ const SKILL_ICONS: Dictionary = {
 ## same concept. Keep this dictionary parseable by tests/test_icon_identity_policy.py.
 # Move identities survive retirement of their separate glossary keywords.
 # Marked alone is the learnable primitive; moves retain their own identities.
-const LOB_NEXT_TURN: String = "On this enemy's next turn, this enemy hits each Marked tile and leaves Fire."
+const LOB_NEXT_TURN: String = "On this enemy's next turn, this enemy hits each Marked tile around you and leaves Fire."
 const MARKED_MOVE_DESCRIPTIONS: Dictionary = {
 	"icefall": "@pattern(icefall:hero) This enemy hits each Marked tile on this enemy’s next turn, then leaves Ice.",
-	"lob": "@pattern(cross:hero) On your tile. " + LOB_NEXT_TURN,
-	"burrow": "This enemy Burrows and Marks your tile. Burrowed enemies cannot be targeted.",
+	"lob": "@pattern(cross:hero) " + LOB_NEXT_TURN,
+	"burrow": "You can't choose a Burrowed enemy as a target, and Gust doesn't move a Burrowed enemy.",
 	"erupt": "This enemy emerges on the Marked tile or the nearest open tile.",
 }
-const LOB_TWO_CROSS_DESCRIPTION: String = "@pattern(cross:hero) @pattern(cross) On your tile and 2 tiles away. " + LOB_NEXT_TURN
-const FADE_DESCRIPTION: String = "This enemy Blinks behind you, or to another adjacent tile, then Ambushes on this enemy’s next turn."
+const LOB_TWO_CROSS_DESCRIPTION: String = "@pattern(cross:hero) @pattern(cross) " + LOB_NEXT_TURN
+const FADE_DESCRIPTION: String = "This enemy Blinks behind you, or to an empty tile adjacent to you, then Ambushes on this enemy's next turn."
+const ENEMY_AREA_DAMAGE: String = "Deal %d damage in this attack's area."
+const ENEMY_AREA_RANGE: String = "How far this attack reaches, in tiles, counted without diagonals."
+const ENEMY_LIGHTNING_RELAY: String = "Deal %d damage to a target within Range and line of sight, or to a target on Electrified tiles connected to one in Range and line of sight."
+const ENEMY_MARKED_IMPACT: String = "Hits each Marked tile."
+const ENEMY_FIXED_PUSH: String = "Move each unit hit %s the way this attack travels, causing a Collision if blocked."
+const ENEMY_FIXED_PULL: String = "Move each unit hit %s back toward where this attack started, causing a Collision if blocked."
+const ENEMY_GUARD_CLEAR: String = "Removes Fire, Ice and Electrified under the guarded unit."
 
 const ACTION_ICON_ALIASES: Dictionary = {
 	"upheaval_mark": "upheaval",
@@ -641,6 +648,8 @@ static func tooltip_entries_for_rows(
 			if str(token.get("kind", "")) in ["text", "rules_text"]:
 				continue
 			var icon_key: String = str(token.get("icon", ""))
+			if icon_key == "all_enemies" and token.has("damage_target_tooltip"):
+				_append_tooltip_entry(entries, seen, icon_key, tooltip(icon_key), term)
 			# Placement detail stays available to shared intent tokens. Card ground
 			# panels use the glossary, except the authored conversion sentence.
 			var card_tip: String = token_tooltip(token, true, false)
@@ -734,7 +743,9 @@ static func token_tooltip(token: Dictionary, card_panel: bool = false, fill_amou
 	if str(token.get("kind", "")) == "aoe_pattern" and not bool(token.get("pattern_has_detail", false)): return ""
 	var icon_key: String = str(token.get("icon", ""))
 	var text: String = ""
-	if card_panel and token.has("card_tooltip"):
+	if token.has("damage_target_tooltip"):
+		text = "%s\n%s" % [label(icon_key), token["damage_target_tooltip"]]
+	elif card_panel and token.has("card_tooltip"):
 		text = str(token["card_tooltip"])
 	elif token.has("tooltip"):
 		text = str(token["tooltip"])
@@ -1280,7 +1291,10 @@ static func marked_move_text(action: Dictionary) -> String:
 static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> Array:
 	var action_type: String = str(action.get("type", ""))
 	var tokens: Array = []
-	if preload("res://scripts/boss_area_rules.gd").marked(action) or action_type == "erupt": tokens.append(token_for("marked"))
+	var enemy: bool = str(options.get("actor_kind", "")) == "enemy"
+	var razor_dive: bool = enemy and _is_razor_dive(action)
+	if preload("res://scripts/boss_area_rules.gd").marked(action) or action_type == "erupt" or razor_dive:
+		tokens.append(token_for("marked"))
 	match action_type:
 		"upheaval_mark":
 			tokens.append(token_for("upheaval", int(action["health"])))
@@ -1304,16 +1318,23 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(token_for("icefall", int(action.get("damage", 5)), "neutral", marked_move_text(action)))
 		"call_wind":
 			tokens.append(token_for("wind", int(action.get("rounds", 2))))
-			tokens.append(token_for("push", int(action.get("push", 1))))
+			var wind_push: int = int(action.get("push", 1))
+			tokens.append(token_for("push", wind_push, "neutral", "Gust Pushes units %s downwind." % PanelText.tiles(wind_push)))
 		"veil_blink":
 			tokens.append(_token_for_action_field(action, "blink", "range", int(action.get("range", 4))))
 			tokens.back()["tooltip"] = FADE_DESCRIPTION
 		"burrow":
 			tokens.append(icon_text_token(action_icon_key(action), "Burrow", tooltip("burrow")))
 		"erupt":
-			return [token_for("erupt", int(action.get("damage", 0))), token_for("push", int(action.get("push", 1))), surface_token(str(action.get("surface", "rubble"))), token_for("expose", int(action.get("self_expose", 0)))]
+			var erupt_push: int = int(action.get("push", 1))
+			var erupt_tokens: Array = [token_for("erupt", int(action.get("damage", 0))),
+				token_for("push", erupt_push, "neutral", "Pushes each unit adjacent to this enemy %s away and moves any unit on its tile aside." % PanelText.tiles(erupt_push)),
+				surface_token(str(action.get("surface", "rubble")))]
+			# The combat Burrow view uses these tokens without the guardian riders.
+			_append_self_expose(erupt_tokens, action)
+			return erupt_tokens
 		"kindle":
-			tokens.append(icon_text_token(action_icon_key(action), "Burst +%d" % int(action.get("amount", 0)), "Its Burst deals %d more." % int(action.get("amount", 0))))
+			tokens.append(icon_text_token(action_icon_key(action), "Burst +%d" % int(action.get("amount", 0)), "This enemy's Burst deals %d more damage." % int(action.get("amount", 0))))
 		"cost":
 			if bool(action.get("exhaust", false)):
 				tokens.append(token_for("exhaust"))
@@ -1368,9 +1389,10 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			if int(action.get("damage", 0)) > 0 or int(options.get("final_damage", 0)) > 0:
 				# The aim tile needs range/LOS; the area hit also reaches unseen foes.
 				_append_damage_token(tokens, _damage_icon_for_action(action, "aoe"), action, options)
-			if int(action.get("range", 0)) > 0 and not aims_facing:
+			if int(action.get("range", 0)) > 0 and not aims_facing and not razor_dive:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
-			if str(action.get("committed_shape", action.get("guardian_shape", ""))).is_empty(): tokens.append(_aoe_pattern_token(action))
+			if str(action.get("committed_shape", action.get("guardian_shape", ""))).is_empty():
+				tokens.append(_aoe_pattern_token(action, enemy))
 			_append_keyword_tokens(tokens, action)
 		"push":
 			_append_optional_hit_token(tokens, action, options)
@@ -1542,7 +1564,8 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(duration_token("∞" if duration < 0 else duration))
 		"lightning_strikes":
 			_append_damage_token(tokens, "ranged", action, options)
-			tokens.append(_token_for_action_field(action, "lightning_strikes", "count", int(action.get("count", 0)), "neutral", "This enemy hits each Marked tile." if action.has("declared_tiles") else "This enemy hits random tiles."))
+			tokens.append(_enemy_count_cap_token("lightning_strikes", int(action.get("count", 0)),
+				"This enemy hits each Marked tile." if enemy else "This enemy hits random tiles."))
 			_append_keyword_tokens(tokens, action)
 		"summon_minions":
 			var minion_name: String = str(preload("res://scripts/game_data.gd").enemy_def(str(action.get("minion_type", "lightning_wisp"))).get("name", "Backup"))
@@ -1581,7 +1604,9 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		"terrain_burst":
 			if str(action.get("guardian_kind", "")) == "crag_outcrop":
 				_append_damage_token(tokens, "melee", action, options)
-				tokens.append(text_token("Each Outcrop · within %d" % int(action.get("range",1)), "warning", "This enemy hits each floor tile within the shown distance of a surviving Outcrop."))
+				var reach: int = int(action.get("range", 1))
+				tokens.append(text_token("Within %d tiles of each Outcrop" % reach, "warning",
+					ENEMY_MARKED_IMPACT))
 			elif bool(action.get("consume_terrain",true)):
 				# Faultline Bursts each surviving Worldspine (pla-04).
 				_append_damage_token(tokens, "burst", action, options)
@@ -1590,7 +1615,8 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 				_append_damage_token(tokens, "melee", action, options)
 				tokens.append(text_token("Spire pulse", "warning", "This enemy hits tiles within %d tiles of surviving Worldspines. The Worldspines stay in place." % int(action.get("radius",1))))
 		"cinder_marks":
-			tokens.append(_token_for_action_field(action, "cinder_marks", "count", int(action.get("count", 0)), "neutral", "This enemy leaves Fire on each Marked tile."))
+			tokens.append(_enemy_count_cap_token("cinder_marks", int(action.get("count", 0)),
+				"This enemy leaves Fire on each Marked tile."))
 			if int(action.get("damage", 0)) > 0: _append_damage_token(tokens, "ranged", action, options)
 			_append_keyword_tokens(tokens, action)
 		"detonate_cinders":
@@ -1599,7 +1625,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "push", "amount", int(action.get("amount", 0))))
 		"frost_armor":
-			tokens.append(_token_for_action_field(action,"frost_armor","amount",int(action.get("amount",0)),"neutral","Forms Crystal Mantle. Each direct damaging hit breaks one layer and prevents its damage; ground and damage over time bypass it."))
+			tokens.append(_token_for_action_field(action,"frost_armor","amount",int(action.get("amount",0)),"neutral",description("frost_armor")))
 		"umbra_eclipse":
 			_append_damage_token(tokens, "ranged", action, options)
 			var duration: int = maxi(1, int(action.get("duration", 2)))
@@ -1628,11 +1654,52 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 	if action_type in ["move", "move_toward", "move_away", "blink", "melee", "ranged", "aoe", "push", "pull"]:
 		_append_illuminate_rider_tokens(tokens, action)
 	if not str(action.get("clear_surface", "")).is_empty():
-		tokens.append(token_for("surface_consume", null, "neutral", PanelText.copy("expend_beneath_you", {"ground": label(surface_icon_key(str(action.get("clear_surface", ""))))})))
+		var ground_name: String = label(surface_icon_key(str(action["clear_surface"])))
+		var clear_copy: Variant
+		if enemy:
+			clear_copy = ENEMY_GUARD_CLEAR if action_type == "guard_ally" else "Removes %s under this enemy." % ground_name
+		else:
+			clear_copy = PanelText.copy("expend_beneath_you", {"ground": ground_name})
+		tokens.append(token_for("surface_consume", null, "neutral", clear_copy))
 	var requirement: Dictionary = action.get("requires_surface", {}) as Dictionary
 	if not requirement.is_empty():
 		tokens.push_front(surface_condition_token(requirement))
-	return CardArea.tokens(tokens, action, [], true)
+	var guardian_placement: bool = enemy and action_type == "surface" and action.has("guardian_shape")
+	var row: Array = CardArea.tokens(tokens, action, [], not guardian_placement)
+	if enemy:
+		_apply_enemy_move_tooltips(row, action)
+	return row
+
+static func _enemy_count_cap_token(icon: String, count: int, detail: String) -> Dictionary:
+	var token: Dictionary = icon_text_token(icon, "Up to %d %s" % [count, label(icon)], detail)
+	token["tooltip_amount"] = count
+	return token
+
+static func _apply_enemy_move_tooltips(row: Array, action: Dictionary) -> void:
+	var type: String = str(action.get("type", ""))
+	var committed_shape: String = str(action.get("committed_shape", ""))
+	var shape: String = str(action.get("committed_shape", action.get("guardian_shape", "")))
+	var area: bool = type in ["aoe", "cinder_marks", "lightning_strikes", "umbra_eclipse", "gale_force", "terrain_burst"] or (type == "ranged" and not shape.is_empty())
+	# Catalog moves lack a committed vector. Only infer it where commitment supplies one.
+	var fixed_force: bool = action.has("force_direction") or committed_shape in preload("res://scripts/guardian_combat_rules.gd").DIRECTIONAL_SHAPES
+	var relay: bool = type == "ranged" and str(action.get("element", "")) == "lightning"
+	var reach: int = int(action.get("range", 1))
+	for token: Dictionary in row:
+		var icon: String = str(token.get("icon", ""))
+		var amount: int = int(token.get("value", 0))
+		if icon in ["melee", "ranged"] and amount > 0:
+			if area:
+				token["tooltip"] = ENEMY_AREA_DAMAGE % amount
+			elif relay and icon == "ranged":
+				token["tooltip"] = label(icon) + "\n" + ENEMY_LIGHTNING_RELAY % amount
+			elif icon == "melee" and type in ["melee", "push", "pull"]:
+				var detail: String = "Deal %d damage to a target within Range." if reach > 1 else "Deal %d damage to an adjacent target."
+				token["tooltip"] = detail % amount
+		elif icon == "range" and not shape.is_empty() and shape != "swept_path" and (area or (type == "surface" and shape == "broken_line")):
+			token["tooltip"] = ENEMY_AREA_RANGE
+		elif fixed_force and icon in ["push", "pull"] and amount > 0:
+			var detail: String = ENEMY_FIXED_PUSH if icon == "push" else ENEMY_FIXED_PULL
+			token["tooltip"] = detail % PanelText.tiles(amount)
 
 const SELECTOR_COPY: Dictionary = {
 	"on_fire": {"icon": "surface_fire", "prefix": "Each on", "panel": "only_fire"},
@@ -1797,7 +1864,7 @@ static func _append_retaliate_tokens(tokens: Array, action: Dictionary, options:
 	var shown_amount: Variant = amount if amount > 0 else null
 	var detail: Dictionary = PanelText.copy("retaliate_melee_damage_riders" if amount > 0 and not riders.is_empty() else "retaliate_melee_damage" if amount > 0 else "retaliate_melee_riders", {"n": amount, "riders": ", ".join(riders)})
 	if str(options.get("actor_kind", "")) == "enemy":
-		detail["tooltip"] = tooltip("retaliate")
+		detail["tooltip"] = "When you hit this enemy from an adjacent tile, you take %d damage." % amount
 		detail["card_tooltip"] = detail["tooltip"]
 	tokens.append(_token_for_action_field(action, "retaliate", "amount", shown_amount, "neutral", detail))
 	if int(action.get("shock", 0)) > 0:
@@ -1913,7 +1980,7 @@ static func _append_damage_token(tokens: Array, icon_key: String, action: Dictio
 	var copy: Variant = ""
 	if icon_key == "ranged" and str(action.get("type", "")) == "ranged" and bool(action.get("ignore_los", false)):
 		copy = PanelText.copy("ranged_ignore_los", {"n": final_damage})
-	tokens.append(_token_for_action_field(
+	var token: Dictionary = _token_for_action_field(
 		action,
 		icon_key,
 		"damage",
@@ -1922,7 +1989,22 @@ static func _append_damage_token(tokens: Array, icon_key: String, action: Dictio
 		copy,
 		tone_base_damage,
 		_option_modifiers_for_field(options, "damage")
-	))
+	)
+	var target: String = _damage_hover_target(action)
+	if not target.is_empty():
+		token["damage_target_tooltip"] = "Deal %d damage to %s." % [final_damage, target]
+	tokens.append(token)
+
+static func _damage_hover_target(action: Dictionary) -> String:
+	var kind: String = str(action.get("type", ""))
+	if kind == "all_enemies" and int(action.get("range", 0)) <= 0:
+		match str(action.get("selector", "")):
+			"visible": return "each enemy you can see"
+			"on_ice": return "each enemy you can see on Ice"
+	# An area or Burst can inherit an origin without hitting the previous target.
+	if kind in ["melee", "ranged", "push", "pull"] and action.get("target") == "previous_target":
+		return "the target"
+	return ""
 
 static func _damage_icon_for_action(action: Dictionary, fallback_icon: String) -> String:
 	if action.has("glossary_key"): return str(action["glossary_key"])
@@ -1931,19 +2013,7 @@ static func _damage_icon_for_action(action: Dictionary, fallback_icon: String) -
 static func _append_optional_hit_token(tokens: Array, action: Dictionary, options: Dictionary) -> void:
 	if int(action.get("damage", 0)) <= 0:
 		return
-	var base_damage: int = int(action.get("damage", 0))
-	var final_damage: int = int(options.get("final_damage", base_damage))
-	var tone_base_damage: int = int(options.get("tone_base_damage", base_damage))
-	tokens.append(_token_for_action_field(
-		action,
-		_damage_icon_for_action(action, "melee"),
-		"damage",
-		final_damage,
-		_damage_tone(final_damage, tone_base_damage),
-		"",
-		tone_base_damage,
-		_option_modifiers_for_field(options, "damage")
-	))
+	_append_damage_token(tokens, _damage_icon_for_action(action, "melee"), action, options)
 
 static func pattern_detail(detail: Dictionary, shape: String, origin: String = "", extent: int = 0) -> Dictionary:
 	var token: Dictionary = _aoe_pattern_token({"pattern": PatternText.offsets(shape, extent), "range": 0 if not origin.is_empty() else 1})
@@ -1965,7 +2035,7 @@ static func _lob_pattern_tokens(action: Dictionary, hero: bool) -> Array:
 	if int(action.get("lob_cross_count", 1)) > 1: tokens.append(_marked_pattern("cross", false))
 	return tokens
 
-static func _aoe_pattern_token(action: Dictionary) -> Dictionary:
+static func _aoe_pattern_token(action: Dictionary, enemy: bool = false) -> Dictionary:
 	if str(action.get("aim", "")) == "facing":
 		# Facing patterns are authored from the chosen adjacent tile at (0, 0),
 		# facing +x. Draw them from the hero so the card shows the real reach.
@@ -1980,10 +2050,15 @@ static func _aoe_pattern_token(action: Dictionary) -> Dictionary:
 			"show_origin": true,
 			"card_keyword": false, "tooltip": "", "card_tooltip": "",
 		}
+	var pattern: Array = action.get("pattern", [])
+	if enemy and pattern.is_empty():
+		pattern = []
+		for distance: int in range(1, int(action.get("pattern_line", 0)) + 1):
+			pattern.append([distance, 0])
 	return {
 		"kind": "aoe_pattern",
 		"icon": "aoe_pattern",
-		"pattern": action.get("pattern", []),
+		"pattern": pattern,
 		"show_origin": int(action.get("range", 0)) <= 0,
 		"card_keyword": false, "tooltip": "", "card_tooltip": "",
 	}
@@ -2101,8 +2176,17 @@ static func tokens_for_surface_bonus(action: Dictionary) -> Array:
 		# pla-06: "On Ice: also Stagger 6" adds a rider the hit doesn't print, so
 		# it reads as its own amount rather than a "+" on a missing base.
 		var shown: String = str(amount) if key == "stagger" and int(action.get("stagger", 0)) == 0 else ("%+d" % amount).replace("-", "−")
-		tokens.append(token_for(icon, shown, "condition"))
+		var token: Dictionary = token_for(icon, shown, "condition")
+		if key == "damage" and amount > 0 and str(action.get("type", "")) == "all_enemies" and not _damage_hover_target(action).is_empty() \
+				and bonus.get("subject") == "target" and bool(bonus.get("present", true)):
+			token["damage_target_tooltip"] = "On %s: %s damage." % [label(str(tokens[0]["icon"])), shown]
+			# The focus column already includes the ground condition and base hit.
+			token["card_keyword"] = false
+		tokens.append(token)
 	return CardArea.tokens(tokens, action)
+
+static func _is_razor_dive(action: Dictionary) -> bool:
+	return str(action.get("committed_shape", "")) == "swept_path" and action.has("pattern_footprint")
 
 static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 	var row: Array = []
@@ -2113,11 +2197,14 @@ static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 		var ring: String = "ring_%d" % low
 		var ring_detail: Dictionary = text_token("Ring %d–%d" % [low, high] if low != high else "Ring %d" % high, "warning", PatternText.diagram(ring, high))
 		row.append(pattern_detail(ring_detail, ring, "", high))
-		if action.has("range_status"): row.append(text_token("· Mantle fuels range","warning","Each remaining layer adds 1 range, up to %d. Break layers to shrink the warning; Shatterstorm spends the rest." % int(action.get("maximum_range",3))))
+		if action.has("range_status"):
+			row.append(text_token("· Mantle fuels range", "warning", "Range grows by 1 for each Crystal Mantle layer when this attack is marked."))
 		_append_brazier_rule(row,action)
 		return row
 	if shape == "swept_path":
-		row.append(text_token("Along approach +%d" % int(action.get("range",1)),"warning","Hits every tile within this distance of its path."))
+		if not _is_razor_dive(action):
+			var reach: int = int(action.get("range", 1))
+			row.append(text_token("Within %s of this enemy's path" % PanelText.tiles(reach), "warning", ENEMY_MARKED_IMPACT))
 		_append_brazier_rule(row,action)
 		return row
 	if shape == "surface_snapshot":
@@ -2167,13 +2254,15 @@ static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 					if shape!="broken_line" or distance!=2: pattern.append([side,-distance])
 			row.append(_aoe_pattern_token({"pattern":pattern,"range":0}))
 		"connector":
-			row.append(text_token("%d linked tiles" % int(action.get("guardian_count",1)),"warning","Extends existing Electrified toward its target."))
+			var count: int = int(action.get("guardian_count", 1))
+			var detail: String = "Lays Electrified tiles toward this enemy's target." if bool(action.get("guardian_fill_count", false)) \
+				else "Lays a line of up to %d Electrified tiles toward the target." % count
+			row.append(text_token("Up to %d tiles" % count, "warning", detail))
 		"conductor":
 			row.append(surface_token("electrified"))
 			row.append(text_token("Connected network", "warning", "Origin: the marked conductor."))
-	if int(action.get("self_expose",0))>0:
-		row.append(text_token("Self:"))
-		row.append(token_for("expose",action["self_expose"]))
+	if str(action.get("type", "")) != "erupt":
+		_append_self_expose(row, action)
 	for field: String in ["trail_surface","terminal_surface"]:
 		if action.has(field):
 			row.append(surface_token(str(action[field])))
@@ -2181,10 +2270,18 @@ static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 	_append_brazier_rule(row,action)
 	return row
 
+static func _append_self_expose(row: Array, action: Dictionary) -> void:
+	var amount: int = int(action.get("self_expose", 0))
+	if amount > 0:
+		row.append(text_token("Self:"))
+		row.append(token_for("expose", amount))
+
 static func _append_brazier_rule(row: Array, action: Dictionary) -> void:
 	if bool(action.get("snuff_brazier",false)):
-		var label: String = "Snuff before hit" if str(action.get("type",""))=="umbra_eclipse" else "Snuff refuge"
-		row.append(text_token(label if row.is_empty() else "· "+label,"warning",brazier_rule_tooltip(action)))
+		var eclipse: bool = str(action.get("type", "")) == "umbra_eclipse"
+		var label: String = "Snuff before hit" if eclipse else "Snuff brazier"
+		var detail: String = "Puts out the Marked brazier." if not eclipse and action.has("committed_shape") else brazier_rule_tooltip(action)
+		row.append(text_token(label if row.is_empty() else "· " + label, "warning", detail))
 
 static func brazier_rule_tooltip(action: Dictionary) -> String:
 	# Saved first-revision Eclipse still snuffs immediately before its damage.

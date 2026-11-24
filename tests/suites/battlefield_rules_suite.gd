@@ -35,6 +35,7 @@ static func run(expect: Callable) -> void:
 	_lightning(engine, expect)
 	_upheaval(engine, expect)
 	_shadowstep(engine, expect)
+	_shadowstep_requires_closer_landing(engine, expect)
 	_framework(engine, expect)
 	_intent_beats(engine, expect)
 	_intent_rows(engine, expect)
@@ -264,6 +265,21 @@ static func _shadowstep(engine: RefCounted, expect: Callable) -> void:
 	after = resolve_and_compare(engine, state, expect)
 	expect.call(after["enemies"][0]["pos"] == state["enemies"][0]["pos"], "Shadowstep stays put with no visible landing")
 	expect.call(not Rules.error_for(state, rule("shadowstep", {"blink": 0})).is_empty(), "Shadowstep rejects nonpositive Blink")
+
+static func _shadowstep_requires_closer_landing(engine: RefCounted, expect: Callable) -> void:
+	var state: Dictionary = battle(engine)
+	var hero := Vector2i(3, 4)
+	var shade := Vector2i(5, 4)
+	state["player"]["pos"] = hero
+	state["enemies"][0] = Fixtures.enemy(1, shade, 50, "wick_shade")
+	state["umbra"] = {"stage": "eclipse"}
+	state = engine._create_illusion(state, Vector2i(4, 4), TEST_DAMAGE)
+	state = engine._create_umbra_light_source(state, Vector2i(7, 4), {"radius": 1})
+	Rules.install(engine, state, rule("shadowstep", {"blink": 1, "who": ["wick_shade"]}))
+	expect.call(not engine.is_enemy_visible_to_player(state, state["enemies"][0])
+		and engine.is_tile_visible_to_player(state, Vector2i(6, 4)), "The hidden Shade has a visible landing farther from the hero")
+	var after: Dictionary = resolve_and_compare(engine, state, expect)
+	expect.call(after["enemies"][0]["pos"] == shade, "Shadowstep passes when its only open landing is farther from the hero")
 
 static func _framework(engine: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = battle(engine)

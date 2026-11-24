@@ -1,0 +1,23 @@
+{
+  "min_images": 17,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "basic_map_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "combat_defiance_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "combat_targeting_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "combat_fatigue_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "keyword_card_play_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "combat_cinder_marks_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "combat_crystal_armor_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "combat_boss_eclipse_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "enemy_harrier_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "enemy_cinder_ooze_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "enemy_grave_surgeon_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "enemy_lightning_wisp_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "enemy_zekarion_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "enemy_vyraketh_top_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "enemy_vyraketh_bottom_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "enemy_noctyrax_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "bone_harrier_pre_battle_1920x1080.png", "width": 1920, "height": 1080, "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]}
+  ]
+}

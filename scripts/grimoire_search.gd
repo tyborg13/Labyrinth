@@ -66,7 +66,9 @@ static func _build_document(entry: Dictionary, section_titles: Dictionary) -> Di
 		str(entry.get("npc_id", "")),
 		str(entry.get("enemy_id", ""))
 	]))
-	var rules_text: String = normalize(" ".join(_string_values(entry.get("body", []))))
+	var paragraphs: Array[String] = _string_values(entry.get("body", []))
+	paragraphs.append_array(_string_values(entry.get("lore", [])))
+	var rules_text: String = normalize(" ".join(paragraphs))
 	var title_words: PackedStringArray = title_text.split(" ", false)
 	var alias_words: PackedStringArray = aliases_text.split(" ", false)
 	var topic_words: PackedStringArray = topic_text.split(" ", false)

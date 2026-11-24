@@ -171,7 +171,7 @@ static func prepare(engine: RefCounted, state: Dictionary) -> void:
 	match str(instance["rule"]):
 		"gust":
 			Gust.prepare(engine, state, instance)
-			state["wind"] = Gust.value_for(state, instance)
+			state["wind"] = Gust.value_for(engine, state, instance)
 		"upheaval": Upheaval.prepare(engine, state, instance)
 
 static func install_call(engine: RefCounted, state: Dictionary, index: int, action: Dictionary) -> void:
@@ -320,12 +320,12 @@ static func _compute_forecast(engine: RefCounted, state: Dictionary, board_sight
 	if not problem.is_empty(): return {"error": problem}
 	# A pending Call can change the next blow. This preview is separate from
 	# the installed direction used by the current-board warning.
-	if str(instance["rule"]) == "gust" and board_sight.is_empty():
+	if str(instance["rule"]) == "gust" and board_sight.is_empty() and str(instance["dials"]["direction"]) != "toward_source":
 		instance["locked_direction"] = Gust.projected_value_for(engine, trial, instance)["direction"]
-		trial["wind"] = Gust.value_for(trial, instance)
+		trial["wind"] = Gust.value_for(engine, trial, instance)
 	# Keep the announcement even if a future resolver changes derived state.
 	var announcement: Dictionary = {}
-	if str(instance["rule"]) == "gust": announcement["direction"] = Gust.value_for(trial, instance)["direction"]
+	if str(instance["rule"]) == "gust": announcement["direction"] = Gust.value_for(engine, trial, instance)["direction"]
 	elif str(instance["rule"]) == "wildfire" and str(instance["dials"]["spread"]) == "toward_player":
 		announcement["direction"] = Geometry.toward_player(engine, trial, instance)
 	var before: Dictionary = trial.duplicate(true)

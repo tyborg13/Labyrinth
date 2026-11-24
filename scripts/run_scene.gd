@@ -56,6 +56,7 @@ const SfxBankScript = preload("res://scripts/sfx_bank.gd")
 const SfxCueRouterScript = preload("res://scripts/sfx_cue_router.gd")
 const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const DialogueBoxView = preload("res://scripts/dialogue_box_view.gd")
+const RunNoticePlacement = preload("res://scripts/run_notice_placement.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const EmberRewardFeedback = preload("res://scripts/ember_reward_feedback.gd")
@@ -140,6 +141,7 @@ const CardActionContextArt = preload("res://scripts/card_action_context_art.gd")
 const CharacterInventoryRows = preload("res://scripts/character_inventory_rows.gd")
 const PreBattleView = preload("res://scripts/pre_battle_view.gd")
 const PreBattleInspectionView = preload("res://scripts/pre_battle_inspection_view.gd")
+const KnownMoveText = preload("res://scripts/known_move_text.gd")
 const PreBattleThreatTags = preload("res://scripts/pre_battle_threat_tags.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
@@ -1112,8 +1114,6 @@ const RELIC_CHOICE_TITLE_FONT_SIZE: int = UiTypography.SIZE_BANNER
 const RELIC_CHOICE_TITLE_HEIGHT: float = 118.0
 const RELIC_CHOICE_TITLE_TOP_RATIO: float = 0.0
 const RELIC_CHOICE_BOTTOM_MARGIN: float = 44.0
-const LOG_OVERLAY_OFFSET_TOP: float = -118.0
-const LOG_OVERLAY_OFFSET_BOTTOM: float = -12.0
 const SELECTION_BANNER_TEXTURE_PATH: String = "res://assets/art/ui/reward_selection_banner_v1.png"
 const SELECTION_BANNER_MIN_WIDTH: float = 880.0
 const SELECTION_BANNER_MAX_WIDTH: float = 1040.0
@@ -1711,6 +1711,7 @@ var _section_map_presentation_queued: bool = false
 var _map_analytics_revision: int = 0
 var _map_analytics_run_id: String = ""
 var _large_map_scrim: LargeMapBackdrop
+var _room_title_panel_fade: Node
 var _large_map_dialog: PanelContainer
 var _large_map_view: Control
 var _large_map_navigation_hint: Label
@@ -1778,6 +1779,7 @@ var _hand_ready_wave_indices: Dictionary = {}
 var _hand_ready_wave_token: int = 0
 var _hand_ready_wave_reason: String = ""
 var _dialogue_overlay: Control
+var _notice_placement := RunNoticePlacement.new()
 var _dialogue_dialog: PanelContainer
 var _dialogue_name_label: Label
 var _dialogue_text_label: RichTextLabel
@@ -2079,7 +2081,7 @@ func _initial_ui_jobs() -> Array[Callable]:
 		_build_card_upgrade_overlay, _build_large_map_overlay,
 		_build_pre_battle_overlay, _build_drag_overlay,
 		_build_skill_status_popover, _build_combat_skill_card_selection_prompt,
-		_build_skill_choice_dialog, _connect_overlay_music_signals,
+		_build_skill_choice_dialog, _connect_overlay_music_signals, _setup_room_title_panel_fade,
 		_build_controller_interface, _build_context_choice_panel,
 		_build_relic_choice_overlay.bind(stage_root), _build_graftwright_overlay.bind(stage_root),
 		_build_scavenger_shop_overlay.bind(stage_root), _build_run_end_recap.bind(stage_root),
@@ -2545,6 +2547,7 @@ func _build_controller_interface() -> void:
 	_controller_analog_cursor = ControllerAnalogCursorScript.new()
 	_controller_analog_cursor.name = "ControllerAnalogCursor"
 	_controller_analog_cursor.detail_builder = Callable(board_view, "_make_custom_tooltip")
+	_controller_analog_cursor.status_chips_board = board_view
 	ui_root.add_child(_controller_analog_cursor)
 	_controller_glyph_badges = RunControllerGlyphs.new()
 	_controller_glyph_badges.name = "ControllerGlyphBadges"
@@ -2553,6 +2556,7 @@ func _build_controller_interface() -> void:
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null and router.has_signal("modality_changed") and not router.modality_changed.is_connected(_on_input_modality_changed):
 		router.modality_changed.connect(_on_input_modality_changed)
+	board_view.set_pointer_tooltips_suppressed(_controller_is_active())
 	_refresh_controller_prompts()
 
 func _refresh_grimoire_input_wording() -> void:
@@ -2567,6 +2571,7 @@ func _on_input_modality_changed(modality: String) -> void:
 		# gesture to controller navigation or rebuild its pointer-owned layout.
 		_refresh_controller_prompts()
 		return
+	board_view.set_pointer_tooltips_suppressed(modality == InputRouterScript.MODALITY_CONTROLLER)
 	_move_attack_approach.clear()
 	if modality == InputRouterScript.MODALITY_POINTER:
 		# An explicit X / board-focus hide survives a device handoff. Otherwise
@@ -3267,7 +3272,8 @@ func _controller_update_analog_cursor(candidate: Dictionary, fully_snapped: bool
 		magnetic_strength,
 		str(candidate.get("kind", "tile")),
 		str(candidate.get("detail", "")),
-		str(candidate.get("detail_key", ""))
+		str(candidate.get("detail_key", "")),
+		candidate.get("tile", INVALID_TARGET_TILE) if not _targeted_card_aiming_active() else INVALID_TARGET_TILE
 	)
 
 func _controller_clear_focus_candidate() -> void:
@@ -4311,6 +4317,18 @@ func _build_overlay_ui() -> void:
 	_build_combat_skill_card_selection_prompt()
 	_build_skill_choice_dialog()
 	_connect_overlay_music_signals()
+	_setup_room_title_panel_fade()
+
+func _setup_room_title_panel_fade() -> void:
+	_room_title_panel_fade = preload("res://scripts/room_title_panel_fade.gd").new()
+	add_child(_room_title_panel_fade)
+	_room_title_panel_fade.setup(board_view, _large_map_fade_seconds)
+	# Character always recedes the title, including while its tab dialog is sizing.
+	_room_title_panel_fade.watch(_upgrade_scrim)
+	_room_title_panel_fade.watch(_grimoire_scrim._grimoire_dialog)
+	_room_title_panel_fade.watch(_pile_dialog)
+	_room_title_panel_fade.watch(_menu_dialog)
+	_room_title_panel_fade.watch(_settings_panel)
 
 func _connect_overlay_music_signals() -> void:
 	for surface: Control in [_menu_scrim, _grimoire_scrim, _pile_scrim, _upgrade_scrim, _large_map_scrim, _pre_battle_scrim]:
@@ -5569,55 +5587,7 @@ func _build_pre_battle_enemy_inspection_panel(enemy: Dictionary, interactive: bo
 	return PreBattleInspectionView.build(self, enemy, interactive)
 
 func _pre_battle_known_move_icon_key(intent: Dictionary) -> String:
-	if (intent.get("actions", []) as Array).is_empty(): return "time"
-	var best_key: String = "melee"
-	var best_priority: int = 1000
-	for action_var: Variant in intent.get("actions", []):
-		if typeof(action_var) != TYPE_DICTIONARY:
-			continue
-		var action: Dictionary = action_var as Dictionary
-		var action_type: String = str(action.get("type", ""))
-		var candidate: String = ActionIcons.action_icon_key(action)
-		var priority: int = 100
-		match action_type:
-			"melee", "aoe":
-				priority = 0
-			"ranged", "lightning_strikes":
-				priority = 1
-			"push", "pull":
-				priority = 2
-			"block", "guard_ally":
-				priority = 3
-			"stoneskin":
-				priority = 3
-			"heal", "heal_self", "heal_ally":
-				priority = 4
-			"summon_minions":
-				priority = 5
-			"raise_terrain", "terrain_burst":
-				priority = 2
-			"cinder_marks", "detonate_cinders":
-				priority = 2
-			"gale_force":
-				priority = 1
-			"frost_armor":
-				priority = 2
-			"umbra_eclipse":
-				priority = 1
-			"move", "move_toward":
-				priority = 20
-			"move_away":
-				priority = 20
-			"blink":
-				priority = 20
-			_:
-				priority = 10
-		if candidate.is_empty():
-			candidate = _action_step_icon_key(action)
-		if not candidate.is_empty() and priority < best_priority:
-			best_key = candidate
-			best_priority = priority
-	return best_key
+	return KnownMoveText.icon_key(intent, func(action: Dictionary) -> String: return ActionIcons.action_icon_key(action))
 
 func _cancel_pre_battle_entry() -> void:
 	# Invalidates an entry still waiting for its first layout frame as well.
@@ -5866,6 +5836,7 @@ func _build_scavenger_shop_overlay(stage: Control) -> void:
 	_scavenger_shop_view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var shop_host: Control = ui_root if ui_root != null else stage
 	shop_host.add_child(_scavenger_shop_view)
+	_room_title_panel_fade.watch(_scavenger_shop_view, func() -> Control: return _scavenger_shop_view._canvas)
 	_scavenger_shop_view.burst_layer = _acquisition_bursts.gain_layer()
 	_scavenger_shop_view.buy_requested.connect(_on_scavenger_buy_requested)
 	_scavenger_shop_view.sell_requested.connect(_on_scavenger_sell_requested)
@@ -6167,6 +6138,8 @@ func _refresh_loadout_badge() -> void:
 func _build_dialogue_overlay() -> void:
 	var view := DialogueBoxView.new()
 	view.build(self)
+	_notice_placement.bind_notice(log_overlay)
+	view.painted_band_top_changed.connect(_notice_placement.set_band_top)
 	_dialogue_overlay = view
 	_dialogue_dialog = view.panel
 	_dialogue_portrait_frame = view.portrait_frame
@@ -7815,7 +7788,8 @@ func _refresh_contextual_combat_tutorial() -> void:
 	var prompt: Dictionary = ContextualCombatTutorial.phase_definition(
 		_guided_tutorial_phase_id,
 		_guided_tutorial_path_uses_map(),
-		bool(_combat_state.get(GameData.LEGACY_STARTER_CARDS_KEY, false))
+		_guided_tutorial_uses_legacy_starter(),
+		_guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_MOVE or _guided_tutorial_step_has_gear()
 	)
 	var spotlight_rects: Array = _guided_tutorial_spotlight_rects(_guided_tutorial_phase_id)
 	if (
@@ -7874,7 +7848,7 @@ func _guided_tutorial_reconcile_phase() -> void:
 	if not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_MOVE):
 		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_SELECT_PLAYER if player_turn else ""
 	elif not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_INTENT):
-		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_INSPECT_ENEMY if player_turn else ""
+		_guided_tutorial_phase_id = _guided_tutorial_after_move_phase() if player_turn else ""
 	elif not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_PLAYS):
 		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_CARD_PLAYS if player_turn else ""
 	elif not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_CANCEL):
@@ -7901,6 +7875,22 @@ func _guided_tutorial_reconcile_phase() -> void:
 		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_CHOOSE_PATH if mode == "room" and not _exit_destinations_by_tile.is_empty() else ""
 	else:
 		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_COMPLETE
+
+func _guided_tutorial_uses_legacy_starter() -> bool:
+	return bool(_combat_state.get(GameData.LEGACY_STARTER_CARDS_KEY, _run_state.get(GameData.LEGACY_STARTER_CARDS_KEY, false)))
+
+func _guided_tutorial_step_has_gear() -> bool:
+	var tile: Vector2i = GuidedCombatScenario.move_tile(_combat_state)
+	for loot: Dictionary in _combat_state.get("loot", []):
+		if loot.get("kind") == "equipment" and loot.get("pos") == tile and not loot.get("claimed", false):
+			return true
+	return false
+
+func _guided_tutorial_after_move_phase() -> String:
+	var scenario: Dictionary = _combat_state.get(GuidedCombatScenario.STATE_KEY, {})
+	if scenario.get(ContextualCombatTutorial.FLOOR_LOOT_PENDING_KEY, false) and not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_FLOOR_LOOT):
+		return ContextualCombatTutorial.PHASE_FLOOR_LOOT
+	return ContextualCombatTutorial.PHASE_INSPECT_ENEMY
 
 func _guided_tutorial_is_active() -> bool:
 	# An active profile can be loaded into an ordinary fight (including an
@@ -7988,6 +7978,7 @@ func _guided_tutorial_phase_displayable(phase_id: String) -> bool:
 
 func _guided_tutorial_phase_requires_spotlight(phase_id: String) -> bool:
 	return phase_id not in [
+		ContextualCombatTutorial.PHASE_FLOOR_LOOT,
 		ContextualCombatTutorial.PHASE_CARD_PLAYS,
 		ContextualCombatTutorial.PHASE_FIRST_PLAY,
 		ContextualCombatTutorial.PHASE_KILL_REFUND,
@@ -8359,6 +8350,10 @@ func _on_contextual_combat_prompt_completed(prompt_id: String) -> void:
 	if prompt_id != _guided_tutorial_phase_id:
 		return
 	match prompt_id:
+		ContextualCombatTutorial.PHASE_FLOOR_LOOT:
+			_combat_state[GuidedCombatScenario.STATE_KEY].erase(ContextualCombatTutorial.FLOOR_LOOT_PENDING_KEY)
+			_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_FLOOR_LOOT)
+			_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_INSPECT_ENEMY)
 		ContextualCombatTutorial.PHASE_CONFIRM_INTENT:
 			_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_INTENT)
 			_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_CARD_PLAYS)
@@ -13632,14 +13627,7 @@ func _action_step_icon_key(action: Dictionary) -> String:
 	var mapped_key: String = ActionIcons.action_icon_key(action)
 	if not mapped_key.is_empty():
 		return mapped_key
-	for token_var: Variant in ActionIcons.tokens_for_action(action):
-		if typeof(token_var) != TYPE_DICTIONARY:
-			continue
-		var token: Dictionary = token_var as Dictionary
-		if str(token.get("kind", "")) == "surface_condition":
-			continue
-		return str(token.get("icon", ""))
-	return ""
+	return KnownMoveText.fallback_action_icon_key(action)
 
 func _action_step_icon_tint(status: String) -> Color:
 	match status:
@@ -21937,7 +21925,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 		var movement_path: Array[Vector2i] = _vector2i_array((committed_combat_state.get("last_illusion_movement",{}) as Dictionary).get("path",[]))
 		await _animate_actor_along_path(previous_combat_state,"illusion_%d" % int(action["_illusion_id"]),movement_path,{"path_tiles":movement_path,"path_color":ENEMY_PATH_PREVIEW_COLOR})
 	elif not utility:
-		await _animate_player_action_step(previous_combat_state, committed_combat_state, "", action, target_tile)
+		await _animate_player_action_step(previous_combat_state, committed_combat_state, "", action, target_tile, [], movement_result)
 	await _animate_enemy_loss_feedback_between_states(
 		previous_combat_state,
 		committed_combat_state,
@@ -21971,8 +21959,11 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	_analytics_log_playable_cards()
 	_analytics_log_combat_transition(previous_run_state, "player_movement", transition_combat_state)
 	if committed_position != previous_position and _guided_tutorial_is_active() and _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CHOOSE_MOVE:
+		# The earlier movement checkpoint predates the lesson, even if the pickup is already claimed.
+		if not _guided_tutorial_uses_legacy_starter():
+			_combat_state[GuidedCombatScenario.STATE_KEY][ContextualCombatTutorial.FLOOR_LOOT_PENDING_KEY] = true
 		_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_MOVE)
-		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_INSPECT_ENEMY, false)
+		_guided_tutorial_set_phase(_guided_tutorial_after_move_phase(), false)
 	if _reward_intro_pending():
 		await _play_reward_reveal()
 	else:
@@ -23325,7 +23316,7 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 		preload("res://scripts/run_persistence.gd").mark_resolution_frame()
 		var resolution: Dictionary = _combat_engine.resolve_player_action_for_presentation(animated_state, action, target_tile)
 		var after_state: Dictionary = CommittedBattlefieldRules.accept(_combat_engine, resolution.get("state", {}))
-		await _animate_player_action_step(before_state, after_state, card_id, action, target_tile, resolution.get("chain_hits", []))
+		await _animate_player_action_step(before_state, after_state, card_id, action, target_tile, resolution.get("chain_hits", []), resolution.get("movement_bump", {}))
 		_battlefield_rule_switch.refresh(self, after_state)
 		animated_state = after_state
 	var echo_trace: Dictionary = {"echoes": []}
@@ -23718,7 +23709,7 @@ func _reflected_shot_descriptor(before_state: Dictionary, action: Dictionary, ta
 	shot[ShotFx.RESOLVED_KEY] = shot_id
 	return shot
 
-func _animate_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i, chain_hits: Array = []) -> void:
+func _animate_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i, chain_hits: Array = [], movement_bump: Dictionary = {}) -> void:
 	_resolved_contact_bursts.begin(before_state, {}, not _has_electrical_trace(chain_hits))
 	_burst_playback.prepare(before_state, after_state)
 	action = SurfaceRelicRules.resolve_action(before_state, action)
@@ -23763,17 +23754,17 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"stay":
 			_render_board_state(primary_display_state, base_presentation)
 		"move":
-			var move_path: Array[Vector2i] = _resolved_movement_animation_path(
-				player_before_tile,
-				player_after_tile,
-				_combat_engine.path_for_player_action(before_state, action, target_tile)
-			)
+			var requested_path: Array[Vector2i] = _combat_engine.path_for_player_action(before_state, action, target_tile)
+			var move_path: Array[Vector2i] = _resolved_movement_animation_path(player_before_tile, player_after_tile, requested_path)
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			var movement_presentation: Dictionary = base_presentation.duplicate(true)
 			movement_presentation["focus_tiles"] = move_path
 			movement_presentation["focus_color"] = Color(0.42, 0.84, 0.93, 0.24)
 			movement_presentation["path_tiles"] = move_path
 			await _animate_player_move_path(before_state, after_state, move_path, movement_presentation)
+			if movement_bump.has("blocked_tile"):
+				var collision: Dictionary = await preload("res://scripts/umbra_movement_view.gd").animate(self, before_state, player_after_tile, movement_bump["blocked_tile"], movement_presentation)
+				base_presentation.merge(collision, true)
 			_render_board_state(primary_display_state, _death_hold_presentation(before_state, primary_display_state, base_presentation))
 			await get_tree().create_timer(0.06).timeout
 			movement_ground_feedback_presented = await _animate_player_ground_result(after_state, before_state, triggered_traps, base_presentation)
@@ -27541,8 +27532,7 @@ func _place_log_overlay_clear_of_choices(mode: String) -> void:
 	if log_overlay == null: return
 	# The Hearth's four choices reach the notice's corner, so there the notice sits just above them.
 	var lift: float = RELIC_CHOICE_OVERLAY_SIZE.y + RELIC_CHOICE_BOTTOM_MARGIN if mode == "campfire" else 0.0
-	log_overlay.offset_top = LOG_OVERLAY_OFFSET_TOP - lift
-	log_overlay.offset_bottom = LOG_OVERLAY_OFFSET_BOTTOM - lift
+	_notice_placement.set_choice_lift(lift)
 
 func _refresh_log_overlay_visibility(transient: bool = false) -> void:
 	preload("res://scripts/run_notification_queue.gd").refresh(self, transient)

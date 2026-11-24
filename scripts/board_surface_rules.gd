@@ -40,9 +40,10 @@ static func has_rubble(state: Dictionary, tile: Vector2i) -> bool:
 static func has_surface(state: Dictionary, tile: Vector2i, surface: String) -> bool:
 	return has_rubble(state, tile) if kind(surface) == "rubble" else element_at(state, tile) == kind(surface)
 
-static func is_conductive(state: Dictionary, tile: Vector2i, rule_beat: bool = false) -> bool:
+static func is_conductive(state: Dictionary, tile: Vector2i, allow_fire: bool = false, rule_beat: bool = false) -> bool:
 	var element: String = element_at(state, tile)
-	var conductive: bool = element == "electrified" or (element == "fire" and bool((state.get("surface_rule_overrides", {}) as Dictionary).get("conductive_fire", false)))
+	var conductive: bool = element == "electrified" or (allow_fire and element == "fire" and bool((state.get("surface_rule_overrides", {}) as Dictionary).get("conductive_fire", false)))
+	# Only hero Lightning and its UI use Stormcoal Fire.
 	# Rule lightning cannot borrow fresh ground as a relay or component member.
 	# Ordinary attacks retain immediate conduction and their existing riders.
 	return conductive and (not rule_beat or BeatFuel.eligible(state, surface_at(state, tile).get("elemental_source", {})))
@@ -177,9 +178,9 @@ static func movement_step_cost(state: Dictionary, unit: Dictionary, from: Vector
 			return 2
 	return 1
 
-static func connected_component(state: Dictionary, start: Vector2i, allowed: Dictionary = {}) -> Array[Vector2i]:
+static func connected_component(state: Dictionary, start: Vector2i, allowed: Dictionary = {}, allow_fire: bool = false) -> Array[Vector2i]:
 	var result: Array[Vector2i]
-	if not is_conductive(state, start) or (not allowed.is_empty() and not allowed.has(start)):
+	if not is_conductive(state, start, allow_fire) or (not allowed.is_empty() and not allowed.has(start)):
 		return result
 	var queue: Array[Vector2i]
 	queue.append(start)
@@ -191,7 +192,7 @@ static func connected_component(state: Dictionary, start: Vector2i, allowed: Dic
 		result.append(current)
 		for direction: Vector2i in PathUtils.DIRS_4:
 			var next: Vector2i = current + direction
-			if visited.has(next) or not can_place(state, next) or not is_conductive(state, next):
+			if visited.has(next) or not can_place(state, next) or not is_conductive(state, next, allow_fire):
 				continue
 			if not allowed.is_empty() and not allowed.has(next):
 				continue

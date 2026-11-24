@@ -373,5 +373,5 @@ static func _director_feedback(engine: RefCounted, expect: Callable) -> void:
 	for anchored_type: String in ["gale_herald", "gallows_roc"]:
 		var chips: Array[Dictionary] = preload("res://scripts/enemy_mechanics/unit_traits.gd").badges({"type": anchored_type, "hp": 1})
 		expect.call(chips.size() == 1 and chips[0]["icon"] == "anchored" and chips[0]["tooltip"] == "Anchored\n" + Glossary.definition("anchored"), "Anchored trait chip on " + anchored_type)
-	expect.call(Glossary.definition("icefall") == "Marked tiles show where this enemy acts on its next turn.", "Icefall aliases the approved Marked keyword")
+	expect.call(Glossary.definition("icefall") == "Marked tiles show where this enemy will act.", "Icefall aliases the approved Marked keyword")
 	expect.call(Glossary.definition("wind") == "On each Gust beat, each unit is Pushed downwind.", "Wind icon description uses approved wording")

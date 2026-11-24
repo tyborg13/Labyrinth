@@ -1,0 +1,36 @@
+{
+  "K": 4,
+  "drawn_size": [
+    156,
+    43
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.8984375,
+  "metrics": {
+    "base_v_left": 0.15174069627851158,
+    "base_v_right": -0.1547659063625448,
+    "chroma": 0.1354429995138551,
+    "edge_light_share": 0.9143576826196473,
+    "feature_px": 6.74929190185686,
+    "height": 43,
+    "height_drawn": 43.0,
+    "orphan_share": 0.044163223140495866,
+    "regions": 85,
+    "run_length": 4.6650602409638555,
+    "symmetry": 0.8823243374665695,
+    "thin_abs": 0.03125,
+    "thin_rel": 0.010330578512396715,
+    "value": 0.34334246070328955,
+    "width": 156
+  },
+  "pixel_sha256": "02f77175e70069ea796564de334de3eb08e194462caa3583a1ecbbdc2f931d78",
+  "placement": [
+    50,
+    203
+  ],
+  "raw_sha256": "799445e1623227e131be362e53328306b8e7feddc0dbe0400261b4578efce295",
+  "shift": [
+    0,
+    0
+  ]
+}

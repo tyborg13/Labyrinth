@@ -16,6 +16,7 @@ static func run(expect: Callable) -> void:
 	_test_living_shadow(expect)
 	_test_prismatic_instinct_and_confluence(expect)
 	_test_radiance_branch(expect)
+	_test_dawnbrand_ignores_indirect_hits(expect)
 	_test_encore(expect)
 
 static func _test_quick_wits(expect: Callable) -> void:
@@ -387,9 +388,13 @@ static func _test_radiance_branch(expect: Callable) -> void:
 	expect.call(((sunpath_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).size() == source_count_before_second_move, "Sunpath should trigger only on the first qualifying movement each turn")
 
 	var blink_state: Dictionary = _state(combat, ["sunpath"], ["quick_stab"])
-	blink_state = combat.apply_player_action(blink_state, {"type": "blink", "range": 4}, Vector2i(5, 4))
-	var blink_sources: Array = (blink_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
-	expect.call(blink_sources.size() == 2, "Sunpath should light only a Blink's origin and destination")
+	blink_state["grid"][4][3] = "wall"
+	var landing := Vector2i(5, 5)
+	blink_state = combat.apply_player_action(blink_state, {"type": "blink", "range": 4}, landing)
+	var blink_sources: Array = blink_state["umbra"]["light_sources"]
+	var positions: Array = blink_sources.map(func(source: Dictionary) -> Vector2i: return source["pos"])
+	expect.call(blink_state["player"]["pos"] == landing and positions == [Vector2i(2, 4), Vector2i(4, 5), landing],
+		"Sunpath lights every floor tile on a diagonal Blink trace, including beyond an intervening wall")
 
 	var witchlight_state: Dictionary = _state(combat, ["witchlight"], ["quick_stab"])
 	witchlight_state["illusions"] = [{"id": 51, "pos": Vector2i(4, 4), "hp": 2, "max_hp": 2}]
@@ -416,6 +421,30 @@ static func _test_radiance_branch(expect: Callable) -> void:
 	var player_pos: Vector2i = (open_sky_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	open_sky_state = combat.apply_player_action(open_sky_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": 2}, player_pos)
 	expect.call(bool(combat.call("_player_has_vision", open_sky_state)), "Open Sky should grant Vision while the player stands in Light")
+
+static func _test_dawnbrand_ignores_indirect_hits(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var aimed := Vector2i(4, 4)
+	var indirect := Vector2i(5, 4)
+	var light := Vector2i(5, 5)
+	const TEST_HP: int = 100
+	for card: String in ["arc_flash", "chain_bolt"]:
+		var state: Dictionary = _state(combat, ["dawnbrand"], [card])
+		_set_single_enemy(state, aimed, TEST_HP)
+		var secondary: Dictionary = state["enemies"][0].duplicate(true)
+		secondary.merge({"id": 2, "pos": indirect}, true)
+		state["enemies"].append(secondary)
+		if card == "arc_flash":
+			Surface.place(state, aimed, "electrified")
+			Surface.place(state, indirect, "electrified")
+		state = combat.apply_player_action(state, {"type": "illuminate", "range": 6, "radius": 1}, light)
+		var action: Dictionary = combat.card_def(card, state)["actions"][0]
+		var hit: Dictionary = combat.apply_player_action(state, action, aimed)
+		expect.call(hit["enemies"][1]["hp"] < TEST_HP and hit["enemies"][1]["expose"] == 0
+			and _skill_event_count(combat, hit, "dawnbrand") == 0, "%s hits a lit enemy indirectly without spending Dawnbrand" % card)
+		var followup: Dictionary = combat.apply_player_action(hit, action, indirect)
+		expect.call(followup["enemies"][1]["expose"] == 1 and _skill_event_count(combat, followup, "dawnbrand") == 1,
+			"Dawnbrand remains available for a direct hit after %s" % card)
 
 static func _state(combat: CombatEngine, skills: Array, cards: Array) -> Dictionary:
 	return combat.create_combat(501, _room(), {

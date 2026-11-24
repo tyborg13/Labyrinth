@@ -57,7 +57,8 @@ static func run(expect: Callable) -> void:
 			var raw_marked: bool = false
 			for row: Array in rows:
 				if row.any(func(token: Dictionary) -> bool: return str(token.get("icon", "")) == "marked"): raw_marked = true
-			expect.call(raw_marked == (Areas.kind_for(id,move) == Areas.FIXED_KIND), id+"/"+move+" raw pre-battle row shares its targeting keyword")
+			var expects_marked: bool = Areas.kind_for(id, move) == Areas.FIXED_KIND or (id == "vaeloryx" and move == "razor_dive")
+			expect.call(raw_marked == expects_marked, id+"/"+move+" raw pre-battle row shares its targeting keyword")
 			var intent: Dictionary = state["enemies"][0]["intent"]
 			expect.call(Areas.has_held(intent), id+"/"+move+" freezes its area at declaration")
 			var serialized: Dictionary = bytes_to_var(var_to_bytes(state))

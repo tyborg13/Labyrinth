@@ -1,0 +1,14 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 8,
+  "required_images": [
+    {"pattern": "hover_static_ward.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_static_ward.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_frost_lane.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_frost_lane.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_thorn_skewer.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_thorn_skewer.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_venom_claw.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_venom_claw.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]}
+  ]
+}

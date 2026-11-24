@@ -219,7 +219,7 @@ func _hobnail() -> void:
 	for tile: Vector2i in [HERO, ADJACENT]:
 		Surface.place(state, tile, "ice", GROUND_SOURCE)
 	var after: Dictionary = _play(state, "white_silence")
-	_record("hobnail_white_silence", {"enemy_health_loss": _hp(state) - _hp(after)}, {"enemy_health_loss": 8})
+	_record("hobnail_white_silence", {"enemy_health_loss": _hp(state) - _hp(after)}, {"enemy_health_loss": 10})
 
 
 func _frost_prism() -> void:
@@ -480,4 +480,4 @@ func _time_and_damage_faces() -> void:
 	for tile: Vector2i in [HERO, ADJACENT]:
 		Surface.place(state, tile, "ice", GROUND_SOURCE)
 	var ice_face: String = Display.for_card("white_silence", state)["summary_bbcode"]
-	_check(ice_face.contains("8"), "White Silence shows the boosted 8 damage on the hand face")
+	_check(ice_face.contains("10"), "White Silence shows the boosted 10 damage on the hand face")

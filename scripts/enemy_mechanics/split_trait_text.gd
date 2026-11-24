@@ -14,7 +14,7 @@ static func trait_token(unit: Dictionary) -> Dictionary:
 	var enemy_name: String = str(Data.enemies().get(str(spawn.get("enemy_type", "")), {}).get("name", ""))
 	if count != 1: enemy_name += "s"
 	var distance: int = maxi(1, int(spawn.get("radius", 1)))
-	return Icons.icon_text_token("splits", "Splits %d" % count, "When this enemy dies, this enemy splits into %d %s within %d tile%s." % [count, enemy_name, distance, "" if distance == 1 else "s"])
+	return Icons.icon_text_token("splits", "Splits %d" % count, "On death, this enemy splits into %d %s within %d tile%s." % [count, enemy_name, distance, "" if distance == 1 else "s"])
 
 static func append_tag(tags: Array, enemy_type: String) -> Array:
 	var token: Dictionary = trait_token({"type": enemy_type})

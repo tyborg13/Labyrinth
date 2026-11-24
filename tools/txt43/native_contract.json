@@ -1,0 +1,18 @@
+{
+  "min_images": 12,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "arc_thrall_arc_bolt_1920x1080.png", "regions": [{"rect": [420, 140, 1100, 740], "min_luma_range": 30, "min_luma_stdev": 6}]},
+    {"pattern": "gallows_roc_hookwind_1920x1080.png", "regions": [{"rect": [420, 140, 1100, 740], "min_luma_range": 30, "min_luma_stdev": 6}, {"rect": [1096, 271, 224, 126], "min_luma_range": 15, "min_luma_stdev": 2}]},
+    {"pattern": "vaeloryx_razor_dive_1920x1080.png", "regions": [{"rect": [420, 140, 1100, 740], "min_luma_range": 30, "min_luma_stdev": 6}]},
+    {"pattern": "craghide_after_outcrop_1920x1080.png", "regions": [{"rect": [420, 140, 1100, 740], "min_luma_range": 30, "min_luma_stdev": 6}]},
+    {"pattern": "grimoire_gust_shrike_1920x1080.png", "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "grimoire_frostglass_lancer_1920x1080.png", "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "grimoire_craghide_1920x1080.png", "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "grimoire_burrow_grub_1920x1080.png", "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "grimoire_ember_hoarder_1920x1080.png", "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "grimoire_storm_capacitor_1920x1080.png", "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "grimoire_iskaldra_1920x1080.png", "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "grimoire_grave_surgeon_1920x1080.png", "regions": [{"rect": [500, 320, 920, 420], "min_luma_range": 25, "min_luma_stdev": 3}]}
+  ]
+}

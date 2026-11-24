@@ -44,8 +44,12 @@ static func _copy_and_panels(expect: Callable) -> void:
 	var pages: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla02_grimoire_pages.json"))["pages"]
 	for id: String in approved["entries"]:
 		var reference: Dictionary = approved["entries"][id]
-		var expected_body: Array = pages.get(id, copy20["grimoire_bodies"].get(id, reference["body"]))
-		expect.call(entries[id]["body"] == expected_body, "Grimoire preserves the approved body: " + id)
+		if reference.has("lore"):
+			expect.call(not entries[id].has("body") and entries[id]["lore"] == reference["lore"]
+				and entries[id]["lore"] == copy20["grimoire_lore"][id], "Grimoire preserves the approved lore: " + id)
+		else:
+			var expected_body: Array = pages.get(id, copy20["grimoire_bodies"].get(id, reference["body"]))
+			expect.call(entries[id]["body"] == expected_body, "Grimoire preserves the approved body: " + id)
 		for field: String in reference["identity"]:
 			expect.call(entries[id][field] == reference["identity"][field], "F1 preserves Grimoire " + field + ": " + id)
 	# txt-20 approves a battlefield sentence and a separate Grimoire body.
@@ -70,7 +74,7 @@ static func _outcrop_occupancy(expect: Callable) -> void:
 	expect.call(engine._terrain_index_at_tile(state, COPY_STONE_ANCHOR) >= 0, "F1 the next Upheaval does not expire an unbroken Outcrop")
 
 static func _gale_numbers(expect: Callable) -> void:
-	expect.call(preload("res://scripts/glossary.gd").definition("gale_force") == "This enemy damages each unit within 2 tiles, then Pushes each unit hit 1 tile.", "F2 Hollow Gale tooltip is verbatim and matches its own Push 1")
+	expect.call(preload("res://scripts/glossary.gd").definition("gale_force") == "This enemy damages you and your Illusions on Marked tiles, then Pushes you 1 tile away.", "F2 Hollow Gale tooltip is verbatim and matches its own Push 1")
 	var gale: Dictionary = {}
 	var eye: Dictionary = {}
 	for intent: Dictionary in Data.enemy_def("vaeloryx")["intents"]:

@@ -71,14 +71,14 @@ func _run() -> void:
 	var copy20: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(TXT20_COPY_PATH))
 	var pla04: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PLA04_COPY_PATH))
 	_expect(Glossary.all_entries().size() == 128, "Final glossary contains all 128 live entries")
-	_expect(Glossary.definition("marked") == "Marked tiles show where this enemy acts on its next turn.", "Marked retains its approved definition")
+	_expect(Glossary.definition("marked") == "Marked tiles show where this enemy will act.", "Marked retains its approved definition")
 	var deferred_copy: String = "Skip a card reward to save 1 offered card. Replace 1 card in your next non-boss reward with that card."
 	_expect(Glossary.definition("skill_deferred_choice") == deferred_copy and Skills.description("deferred_choice") == deferred_copy, "Deferred Choice uses its exact shared non-boss reward rule")
 	var pla01: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla01_exception_strip.json"))
 	# pla-02: director-approved Grimoire pages (tooltip sentence + one detail
 	# paragraph) supersede every Grimoire body pinned below.
 	var pla02_pages: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla02_grimoire_pages.json"))["pages"]
-	pla02_pages["keyword:marked"][0] = "Marked tiles show where this enemy acts on its next turn."
+	pla02_pages["keyword:marked"][0] = "Marked tiles show where this enemy will act."
 	pla02_pages["combat:traps"][0] = "Traps hit when entered or attacked."
 	_pla02_pages = pla02_pages
 	_expect(entry_map["keyword:marked"]["body"] == pla02_pages["keyword:marked"] and str(pla02_pages["keyword:marked"][0]) == Glossary.definition("marked"), "Marked owns the definition replacing the four retired topics, plus its Burrow detail")

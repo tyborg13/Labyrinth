@@ -1111,13 +1111,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Deal 2 at Range 2. If the target stands on Fire, also Burst 6 that Fire.",
+    "description": "Deal 4 at Range 2. If the target stands on Fire, also Burst 6 that Fire.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/cinderline_tempo.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 2,
+        "damage": 4,
         "range": 2,
         "element": "fire"
       },
@@ -1216,13 +1216,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Deal 4 across 3 tiles at Range 2, then leave Fire.",
+    "description": "Deal 5 across 3 tiles at Range 2, then leave Fire.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/molten_reach.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 4,
+        "damage": 5,
         "range": 2,
         "pattern": [
           [
@@ -1679,14 +1679,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 6 and Stagger 6 to each enemy you can see on Ice.",
+    "description": "Deal 8 and Stagger 6 to each enemy you can see on Ice.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/white_silence.png",
     "actions": [
       {
         "type": "all_enemies",
         "selector": "on_ice",
-        "damage": 6,
+        "damage": 8,
         "element": "ice",
         "stagger": 6
       }
@@ -1845,13 +1845,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Deal 4 damage across 3 tiles at Range 2, then leave Electrified.",
+    "description": "Deal 5 damage across 3 tiles at Range 2, then leave Electrified.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/volt_surge.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 4,
+        "damage": 5,
         "range": 2,
         "pattern": [
           [
@@ -2079,13 +2079,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Strike for 8, then leave Rubble on the target's tile.",
+    "description": "Strike for 9, then leave Rubble on the target's tile.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/venom_claw.png",
     "actions": [
       {
         "type": "melee",
-        "damage": 8,
+        "damage": 9,
         "range": 1,
         "surface": "rubble",
         "element": "earth"
@@ -2145,20 +2145,20 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Pierce an adjacent enemy for 6. Deal 3 more if the target stands on Rubble.",
+    "description": "Pierce an adjacent enemy for 7. Deal 4 more if the target stands on Rubble.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/thorn_skewer.png",
     "actions": [
       {
         "type": "melee",
-        "damage": 6,
+        "damage": 7,
         "range": 1,
         "pierce": true,
         "surface_bonus": {
           "surface": "rubble",
           "subject": "target",
           "present": true,
-          "damage": 3
+          "damage": 4
         },
         "element": "earth"
       }
@@ -2218,7 +2218,7 @@
     "rarity": "rare",
     "burn": false,
     "health_cost": 0,
-    "time": 6,
+    "time": 5,
     "description": "Strike for 9, then leave Rubble.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/grave_mortar.png",
@@ -4879,14 +4879,14 @@
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "time": 3,
-    "description": "Deal 4 across 3 tiles, then leave Fire on the farthest tile.",
+    "time": 2,
+    "description": "Deal 5 across 3 tiles, then leave Fire on the farthest tile.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/flame_jet.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 4,
+        "damage": 5,
         "range": 1,
         "pattern": [
           [
@@ -4921,7 +4921,7 @@
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "time": 3,
+    "time": 2,
     "description": "Leave Ice on 3 tiles, then Draw 1.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/frost_lane.png",
@@ -5172,14 +5172,14 @@
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "time": 3,
-    "description": "Strike for 4 and Push the target 3 tiles.",
+    "time": 2,
+    "description": "Strike for 5 and Push the target 3 tiles.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/hurricane_palm.png",
     "actions": [
       {
         "type": "push",
-        "damage": 4,
+        "damage": 5,
         "range": 1,
         "amount": 3,
         "element": "air"
@@ -5239,8 +5239,8 @@
     "rarity": "rare",
     "burn": false,
     "health_cost": 0,
-    "time": 4,
-    "description": "Blink 3, then Strike an adjacent enemy for 5 and Push the target 1 tile.",
+    "time": 3,
+    "description": "Blink 3, then Strike an adjacent enemy for 7 and Push the target 1 tile.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/kestrel_dive.png",
     "actions": [
@@ -5250,7 +5250,7 @@
       },
       {
         "type": "push",
-        "damage": 5,
+        "damage": 7,
         "range": 1,
         "amount": 1,
         "element": "air",
@@ -5724,14 +5724,14 @@
     "rarity": "rare",
     "burn": false,
     "health_cost": 0,
-    "time": 4,
-    "description": "Strike for 5 and Push each enemy hit 1 tile, then leave Electrified on your tile.",
+    "time": 3,
+    "description": "Strike for 6 and Push each enemy hit 1 tile, then leave Electrified on your tile.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/thunderclap.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 5,
+        "damage": 6,
         "range": 0,
         "pattern": [
           [
@@ -5927,7 +5927,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Deal 3 damage at Range 3. Follow-up: Chain 2.",
+    "description": "Deal 4 damage at Range 3. Follow-up: Chain 2.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/arc_flash.png",
     "follow_up": {
@@ -5943,7 +5943,7 @@
     "actions": [
       {
         "type": "ranged",
-        "damage": 3,
+        "damage": 4,
         "range": 3,
         "element": "lightning"
       }
@@ -6927,13 +6927,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Strike for 6. Add +1 damage per Stoneskin you have, up to +6.",
+    "description": "Strike for 9. Add +1 damage per Stoneskin you have, up to +6.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/stonefist.png",
     "actions": [
       {
         "type": "melee",
-        "damage": 6,
+        "damage": 9,
         "range": 1,
         "element": "earth",
         "scale_bonus": {
@@ -7391,13 +7391,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Choose a tile within Range 3. Push each adjacent enemy 2 tiles away from the tile. On Rubble: also Burst 5 that Rubble before the Push.",
+    "description": "Choose a tile within Range 3. Push each adjacent enemy 2 tiles away from the tile. On Rubble: also Burst 8 that Rubble before the Push.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/dust_devil.png",
     "actions": [
       {
         "type": "detonate",
-        "damage": 5,
+        "damage": 8,
         "range": 3,
         "pattern": [
           [
@@ -7697,14 +7697,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Gain 5 Block, then Push each adjacent enemy 1 tile away.",
+    "description": "Gain 6 Block, then Push each adjacent enemy 1 tile away.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/gale_ward.png",
     "role_emblem": "block",
     "actions": [
       {
         "type": "block",
-        "amount": 5
+        "amount": 6
       },
       {
         "type": "force_area",
@@ -7903,13 +7903,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Gain 5 Block. Leave Ice on the tile of each enemy adjacent to you.",
+    "description": "Gain 6 Block. Leave Ice on the tile of each enemy adjacent to you.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/hoarfrost_ward.png",
     "actions": [
       {
         "type": "block",
-        "amount": 5
+        "amount": 6
       },
       {
         "type": "surface_adjacent_enemies",
@@ -8335,7 +8335,7 @@
     "rarity": "rare",
     "burn": false,
     "health_cost": 0,
-    "time": 3,
+    "time": 2,
     "description": "Expose 3 each enemy in Light within Range 4. Draw 1.",
     "accent": "#e6c56c",
     "art_path": "res://assets/art/cards/revealing_glare.png",
@@ -8712,13 +8712,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Gain 5 Block, then leave Electrified on your tile and each adjacent enemy's tile.",
+    "description": "Gain 6 Block, then leave Electrified on your tile and each adjacent enemy's tile.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/static_ward.png",
     "actions": [
       {
         "type": "block",
-        "amount": 5
+        "amount": 6
       },
       {
         "type": "surface_adjacent_enemies",
@@ -8759,13 +8759,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Gain 5 Block, then leave Rubble on each adjacent enemy's tile.",
+    "description": "Gain 7 Block, then leave Rubble on each adjacent enemy's tile.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/stone_ward.png",
     "actions": [
       {
         "type": "block",
-        "amount": 5
+        "amount": 7
       },
       {
         "type": "surface_adjacent_enemies",

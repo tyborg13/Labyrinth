@@ -69,6 +69,7 @@ func _run() -> void:
 	_expect(int(counts.get("run_start_boon_offered", 0)) == 1 and int(counts.get("run_start_boon_chosen", 0)) == 1 and int(counts.get("heirloom_left", 0)) == 1, "Live save boundaries append each additive event exactly once")
 	await preload("res://tests/helpers/heirloom_checks.gd").run(self, scene, _expect)
 	await _purge_selection(scene)
+	await _locked_heirloom_flow(scene)
 	await process_frame
 	await process_frame
 	scene.queue_free()
@@ -147,6 +148,33 @@ func _heirloom_flow(scene: Node) -> void:
 	scene.call("_advance_dialogue")
 	await _settle()
 	_expect(bool(scene.get("_run_end_recap").visible) and not ProgressionStore.has_saved_run(), "Acknowledged heirloom releases the normal summary and terminal cleanup")
+
+func _locked_heirloom_flow(scene: Node) -> void:
+	Analytics.set_storage_dir("user://opening_boon_locked_heirloom_analytics")
+	Analytics.clear_storage()
+	var profile: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
+	_expect(ProgressionStore.save_data(profile), "Save a fresh profile for the locked heirloom case")
+	scene.set("_progression", profile)
+	var state: Dictionary = HeirloomFixture.equip(RunEngine.new().create_new_run(Fixture.PROOF_SEED, profile), 1)
+	state["mode"] = "defeat"
+	state["game_over"] = true
+	state["player_hp"] = 0
+	scene.call("_load_run_state", state)
+	await _settle()
+	var ending: Dictionary = scene.get("_run_state")
+	var item: String = HeirloomFixture.PROOF_ITEMS[0]
+	_expect(not ProgressionStore.emaciated_services_unlocked(ending["progression"]) and Boons.heirloom_pieces(ending) == [item], "Locked fixture has an eligible equipped piece")
+	var flow: RefCounted = scene.get("_opening_boon_flow")
+	var prompted: bool = scene.get("_dialogue_active") or flow.call("active")
+	var recap: bool = scene.get("_run_end_recap").visible
+	_expect(not prompted and recap, "Locked defeat goes straight to recap without an heirloom prompt")
+	# Exercise a stale selection request as well as the live presentation.
+	flow.call("leave_heirloom", scene, item)
+	var stored: String = ProgressionStore.heirloom(ProgressionStore.load_data())
+	var events: Array = Analytics.load_all_events().filter(func(event: Dictionary) -> bool: return event["event_type"] == "heirloom_left")
+	_expect(stored.is_empty(), "Locked defeat stores no heirloom")
+	_expect(events.is_empty(), "Locked defeat emits zero heirloom_left events")
+	print("LOCKED HEIRLOOM ENDING: recap=%s prompt=%s stored=%s heirloom_left=%d" % [recap, prompted, "none" if stored.is_empty() else stored, events.size()])
 
 func _terminal_resume_wallet(scene: Node) -> void:
 	var state: Dictionary = HeirloomFixture.equip(Fixture.state())

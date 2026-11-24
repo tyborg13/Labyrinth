@@ -8,7 +8,10 @@ const DepthRules = preload("res://scripts/depth_rules.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const VERSION: int = 1
-const LAYOUT_REVISION: int = 7
+# Revision 8 puts two fights on every approach to a Scavenger.
+const LAYOUT_REVISION: int = 8
+const SCAVENGER_SPACING_REVISION: int = 8
+const MIN_FIGHTS_BEFORE_SCAVENGER: int = 2
 const SCOUT_MODES: Array = ["room", "combat", "pre_battle"]
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const Guardians = preload("res://scripts/guardian_library.gd")
@@ -103,8 +106,11 @@ static func _initialize_walk_revision(state: Dictionary, revision: int, diagnost
 		var count: int = ROOM_COUNTS[index]
 		var boss_id: String = Bosses.boss_id_for_depth(seed_value, (index + 1) * 4)
 		var layout: Dictionary = {}
+		var accept_layout: Callable
+		if revision >= SCAVENGER_SPACING_REVISION:
+			accept_layout = _place_specials_with_scavenger_spacing.bind(rng, count, Bosses.element_for_boss(boss_id), inputs["specials"], revision, cancelled)
 		if revision >= 7:
-			layout = _section_layout_v7_with_weight(rng, seed_value, index, section_diagnostics, guardian_weight, cancelled)
+			layout = _section_layout_v7_with_weight(rng, seed_value, index, section_diagnostics, guardian_weight, cancelled, accept_layout)
 		elif revision >= 5:
 			layout = _section_layout_v5_with_weight(rng, seed_value, index, section_diagnostics, guardian_weight)
 		else:
@@ -117,7 +123,7 @@ static func _initialize_walk_revision(state: Dictionary, revision: int, diagnost
 			if layout.is_empty():
 				layout = _fallback_layout(count, FIGHT_COUNTS[index] - 1)
 		if cancelled.is_valid() and bool(cancelled.call()): return false
-		if revision >= 6 and not Specials.place_from_catalog(layout, rng, count, Bosses.element_for_boss(boss_id), inputs["specials"], revision, cancelled):
+		if revision >= 6 and not layout.get("specials_placed", false) and not Specials.place_from_catalog(layout, rng, count, Bosses.element_for_boss(boss_id), inputs["specials"], revision, cancelled):
 			if cancelled.is_valid() and bool(cancelled.call()): return false
 			_diagnostic_v5(section_diagnostics, "fallback")
 			layout = _fallback_layout_v7(seed_value, index) if revision >= 7 else _fallback_layout(count, FIGHT_COUNTS[index] - 1)
@@ -292,19 +298,62 @@ static func _section_layout_v7(rng: RandomNumberGenerator, seed_value: int, inde
 	var weight: int = DepthRules.guardian_weight(depth_state, TYPE_WEIGHTS["guardian"])
 	return _section_layout_v7_with_weight(rng, seed_value, index, diagnostics, weight, Callable())
 
-static func _section_layout_v7_with_weight(rng: RandomNumberGenerator, seed_value: int, index: int, diagnostics: Dictionary, guardian_weight: int, cancelled: Callable) -> Dictionary:
+static func _section_layout_v7_with_weight(rng: RandomNumberGenerator, seed_value: int, index: int, diagnostics: Dictionary, guardian_weight: int, cancelled: Callable, accept_layout: Callable = Callable()) -> Dictionary:
 	var count: int = ROOM_COUNTS[index]
+	var original_shops: int = -1
+	var best_shops: int = -1
+	var best_layout: Dictionary = {}
 	# Tests force the fallback through the diagnostics hook.
 	if not diagnostics.get("force_fallback", false):
 		for attempt: int in range(SECTION_ATTEMPTS):
 			if cancelled.is_valid() and bool(cancelled.call()): return {}
 			var layout: Dictionary = _web_layout_v7(rng, index, count, diagnostics, cancelled)
 			if layout.is_empty(): continue
-			if _assign_types_v5(layout, rng, seed_value, index, count, diagnostics, guardian_weight, V7_TYPE_NODE_BUDGET): return layout
+			if not _assign_types_v5(layout, rng, seed_value, index, count, diagnostics, guardian_weight, V7_TYPE_NODE_BUDGET): continue
+			if not accept_layout.is_valid(): return layout
+			var shops: int = _scavenger_count(layout)
+			# Preserve merchant density when spacing rejects the original roll.
+			if original_shops < 0: original_shops = shops
+			if shops <= best_shops or not accept_layout.call(layout): continue
+			if shops >= original_shops: return layout
+			best_shops = shops
+			best_layout = layout
 	if cancelled.is_valid() and bool(cancelled.call()): return {}
+	if not best_layout.is_empty(): return best_layout
 	_diagnostic_v5(diagnostics, "fallback")
 	print("SECTION MAP V7 FALLBACK seed=%d section=%d after %d topology attempts" % [seed_value, index + 1, SECTION_ATTEMPTS])
 	return _fallback_layout_v7(seed_value, index)
+
+static func _scavenger_count(layout: Dictionary) -> int:
+	var total: int = 0
+	for node: Dictionary in layout["nodes"].values():
+		if _resolved_node_type(node) == "scavenger": total += 1
+	return total
+
+static func _resolved_node_type(node: Dictionary) -> String:
+	return node["mystery_type"] if node["type"] == "mystery" else node["type"]
+
+static func _place_specials_with_scavenger_spacing(layout: Dictionary, rng: RandomNumberGenerator, count: int, biome: String, catalog: Dictionary, revision: int, cancelled: Callable) -> bool:
+	if not _scavenger_spacing_legal(layout): return false
+	if not Specials.place_from_catalog(layout, rng, count, biome, catalog, revision, cancelled): return false
+	if not _scavenger_spacing_legal(layout): return false
+	layout["specials_placed"] = true
+	return true
+
+static func _scavenger_spacing_legal(layout: Dictionary) -> bool:
+	# Merged routes inherit the fewest fights on any approach. Check the
+	# resolved mystery type, and exclude special rooms after substitution.
+	var fewest_fights: Dictionary = {}
+	for cell: Vector2i in layout["order"]:
+		var parents: Array = layout["parents"].get(cell, [])
+		var before: int = 0 if parents.is_empty() else MIN_FIGHTS_BEFORE_SCAVENGER
+		for parent: Vector2i in parents:
+			before = mini(before, int(fewest_fights[parent]))
+		var node: Dictionary = layout["nodes"][cell]
+		var type: String = _resolved_node_type(node)
+		if type == "scavenger" and before < MIN_FIGHTS_BEFORE_SCAVENGER: return false
+		fewest_fights[cell] = before + int(type in ["combat", "guardian"])
+	return true
 
 # One prevalidated revision-7 section per index, for exhausted generation or
 # special placement. tools/section_map_v7_fallbacks.gd regenerates the data;

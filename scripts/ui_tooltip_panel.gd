@@ -26,9 +26,12 @@ static func make_text(text: String, source: Dictionary = {}, term: String = "") 
 	return make_plain_text(text)
 
 static func make_plain_text(text: String) -> PanelContainer:
+	var trimmed: String = text.strip_edges()
+	if not trimmed.contains("\n") and trimmed.right(1) in [".", "!", "?"]:
+		return make_lines("", PackedStringArray([trimmed]))
 	var lines: PackedStringArray = text.split("\n", false)
 	if lines.is_empty():
-		return make_lines(text.strip_edges(), PackedStringArray())
+		return make_lines(trimmed, PackedStringArray())
 	var title: String = lines[0].strip_edges()
 	var body_lines := PackedStringArray()
 	for index: int in range(1, lines.size()):
@@ -48,7 +51,8 @@ static func make_icon_lines(
 	title: String,
 	body_lines: PackedStringArray,
 	term: String = "",
-	source: Dictionary = {}
+	source: Dictionary = {},
+	plain_body: String = ""
 ) -> PanelContainer:
 	var panel: PanelContainer = _make_panel(ICON_TOOLTIP_WIDTH, 12.0)
 	var row := HBoxContainer.new()
@@ -79,7 +83,7 @@ static func make_icon_lines(
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(icon)
-	row.add_child(_make_text_box(title, body_lines, ICON_BODY_WIDTH, 4))
+	row.add_child(_make_text_box(title, body_lines, ICON_BODY_WIDTH, 4, plain_body))
 	_finish_panel(panel)
 	return panel
 
@@ -94,7 +98,8 @@ static func _make_text_box(
 	title: String,
 	body_lines: PackedStringArray,
 	body_width: float,
-	separation: int
+	separation: int,
+	plain_body: String = ""
 ) -> VBoxContainer:
 	var vbox := VBoxContainer.new()
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -117,20 +122,31 @@ static func _make_text_box(
 	if not body_lines.is_empty():
 		var body_text: String = InlineIconText.Patterns.display_rules("\n".join(body_lines))
 		if InlineIconText.has_icons(body_text):
-			vbox.add_child(_make_rich_label(body_text, body_width, UiTypography.ROLE_BODY if InlineIconText.concept_keys(body_text).is_empty() else UiTypography.ROLE_BODY_LARGE, BODY_COLOR, 1))
+			var rich: RichTextLabel = _make_rich_label(body_text, body_width, UiTypography.ROLE_BODY if InlineIconText.concept_keys(body_text).is_empty() else UiTypography.ROLE_BODY_LARGE, BODY_COLOR, 1)
+			if not plain_body.is_empty() and not InlineIconText.has_icons(InlineIconText.Patterns.display_rules(plain_body)):
+				# Numbered definitions that gain a diagram keep their existing row height.
+				var plain: Label = _make_body_label(plain_body, body_width)
+				plain.self_modulate.a = 0.0
+				plain.add_child(rich)
+				rich.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+				vbox.add_child(plain)
+			else:
+				vbox.add_child(rich)
 		else:
-			var body_label := Label.new()
-			body_label.text = body_text
-			body_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			body_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			body_label.custom_minimum_size = Vector2(body_width, 0.0)
-			UiTypography.set_label_size(body_label, UiTypography.SIZE_BODY)
-			body_label.add_theme_color_override("font_color", BODY_COLOR)
-			body_label.add_theme_color_override("font_outline_color", OUTLINE_COLOR)
-			body_label.add_theme_constant_override("outline_size", 1)
-			vbox.add_child(body_label)
+			vbox.add_child(_make_body_label(body_text, body_width))
 	return vbox
 
+static func _make_body_label(text: String, width: float) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size = Vector2(width, 0.0)
+	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
+	label.add_theme_color_override("font_color", BODY_COLOR)
+	label.add_theme_color_override("font_outline_color", OUTLINE_COLOR)
+	label.add_theme_constant_override("outline_size", 1)
+	return label
 
 static func _make_rich_label(markup: String, body_width: float, role: String, color: Color, outline_size: int) -> RichTextLabel:
 	var minimum_width: float = INLINE_TEXT_WIDTH

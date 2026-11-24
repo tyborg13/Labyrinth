@@ -177,6 +177,7 @@ static func _analytics(expect: Callable) -> void:
 	state = Rules.offer(state)
 	expect.call(Rules.offer(state) == state, "Repeated talk does not append another offered event")
 	state = Rules.choose(Run.new(), state, "vitality")
+	state = HeirloomFixture.equip(state, 1)
 	state["mode"] = "victory"
 	state = Rules.leave_heirloom(state, "")
 	var events: Array = state[Rules.EVENTS_KEY]
@@ -188,10 +189,10 @@ static func _heirloom_eligibility(expect: Callable) -> void:
 	var skipped: Dictionary = Rules.leave_heirloom(starter, "")
 	expect.call(not Rules.heirloom_prompt_pending(starter) and Rules.heirloom_pieces(starter).is_empty(), "All-starter gear has no heirloom prompt")
 	expect.call(skipped[Rules.HEIRLOOM_END_KEY] == {"item": "", "done": true}, "No eligible gear records exactly Leave nothing")
-	expect.call(skipped[Rules.EVENTS_KEY].back()["payload"].get("skipped_no_eligible", false), "Automatic skip has the additive analytics field")
+	expect.call((skipped.get(Rules.EVENTS_KEY, []) as Array).is_empty(), "Automatic skip creates no heirloom receipt")
 	var mixed: Dictionary = HeirloomFixture.terminal(4)
 	expect.call(Rules.heirloom_pieces(mixed) == HeirloomFixture.PROOF_ITEMS, "Mixed equipment offers only non-starter pieces in weapon/offhand/armor/boots/trinket order")
 	var starter_id: String = str(Data.starting_equipped_equipment()["armor"])
 	expect.call(Rules.leave_heirloom(mixed, starter_id) == mixed, "Starter id is rejected even while equipped")
 	expect.call(Rules.leave_heirloom(mixed, HeirloomFixture.PROOF_ARMOR) == mixed, "Unowned non-starter is rejected")
-	expect.call(Rules.leave_heirloom(skipped, "") == skipped, "Repeated skip cannot duplicate the receipt")
+	expect.call(Rules.leave_heirloom(skipped, "") == skipped, "Repeated skip leaves the completed decision intact")

@@ -337,7 +337,7 @@
           "wick_shade"
         ]
       },
-      "sentence": "On each Shadowstep beat, after your turn, each hidden Wick Shade Blinks 1 tile toward you."
+      "sentence": "On each Shadowstep beat, after your turn, each hidden Wick Shade Blinks 1 tile toward you if there is room."
     },
     "vyraketh": {
       "rule": "wildfire",

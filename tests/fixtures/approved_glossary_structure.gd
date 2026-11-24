@@ -52,7 +52,12 @@ const PLA09_PANELS: Dictionary = {
 	"tectonic_maul": ["melee", "stagger", "surface_rubble"],
 	"frost_circuit": ["surface_electrified", "ranged", "range", "shock"],
 	"grounding": ["stoneskin", "surface_consume", "surface_electrified"],
-	"stoke": ["all_enemies", "surface_fire"],
+}
+
+# CRD-33 adds a target-specific damage panel alongside the All Enemies keyword.
+const CRD33_PANELS: Dictionary = {
+	"stoke": ["all_enemies", "all_enemies", "surface_fire"],
+	"white_silence": ["surface_ice", "all_enemies", "all_enemies", "stagger"],
 }
 
 # Gear-02's fresh starter cards supersede the historical panel stacks.
@@ -82,6 +87,8 @@ static func entries(id: String, historical: Dictionary) -> Array:
 		id = "backhand_nick"
 	if GEAR02_PANELS.has(id):
 		return (GEAR02_PANELS[id] as Array).map(func(icon: String) -> Dictionary: return {"icon": icon, "body_lines": 1})
+	if CRD33_PANELS.has(id):
+		return (CRD33_PANELS[id] as Array).map(func(icon: String) -> Dictionary: return {"icon": icon, "body_lines": 1})
 	if PLA09_PANELS.has(id):
 		return (PLA09_PANELS[id] as Array).map(func(icon: String) -> Dictionary: return {"icon": icon, "body_lines": 1})
 	if PLA07_PANELS.has(id):

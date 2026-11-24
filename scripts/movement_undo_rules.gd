@@ -16,6 +16,8 @@ const IGNORED_FIELDS: Dictionary = {
 	"last_player_movement.target": "Request path bookkeeping.",
 	"last_player_movement.destination": "Request path bookkeeping.",
 	"last_player_movement.spent": "Request pool bookkeeping.",
+	"last_player_movement.blocked_tile": "Request feedback summary.",
+	"last_player_movement.steps_reached": "Request feedback summary.",
 	"last_player_movement.light_refunds": "Request summary; actual refund flags/events are not ignored.",
 	"last_player_movement.remaining_before": "Request pool bookkeeping.",
 	"last_player_movement.remaining_after": "Request pool bookkeeping.",

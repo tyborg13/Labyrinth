@@ -1,6 +1,7 @@
 extends RefCounted
 
 const GameData = preload("res://scripts/game_data.gd")
+const Events = preload("res://scripts/event_rules.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
@@ -9,18 +10,22 @@ const SEED: int = 73021
 const FIRST_ROOM: Vector2i = Vector2i(1, 0)
 const FIRST_BOSS_ROOM: Vector2i = Vector2i(4, 0)
 const OPEN_ARSENAL_TRINKET: String = "bone_dice"
+const DEFERRED_EVENT_ID: String = "moth_library"
+const DEFERRED_EVENT_CHOICE: String = "search"
 
 static func run(expect: Callable) -> void:
 	_test_new_run_ignores_retired_growth(expect)
 	_test_discerning_eye(expect)
 	_test_sequence_limited_skills_refresh_after_boss(expect)
 	_test_deferred_choice(expect)
+	_test_deferred_choice_replaces_natural_repeat(expect)
 	_test_salvager(expect)
 	_test_true_bearing(expect)
 	_test_retired_layaway_migration(expect)
 	_test_curators_patience(expect)
 	_test_open_arsenal(expect)
 	_test_last_door(expect)
+	_test_last_door_section_predecessor(expect)
 	_test_first_boss_moltshard_is_idempotent(expect)
 	_test_first_boss_moltshard_survives_torn_save(expect)
 	_test_boss_notice_keeps_moltshard_and_missed_equipment(expect)
@@ -133,6 +138,67 @@ static func _test_deferred_choice(expect: Callable) -> void:
 	var next_cards: Array = ((rewarded.get("pending_reward", {}) as Dictionary).get("cards", []) as Array)
 	expect.call(next_cards.has("rime_shard"), "Deferred Choice should place the remembered card into the next reward")
 	expect.call(str((rewarded.get("skill_state", {}) as Dictionary).get("pending_card", "")) == "", "The remembered card should clear when it enters an offer")
+
+static func _test_deferred_choice_replaces_natural_repeat(expect: Callable) -> void:
+	var engine := RunEngineScript.new()
+	for warband: bool in [false, true]:
+		var state: Dictionary = _set_current_room(_new_run(engine, ["deferred_choice"]), FIRST_ROOM, "combat")
+		if warband:
+			state["rooms"][_room_key(FIRST_ROOM)].merge({"type": "special", "special_type": "warband"}, true)
+		state["mode"] = "combat"
+		var outcome: Dictionary = _combat_result(FIRST_ROOM, "special" if warband else "combat", true)
+		var baseline: Dictionary = engine.finish_combat(state, outcome)
+		var natural: Array = baseline["pending_reward"]["cards"]
+		var count: int = 4 if warband else 3
+		expect.call(natural.size() == count, "The Deferred Choice fixture generates a full offer")
+		if natural.size() != count: continue
+		var saved: String = natural.back() if warband else natural.front()
+		state["skill_state"]["pending_card"] = saved
+		var slot: int = count - 1
+		if warband: slot = 0 if GameData.card_element(saved) == "fire" else 2
+		var rewarded: Dictionary = engine.finish_combat(state, outcome)
+		var actual: Array = rewarded["pending_reward"]["cards"]
+		expect.call(actual.size() == count and actual[slot] == saved and actual.count(saved) == 1
+			and actual != natural and rewarded["skill_state"]["pending_card"] == "",
+			"Deferred Choice should replace a natural repeat using the existing %d-card placement" % count)
+		if not warband:
+			var expected: Array[String] = engine._generate_card_rewards(baseline, FIRST_ROOM, 991, [saved])
+			expected[slot] = saved
+			expect.call(actual == expected, "Deferred Choice should exclude the saved card before filling the other choices")
+	_check_deferred_event_natural_repeat(engine, expect)
+
+static func _deferred_event_state(engine: RefCounted) -> Dictionary:
+	var state: Dictionary = _set_current_room(_new_run(engine, ["deferred_choice"]), FIRST_ROOM, "event")
+	SectionMapGraph.room(state, FIRST_ROOM)["event_id"] = DEFERRED_EVENT_ID
+	return Events.enter_event(state)
+
+static func _check_deferred_event_natural_repeat(engine: RefCounted, expect: Callable) -> void:
+	var state: Dictionary = _deferred_event_state(engine)
+	var baseline: Dictionary = engine.resolve_map_event(state, DEFERRED_EVENT_CHOICE)
+	var natural: Array = baseline["event_state"]["outcomes"][0]["cards"]
+	var saved: String = natural.front()
+	state["skill_state"]["pending_card"] = saved
+	var before_preview: PackedByteArray = var_to_bytes(state)
+	var preview: Array = Events.preview_choice(state, DEFERRED_EVENT_CHOICE)[0]["cards"]
+	var preview_lines: Array[Dictionary] = Events.preview_lines(state, DEFERRED_EVENT_ID, DEFERRED_EVENT_CHOICE)
+	expect.call(preview_lines[0]["ids"] == preview and var_to_bytes(state) == before_preview,
+		"Deferred event choice rows and hover show the same offer without consuming the card")
+	var resolved: Dictionary = engine.resolve_map_event(state, DEFERRED_EVENT_CHOICE)
+	var outcomes: Array = resolved["event_state"]["outcomes"]
+	var generated: Array = outcomes[0]["cards"]
+	expect.call(generated.size() == natural.size() and not generated.has(saved)
+		and resolved["map_events"].back()["payload"]["outcomes"] == outcomes,
+		"The event's committed roll and receipt exclude the saved card before insertion")
+	expect.call(resolved["skill_state"]["pending_card"] == saved,
+		"Deferred Choice stays pending while the event result page is open")
+	var loaded: Dictionary = engine.repair_loaded_run_state(bytes_to_var(var_to_bytes(resolved)))
+	var reward: Dictionary = engine.resolve_map_event(loaded, "continue")
+	var actual: Array = reward["pending_reward"]["cards"]
+	var expected: Array = generated.duplicate()
+	expected[expected.size() - 1] = saved
+	expect.call(reward["pending_reward"]["kind"] == "event" and actual == preview and actual == expected
+		and actual != natural and actual.count(saved) == 1 and reward["skill_state"]["pending_card"] == "",
+		"Continuing the saved event result replaces one choice in the previewed offer and clears Deferred Choice")
 
 static func _test_salvager(expect: Callable) -> void:
 	var engine = RunEngineScript.new()
@@ -337,6 +403,42 @@ static func _test_last_door(expect: Callable) -> void:
 	retreated["mode"] = "combat"
 	var defeated: Dictionary = engine.finish_combat(retreated, _combat_result(FIRST_ROOM, "combat", false))
 	expect.call(str(defeated.get("mode", "")) == "defeat" and bool(defeated.get("game_over", false)), "Last Door should not refresh within the same sequence")
+
+static func _test_last_door_section_predecessor(expect: Callable) -> void:
+	var engine := RunEngineScript.new()
+	var state: Dictionary = _new_run(engine, ["last_door"])
+	var previous: Vector2i = state["current_room"]
+	var destinations: Array[Vector2i] = engine.available_moves(state)
+	expect.call(SectionMapGraph.enabled(state) and not destinations.is_empty(), "Last Door regression uses a generated section")
+	if destinations.is_empty(): return
+	var first: Vector2i = destinations.front()
+	var fight: Dictionary = engine.begin_pre_battle_combat(engine.move_to_pre_battle(state, first))
+	expect.call(fight["mode"] == "combat" and fight["skill_state"]["previous_room"] == previous
+		and engine._connection_to_room(engine.room_metadata(fight, first), previous).is_empty(),
+		"Section combat records the room left on a one-way edge")
+	var outcome: Dictionary = _combat_result(first, "combat", false)
+	var retreated: Dictionary = engine.finish_combat(fight, outcome)
+	expect.call(retreated["mode"] == "room" and retreated["current_room"] == previous
+		and retreated["player_hp"] == GameData.fixed_point_amount(1) and engine.run_skill_used_this_sequence(retreated, "last_door"),
+		"Last Door returns through the one-way section edge and spends one use")
+	var fled: Dictionary = engine.room_metadata(retreated, first)
+	expect.call(not fled["sealed"] and not fled["cleared"] and engine.available_moves(retreated).has(first),
+		"The fled room stays available for another attempt")
+	var missing: Dictionary = fight.duplicate(true)
+	missing["rooms"].erase(_room_key(previous))
+	var defeated: Dictionary = engine.finish_combat(missing, outcome)
+	expect.call(defeated["mode"] == "defeat" and defeated["current_room"] == first and engine.run_skill_is_ready(defeated, "last_door"),
+		"An unavailable predecessor leaves the loss terminal without spending Last Door")
+	var blocked: Dictionary = fight.duplicate(true)
+	blocked["rooms"][_room_key(previous)]["connections"] = []
+	defeated = engine.finish_combat(blocked, outcome)
+	expect.call(defeated["mode"] == "defeat" and defeated["current_room"] == first and not engine.run_skill_used_this_sequence(defeated, "last_door"),
+		"A sealed room whose entry edge is gone cannot be reopened by Last Door")
+	var boss: Dictionary = fight.duplicate(true)
+	boss["rooms"][_room_key(first)]["type"] = "boss"
+	defeated = engine.finish_combat(boss, outcome)
+	expect.call(defeated["mode"] == "defeat" and engine.run_skill_is_ready(defeated, "last_door"),
+		"A boss defeat leaves a ready Last Door unused")
 
 static func _test_first_boss_moltshard_is_idempotent(expect: Callable) -> void:
 	var engine = RunEngineScript.new()

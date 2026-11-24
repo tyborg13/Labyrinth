@@ -12,7 +12,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const GuardianLibrary = preload("res://scripts/guardian_library.gd")
 const CapacitorView = preload("res://scripts/enemy_mechanics/capacitor_view.gd")
 const BurstTraitText = preload("res://scripts/enemy_mechanics/burst_trait_text.gd")
-const Icefall = preload("res://scripts/enemy_mechanics/icefall_view.gd")
+const KnownMoveText = preload("res://scripts/known_move_text.gd")
 const Lob = preload("res://scripts/enemy_mechanics/marked_strike.gd")
 const RuleRows = preload("res://scripts/battlefield_rules/intent_rows.gd")
 
@@ -146,7 +146,7 @@ static func rules_label(text: String, node_name: String, width: float) -> Label:
 
 static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}, unit: Dictionary = {}, state: Dictionary = {}) -> Control:
 	var actor: Dictionary = unit if not unit.is_empty() else source
-	var own_rows: Array = _own_move_rows(intent, actor, state)
+	var own_rows: Array = KnownMoveText.rows(intent, actor, state)
 	var beat_row: Array = RuleRows.tokens(state, actor, intent)
 	var rows: Array = own_rows if beat_row.is_empty() else own_rows + [beat_row]
 	var capacitor: bool = CapacitorView.Rules.handles_intent(intent)
@@ -164,7 +164,7 @@ static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}, 
 	var socket := Socket.new()
 	socket.socket_size = 40.0
 	socket.interactive = false
-	var key: String = str(rows[0][0]["icon"]) if capacitor and not rows.is_empty() else str(host.call("_pre_battle_known_move_icon_key", intent))
+	var key: String = KnownMoveText.display_icon(intent, rows, Callable(host, "_pre_battle_known_move_icon_key"))
 	socket.setup(ActionIcons.icon_texture(key))
 	socket.get_node("Icon").name = "PreBattleKnownMoveIcon"
 	socket.get_node("PreBattleKnownMoveIcon").set_meta("icon_key", key)
@@ -175,14 +175,9 @@ static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}, 
 	row.add_child(text_box)
 	text_box.add_child(View.label(str(intent.get("name", "Move")), 18))
 	var actions: Array = intent.get("actions", []) as Array
-	var summary: String = ActionIcons.plain_text_for_rows(own_rows, true).replace("\n", " · ")
-	for action: Dictionary in actions:
-		if str(action.get("type", "")) in ["lob_mark", "lob_land"]:
-			summary = ActionIcons.lob_diagram_text(action)
-			break
+	var summary: String = KnownMoveText.summary(intent, own_rows)
 	if capacitor or actions.any(func(action: Dictionary) -> bool: return str(action.get("type", "")) == "kindle"):
 		plate.tooltip_text = move_tooltip(rows)
-	if summary.is_empty(): summary = "Recovers." if actions.is_empty() else "Special action"
 	text_box.add_child(_pattern_label(summary, "PreBattleMoveEffect", 410.0))
 
 	if not beat_row.is_empty():
@@ -232,19 +227,10 @@ static func _pattern_label(summary: String, label_name: String, width: float) ->
 	return row
 
 static func move_rows(intent: Dictionary, source: Dictionary = {}, state: Dictionary = {}) -> Array:
-	var rows: Array = _own_move_rows(intent, source, state)
+	var rows: Array = KnownMoveText.rows(intent, source, state)
 	var beat_row: Array = RuleRows.tokens(state, source, intent)
 	if not beat_row.is_empty(): rows.append(beat_row)
 	return rows
-
-static func _own_move_rows(intent: Dictionary, source: Dictionary, state: Dictionary) -> Array:
-	var enemy_type: String = str(source.get("type", source.get("id", "")))
-	intent = preload("res://scripts/boss_area_rules.gd").presentation_intent(enemy_type, intent)
-	var capacitor: Array = CapacitorView.rows(intent)
-	if not capacitor.is_empty(): return capacitor
-	var actions: Array = (intent.get("actions", []) as Array).map(func(action: Variant) -> Variant:
-		return Icefall.presentation_action(state, source, action) if action is Dictionary else action)
-	return ActionIcons.rows_for_actions(actions)
 
 static func move_tooltip(rows: Array) -> String:
 	var details := PackedStringArray()
@@ -272,7 +258,10 @@ static func build_trait(burst_trait: Dictionary, source: Dictionary = {}) -> Con
 	var title := View.label(str(burst_trait["value"]), 18)
 	title.name = "EnemyBurstTraitTitle"
 	text.add_child(title)
-	var details: String = str(burst_trait.get("display_tooltip", burst_trait["tooltip"]))
+	var details: String = trait_details(burst_trait)
 	text.add_child(_pattern_label(details, "EnemyBurstTraitRules", BurstTraitText.WIDTH))
 	row.tooltip_text = details
 	return row
+
+static func trait_details(token: Dictionary) -> String:
+	return str(token.get("display_tooltip", token["tooltip"]))

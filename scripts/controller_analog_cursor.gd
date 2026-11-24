@@ -2,6 +2,7 @@ extends Control
 class_name ControllerAnalogCursor
 
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
+const StatusChips = preload("res://scripts/controller_status_chips.gd")
 
 const CURSOR_DIAMETER: float = 20.0
 const CURSOR_RADIUS: float = CURSOR_DIAMETER * 0.5
@@ -12,6 +13,8 @@ var _snapped_position: Vector2 = Vector2.ZERO
 var _snap_strength: float = 0.0
 var _candidate_kind: String = "tile"
 var detail_builder: Callable
+var status_chips_board: Control
+var _status_chips: StatusChips
 var _detail_key: String = ""
 var _detail_panel: Control
 var _detail_text: String = ""
@@ -30,7 +33,8 @@ func show_cursor(
 	snap_strength: float,
 	candidate_kind: String,
 	detail_text: String = "",
-	detail_key: String = ""
+	detail_key: String = "",
+	status_tile: Vector2i = Vector2i(-1, -1)
 ) -> void:
 	var normalized_strength: float = clampf(snap_strength, 0.0, 1.0)
 	var normalized_detail: String = detail_text.strip_edges()
@@ -49,6 +53,9 @@ func show_cursor(
 	_candidate_kind = candidate_kind
 	visible = true
 	_set_detail(normalized_detail, detail_key)
+	if is_instance_valid(status_chips_board):
+		if _status_chips == null: _status_chips = StatusChips.attach(self)
+		_status_chips.sync(status_chips_board, status_tile)
 	if changed:
 		queue_redraw()
 
@@ -56,6 +63,7 @@ func hide_cursor() -> void:
 	visible = false
 	# A later inspection may have different hand/slot availability.
 	_set_detail("")
+	if _status_chips != null: _status_chips.clear()
 
 func display_position() -> Vector2:
 	return _pointer_position.lerp(_snapped_position, _snap_strength)

@@ -42,7 +42,7 @@ func _run() -> void:
 	_viewport.add_child(panel)
 	var state: Dictionary = {"seed": FIXTURE_SEED, "current_room": Vector2i.ZERO, "mode": "room"}
 	Graph.initialize(state)
-	_check(int(state["section_map_layout_revision"]) == 7, "New runs use layout revision 7")
+	_check(int(state["section_map_layout_revision"]) == 8, "New runs use layout revision 8")
 	var info: Dictionary = Graph.section(state, SECTION)
 	state["current_room"] = info["entry"]
 	Graph.room(state, info["entry"])["visited"] = true

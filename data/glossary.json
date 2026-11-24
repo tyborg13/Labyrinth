@@ -17,7 +17,7 @@
     "id": "marked",
     "name": "Marked",
     "icon": "marked",
-    "definition": "Marked tiles show where this enemy acts on its next turn.",
+    "definition": "Marked tiles show where this enemy will act.",
     "aliases": [
       "icefall",
       "Icefall",
@@ -188,7 +188,7 @@
     "id": "range",
     "name": "Range",
     "icon": "range",
-    "definition": "Maximum distance to the target in tiles, counted without diagonals.",
+    "definition": "How far this attack reaches in tiles, counted without diagonals.",
     "aliases": []
   },
   {
@@ -401,7 +401,7 @@
     "id": "shock",
     "name": "Shock",
     "icon": "shock",
-    "definition": "Shocked units can only Move or Blink on their next turn.",
+    "definition": "Shocked units can't attack on their next turn.",
     "aliases": [
       "Shocked"
     ]
@@ -511,7 +511,7 @@
     "id": "gale_force",
     "name": "Hollow Gale",
     "icon": "gale_force",
-    "definition": "This enemy damages each unit within 2 tiles, then Pushes each unit hit 1 tile.",
+    "definition": "This enemy damages you and your Illusions on Marked tiles, then Pushes you 1 tile away.",
     "aliases": [
       "The Hollow Gale",
       "Arena Gale"
@@ -544,7 +544,7 @@
     "id": "umbra_eclipse",
     "name": "Last Eclipse",
     "icon": "umbra_eclipse",
-    "definition": "This enemy hits you and your illusions on Marked tiles, then starts Eclipse for X turns.",
+    "definition": "This enemy starts Eclipse for your next X turns, then hits you and your Illusions on Marked tiles.",
     "aliases": [
       "The Last Eclipse"
     ]
@@ -703,7 +703,7 @@
     "id": "skill_ghost_stride",
     "name": "Ghost Stride",
     "icon": "skill_ghost_stride",
-    "definition": "Once per combat, activate to turn your next movement into @icon(blink) 2.",
+    "definition": "Once per combat, activate to turn your next free Movement into @icon(blink) 2.",
     "aliases": []
   },
   {
@@ -981,7 +981,7 @@
     "id": "shadowstep",
     "name": "Shadowstep",
     "icon": "shadowstep",
-    "definition": "On each Shadowstep beat, each hidden enemy Blinks toward you.",
+    "definition": "On each Shadowstep beat, each hidden enemy Blinks toward you if there is room.",
     "aliases": []
   }
 ]

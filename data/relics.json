@@ -1739,7 +1739,7 @@
   "crowncoal_heart": {
     "name": "Crowncoal Heart",
     "rarity": "legendary",
-    "description": "Once per turn, when your single-target attack hits an enemy on a tile without @term(surface_fire), @term(surface_ice) or @term(surface_electrified), place @kw(surface_fire) on that tile. Once per turn, @kw(burst|Bursting) 2+ @kw(surface_fire) gives you 6 @term(stoneskin).",
+    "description": "Once per turn, when your single-target attack hits an enemy on a tile without @term(surface_fire), @term(surface_ice) or @term(surface_electrified), place @kw(surface_fire) on that tile. Once per turn, when your @kw(burst) destroys 2 or more @term(surface_fire) tiles, gain 6 @term(stoneskin).",
     "icon_path": "res://assets/art/relics/crowncoal_heart.png",
     "accent": "#d9862f",
     "design_version": 3,

@@ -392,7 +392,7 @@ func _test_hush_white_silence_rite(engine: CombatEngine) -> void:
 	var silence: Dictionary = _state(engine, [_enemy(1, Vector2i(6, 4)), _enemy(2, Vector2i(7, 7))])
 	_paint(silence, [Vector2i(6, 4)], "ice")
 	var silenced: Dictionary = _play(engine, silence, "white_silence")
-	_expect(_hp(silenced, 1) == HP - 6 and _stagger(engine, silence, silenced, 1) == 6, "White Silence hits and Staggers the enemy on Ice")
+	_expect(_hp(silenced, 1) == HP - 8 and _stagger(engine, silence, silenced, 1) == 6, "White Silence hits and Staggers the enemy on Ice")
 	_expect(_hp(silenced, 2) == HP and _stagger(engine, silence, silenced, 2) == 0, "White Silence skips the enemy off Ice")
 	# Rite of Hoarfrost: when one of your Ice cards Staggers an enemy, gain Block 3 and Draw 1.
 	var rite: Dictionary = _state(engine, [_enemy(1, Vector2i(6, 4))])

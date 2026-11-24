@@ -1,0 +1,12 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 6,
+  "required_images": [
+    {"pattern": "hover_white_silence.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_white_silence.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_revealing_glare.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_revealing_glare.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "hover_dust_devil.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "reward_dust_devil.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]}
+  ]
+}

@@ -1,6 +1,8 @@
 extends Control
 
 # dlg-01 presentation only. RunScene owns dialogue, input, reveal and choices.
+signal painted_band_top_changed(top: float)
+
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Frame = preload("res://scripts/ui_gilded_frame.gd")
@@ -106,6 +108,8 @@ var footer: HBoxContainer
 var hint: Label
 var choices: HBoxContainer
 var _content: Control
+var _seat_scrim: Control
+var _painted_band_top: float = INF
 var _band_wipe: Control
 var _band: TextureRect
 var _band_size := Vector2i.ZERO
@@ -137,9 +141,9 @@ func build(owner_scene: Node) -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	set_meta("cursor_feedback_context_provider", Callable(host, "_dialogue_cursor_feedback_context"))
 	gui_input.connect(Callable(host, "_on_dialogue_overlay_gui_input"))
-	var scrim := Seat.new()
-	scrim.configure_bottom_seat(600.0, 0.62, 1.6, Palette.INK_0)
-	add_child(scrim)
+	_seat_scrim = Seat.new()
+	_seat_scrim.configure_bottom_seat(600.0, 0.62, 1.6, Palette.INK_0)
+	add_child(_seat_scrim)
 	panel = PanelContainer.new()
 	panel.name = "DialogueDialog"
 	panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
@@ -224,6 +228,7 @@ func build(owner_scene: Node) -> void:
 	_cue.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_content.add_child(_cue)
 	resized.connect(sync_layout)
+	visibility_changed.connect(_publish_painted_band_top)
 
 func _style_eyebrow(label: Label, font_size: int, spacing: float, color: Color) -> void:
 	Typography.apply_spaced_eyebrow(label, font_size, spacing, color)
@@ -414,6 +419,19 @@ func sync_layout() -> void:
 	footer.size = Vector2(footer_width, 62.0 if show_choices else 28.0)
 	choices.custom_minimum_size.y = 62.0 if show_choices else 0.0
 	_cue.position = Vector2(width - 120.0, height - 52.0 + (0.0 if reduced else 3.0 * sin(TAU * _bob_elapsed / BOB_PERIOD)))
+	_publish_painted_band_top()
+
+func _publish_painted_band_top() -> void:
+	var top: float = INF
+	if is_visible_in_tree():
+		var gradient: Rect2 = _seat_scrim.bottom_seat_bounds_in_canvas()
+		if gradient.has_area(): top = gradient.position.y
+		if _band_wipe.is_visible_in_tree() and _band_wipe.size.x > 0.0:
+			var ink: Rect2 = _band_wipe.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, _band_wipe.size)
+			top = minf(top, ink.position.y)
+	if top == _painted_band_top: return
+	_painted_band_top = top
+	painted_band_top_changed.emit(top)
 
 func _ease_out(progress: float) -> float:
 	return 1.0 - pow(1.0 - clampf(progress, 0.0, 1.0), 3.0)

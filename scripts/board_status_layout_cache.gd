@@ -347,11 +347,12 @@ func _resolve_group(view: Control, unit: Dictionary, frame: Rect2, anchor_input:
 	var raw_bounds: Rect2 = raw["bounds"]
 	envelope.append(Rect2(raw_bounds.position + movement, raw_bounds.size))
 	var near: Array[Rect2] = Groups.near_obstacles(envelope, obstacles, frame.size.y)
-	var placement: Dictionary = _choose(key + ":normal", pieces, near, frame.size.y)
+	var above_soil: bool = bool(unit.get("burrowed", false))
+	var placement: Dictionary = _choose(key + ":normal", pieces, near, frame.size.y, above_soil)
 	var compacted: bool = not bool(placement["legal"]) or float(placement["overlap_area"]) > 0.0
 	if compacted:
 		pieces = Groups.translate_rects(raw["compact_pieces"], movement)
-		placement = _choose(key + ":compact", pieces, near, frame.size.y)
+		placement = _choose(key + ":compact", pieces, near, frame.size.y, above_soil)
 	plan_count += 1
 	plan_max_usec = maxi(plan_max_usec, Time.get_ticks_usec() - started)
 	var offset: Vector2 = placement["offset"]
@@ -377,12 +378,20 @@ func _resolve_group(view: Control, unit: Dictionary, frame: Rect2, anchor_input:
 	return cached
 
 
-func _choose(key: String, pieces: Array[Rect2], obstacles: Array[Rect2], height: float) -> Dictionary:
-	if not _interpolating: return Groups.choose(pieces, obstacles, board_area, reserved_ui, height, true, key.ends_with(":normal"))
+func _choose(key: String, pieces: Array[Rect2], obstacles: Array[Rect2], height: float, above_soil: bool) -> Dictionary:
+	var reserved: Array[Rect2] = reserved_ui
+	if above_soil:
+		# Leave lateral and upward seats available. A lower row would cross
+		# the mound even though the authored health frame clears the peak.
+		var group: Rect2 = Groups.pieces_bounds(pieces)
+		reserved = reserved_ui.duplicate()
+		reserved.append(Rect2(Vector2(group.position.x - Groups.MAX_HORIZONTAL, group.end.y),
+			Vector2(group.size.x + 2.0 * Groups.MAX_HORIZONTAL, height + Groups.ROW_GAP)))
+	if not _interpolating: return Groups.choose(pieces, obstacles, board_area, reserved, height, true, key.ends_with(":normal"))
 	if not _choice_memos.has(key): _choice_memos[key] = {}
 	var memo: Dictionary = _choice_memos[key]
 	var previous: Array = memo.get("source", [])
-	var choice: Dictionary = Groups.choose_incremental(pieces, obstacles, board_area, reserved_ui, height, memo, key.ends_with(":normal"))
+	var choice: Dictionary = Groups.choose_incremental(pieces, obstacles, board_area, reserved, height, memo, key.ends_with(":normal"))
 	if not is_same(previous, memo.get("source", [])): memo["world_x"] = _motion_x
 	return choice
 

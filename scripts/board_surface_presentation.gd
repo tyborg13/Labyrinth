@@ -43,7 +43,7 @@ static func tooltip_entries(state: Dictionary, tile: Vector2i) -> Array[Dictiona
 	var kind: String = Rules.element_at(state, tile)
 	if not kind.is_empty():
 		lines.append(Glossary.definition("surface_" + kind))
-		if kind == "fire" and Rules.is_conductive(state, tile):
+		if kind == "fire" and Rules.is_conductive(state, tile, true):
 			lines.append("Stormcoal: Your Lightning cards conduct through Fire and remove that Fire.")
 		if kind == "electrified":
 			lines.append("Electrified tiles also relay Chain.")
@@ -73,7 +73,7 @@ static func draw_tile(canvas: CanvasItem, state: Dictionary, tile: Vector2i, cen
 			"fire": _draw_fire(canvas, Vector2.ZERO, width, phase, seed, reduced_motion)
 			"electrified":
 				if draw_electric: _draw_electric(canvas, Vector2.ZERO, width, phase, seed, 1.0)
-	if draw_electric and kind == "fire" and Rules.is_conductive(state, tile):
+	if draw_electric and kind == "fire" and Rules.is_conductive(state, tile, true):
 		_draw_electric(canvas, Vector2.ZERO, width, phase, seed, 0.75)
 	canvas.draw_set_transform(Vector2.ZERO)
 

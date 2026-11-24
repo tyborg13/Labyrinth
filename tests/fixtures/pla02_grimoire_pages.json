@@ -6,7 +6,7 @@
       "Explore rooms, win combats and claim rewards before the next boss. Held Embers stay with the run until banked, spent, recovered or lost. The run ends at the last dragon, at defeat or by Embrace."
     ],
     "basic:map": [
-      "Revealed exits show where you can travel next. Cleared rooms stay available as routes.",
+      "Revealed exits show where you can travel next. Rooms you leave are sealed behind you.",
       "Combat, Ember Hearth, merchant, treasure, relic, and boss rooms each change the next choice. Each section is a map of rooms. Pick a forward route through combat, Relic, Scavenger, Ember Hearth and other rooms."
     ],
     "basic:loadout": [
@@ -38,16 +38,16 @@
       "Pierce skips Block and Stoneskin."
     ],
     "combat:defiance": [
-      "Each Defiance charge saves you from 1 lethal hit and leaves you at 25% Health.",
+      "Each Defiance charge saves you from 1 lethal hit and leaves you at 25% of your maximum Health, rounded up.",
       "Gain 1 Defiance per 4 permanent levels at the start of a run. Reaching a milestone during a run adds the new charge. Defiance does not refill during a run."
     ],
     "combat:targeting": [
-      "Targets must be visible and within Range. Ranged attacks also need line of sight.",
+      "Attacks need a visible target within Range. Ranged attacks also need line of sight. A card that ignores Range or line of sight says so.",
       "Walls and Outcrops block the line of sight required by ranged attacks. Area actions hit the tiles shown in the preview. Push and Pull move the target from or toward the source until the target reaches the distance or stops."
     ],
     "combat:fatigue": [
       "Drawing from an empty draw pile shuffles your discard into your draw pile and costs Health.",
-      "Fatigue costs 2 Health the first time and +1 Health each time after. Fatigue bypasses Block. Draw and Pass previews show the Health that Fatigue costs."
+      "Each Fatigue in a combat costs 1 more Health than the last. Fatigue bypasses Block. Draw and Pass previews show the Health that Fatigue costs."
     ],
     "combat:traps": [
       "Traps hit when entered or attacked, then leave ground on that tile and each adjacent tile.",
@@ -99,7 +99,7 @@
     ],
     "keyword:card_play": [
       "Spend 1 Card Play per card, refilling each turn and gaining 1 per kill.",
-      "Kills give Card Plays on your turn. Summons give no Card Play."
+      "Each enemy summon gives you 1 more Card Play next turn. Killing a summoned enemy gives none."
     ],
     "keyword:follow_up": [
       "Gain the Follow-up bonus if you already played a card this turn.",
@@ -147,7 +147,7 @@
       "Damage from this attack ignores Block and Stoneskin."
     ],
     "keyword:shock": [
-      "Shocked units can only Move or Blink on their next turn.",
+      "Shocked units can't attack on their next turn.",
       "When a card Shocks on each hit, Chain and conducted hits also Shock."
     ],
     "keyword:expose": [
@@ -184,7 +184,7 @@
     ],
     "combat:cinder_marks": [
       "When this attack lands, each unit on a Marked tile takes X damage, and each Marked tile becomes Fire.",
-      "Meteorfall hits each Marked tile and leaves Fire. Whenever Vyraketh breathes, Fire spreads to each adjacent tile. Crownfire Bursts Vyraketh's Marked Fire while Vyraketh moves toward you. Replace that Fire to stop Crownfire's Burst, or lure the dragon into the Burst. The Meteorfall card leaves Marked tiles through enemy turns. At the start of your next turn before you Draw, deal damage to each unit on a Marked tile, then leave Fire on each Marked tile."
+      "Crownfire Bursts each of Vyraketh's Marked Fire tiles, then Vyraketh moves toward you and attacks. The Meteorfall card Marks tiles. At the start of your next turn, each unit on a Marked tile takes damage, and each Marked tile becomes Fire."
     ],
     "combat:hollow_gale": [
       "Hollow Gale damages each unit within 2 tiles of Vaeloryx, then Pushes each unit hit away.",
@@ -192,7 +192,7 @@
     ],
     "combat:area_force": [
       "An area Push or Pull moves each enemy in the area in a straight line away from or toward the source. The source is you or the tile the card names. An enemy at the source of a Pull stays in place.",
-      "A Push starts with the farthest enemy. A Pull starts with the nearest enemy. A Collision deals 2 damage per unmoved tile to the moving unit and each blocker hit. Squall Shot Pushes each enemy hit 2 tiles away from you."
+      "A Push starts with the farthest enemy. A Pull starts with the nearest enemy. A Collision deals 2 damage per unmoved tile to the moving unit and each blocker hit. Squall Pushes each enemy hit 2 tiles away from you."
     ],
     "combat:swap": [
       "Trade places with a visible enemy or one of your illusions.",
@@ -207,11 +207,11 @@
     ],
     "combat:crystal_armor": [
       "Each Crystal Mantle layer prevents damage from 1 direct hit, then breaks. Ground, Collision, traps and Health costs bypass Crystal Mantle.",
-      "Each layer extends Shatterstorm by 1 tile. Break layers before Shatterstorm to reduce the area. Shatterstorm breaks the remaining layers. Ice on Iskaldra's tile gives Iskaldra an extra layer. Remove that Ice before Iskaldra's turn. Crystal Mantle cards give you layers that last until broken or combat ends."
+      "Each layer extends Iskaldra's Shatterstorm by 1 tile, and Shatterstorm breaks the remaining layers. Crystal Mantle cards give you layers that last until broken or combat ends."
     ],
     "combat:boss_eclipse": [
       "Last Eclipse hits you and your Illusions on Marked tiles, then starts Eclipse for 2 turns.",
-      "Night Coil puts out a Marked brazier before Noctyrax announces Last Eclipse. Walk or Blink onto that brazier's tile to relight the brazier. Light blocks Eclipse's darkness. Relight a brazier or create Light, then avoid or guard against the Marked tiles. Noctyrax replaces defeated Acolytes, up to 2 alive. Light and Vision reveal hidden Acolytes. Braziers still relight and Shades from Snuff still leave when the enemy's turn is skipped."
+      "Night Coil puts out the nearest brazier. Walk or Blink onto a dark brazier's tile to relight that brazier. Light blocks Eclipse's darkness."
     ],
     "keyword:surface": [
       "Place the named ground on each tile in the area.",
@@ -265,7 +265,7 @@
       "Hover the card to see each tile the Burst hits. Kindle adds up to 4 damage to the Ember Tick's Burst."
     ],
     "keyword:range": [
-      "Maximum distance to the target in tiles, counted without diagonals."
+      "How far this attack reaches in tiles, counted without diagonals."
     ],
     "keyword:time": [
       "Spending Time makes your next turn come later.",

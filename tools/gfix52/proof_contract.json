@@ -1,0 +1,14 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*last_door_retreat_dialogue_open.png",
+      "regions": [{"rect": [480, 135, 960, 810], "min_luma_range": 20, "min_luma_stdev": 3}]
+    },
+    {
+      "pattern": "*last_door_retreat_dialogue_closed.png",
+      "regions": [{"rect": [480, 135, 960, 810], "min_luma_range": 20, "min_luma_stdev": 3}]
+    }
+  ]
+}

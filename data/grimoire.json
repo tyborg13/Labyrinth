@@ -60,7 +60,7 @@
       "default": true,
       "icon": "map_rooms",
       "body": [
-        "Revealed exits show where you can travel next. Cleared rooms stay available as routes.",
+        "Revealed exits show where you can travel next. Rooms you leave are sealed behind you.",
         "Combat, Ember Hearth, merchant, treasure, relic, and boss rooms each change the next choice. Each section is a map of rooms. Pick a forward route through combat, Relic, Scavenger, Ember Hearth and other rooms."
       ]
     },
@@ -164,7 +164,7 @@
       "default": true,
       "icon": "defiance",
       "body": [
-        "Each Defiance charge saves you from 1 lethal hit and leaves you at 25% Health.",
+        "Each Defiance charge saves you from 1 lethal hit and leaves you at 25% of your maximum Health, rounded up.",
         "Gain 1 Defiance per 4 permanent levels at the start of a run. Reaching a milestone during a run adds the new charge. Defiance does not refill during a run."
       ]
     },
@@ -175,7 +175,7 @@
       "default": true,
       "icon": "targeting",
       "body": [
-        "Targets must be visible and within Range. Ranged attacks also need line of sight.",
+        "Attacks need a visible target within Range. Ranged attacks also need line of sight. A card that ignores Range or line of sight says so.",
         "Walls and Outcrops block the line of sight required by ranged attacks. Area actions hit the tiles shown in the preview. Push and Pull move the target from or toward the source until the target reaches the distance or stops."
       ]
     },
@@ -187,7 +187,7 @@
       "icon": "fatigue",
       "body": [
         "Drawing from an empty draw pile shuffles your discard into your draw pile and costs Health.",
-        "Fatigue costs 2 Health the first time and +1 Health each time after. Fatigue bypasses Block. Draw and Pass previews show the Health that Fatigue costs."
+        "Each Fatigue in a combat costs 1 more Health than the last. Fatigue bypasses Block. Draw and Pass previews show the Health that Fatigue costs."
       ]
     },
     {
@@ -338,7 +338,7 @@
       "icon": "card_play",
       "body": [
         "Spend 1 Card Play per card, refilling each turn and gaining 1 per kill.",
-        "Kills give Card Plays on your turn. Summons give no Card Play."
+        "Each enemy summon gives you 1 more Card Play next turn. Killing a summoned enemy gives none."
       ]
     },
     {
@@ -482,7 +482,7 @@
       "title": "Shock",
       "icon": "shock",
       "body": [
-        "Shocked units can only Move or Blink on their next turn.",
+        "Shocked units can't attack on their next turn.",
         "When a card Shocks on each hit, Chain and conducted hits also Shock."
       ]
     },
@@ -567,8 +567,9 @@
       "section": "creatures",
       "enemy_id": "crawler",
       "title": "Tunnel Crawler",
-      "body": [
-        "The Tunnel Crawler's intents favor short movement paths followed by melee attacks."
+      "lore": [
+        "A hairless, milk-eyed thing bred in the dark beneath the Labyrinth. It hunts by the tremor of footsteps on stone.",
+        "It scuttles straight at you and rakes with its claws, or curls up behind its thick hide."
       ]
     },
     {
@@ -576,8 +577,9 @@
       "section": "creatures",
       "enemy_id": "acolyte",
       "title": "Dust Acolyte",
-      "body": [
-        "A ranged enemy whose intents alternate between damage, defense and Health loss."
+      "lore": [
+        "A robed skeleton still keeping the rites of an order that once knelt to the dragons. The orb in its hand is packed with the dust of the dead.",
+        "It prefers to fight from a distance, hurling bolts of grave dust, warding itself with Block and mending its own bones."
       ]
     },
     {
@@ -585,8 +587,9 @@
       "section": "creatures",
       "enemy_id": "harrier",
       "title": "Bone Harrier",
-      "body": [
-        "The Harrier often moves before a ranged attack with Pierce."
+      "lore": [
+        "The bones of a hunter who came into the Labyrinth and never left. The dark stood it back up, spear and all.",
+        "It harries you with its spear from range, and its hardest throws punch through Block. It skips back out of reach, or rushes in to stab."
       ]
     },
     {
@@ -594,8 +597,9 @@
       "section": "creatures",
       "enemy_id": "warden",
       "title": "Stone Warden",
-      "body": [
-        "The Stone Warden uses melee attacks and gains Block. The Stone Warden's Block absorbs damage before Health."
+      "lore": [
+        "A dead knight raised to guard these halls. It no longer remembers whose watch it keeps, only that no one may leave.",
+        "It marches in behind its shield and swings a spiked mace, or stamps down to hit everything beside it. It can also give Block to each other enemy."
       ]
     },
     {
@@ -603,8 +607,9 @@
       "section": "creatures",
       "enemy_id": "cinder_ooze",
       "title": "Cinder Ooze",
-      "body": [
-        "The Cinder Ooze leaves Fire. Slag Shell removes adjacent Fire for extra Block. When this enemy dies, this enemy splits into Cinder Droplets."
+      "lore": [
+        "Slag that crawls the Labyrinth's furnace halls, shaped in the likeness of a fire it has never seen. A cracked crust holds in a core that never cools.",
+        "It oozes after you and leaves Fire wherever it strikes, and it soaks up nearby flames to harden its crust. When it dies, it can split into two Cinder Droplets."
       ]
     },
     {
@@ -612,8 +617,9 @@
       "section": "creatures",
       "enemy_id": "cinder_droplet",
       "title": "Cinder Droplet",
-      "body": [
-        "A Cinder Droplet spawns when a Cinder Ooze dies. Cinder Droplet attacks leave Fire."
+      "lore": [
+        "A burning gobbet of slag, thrown off when a Cinder Ooze dies. It is small, quick and just as hot.",
+        "It darts in to spatter you and leaves Fire on your tile, then hisses back behind a thin crust of Block."
       ]
     },
     {
@@ -621,8 +627,9 @@
       "section": "creatures",
       "enemy_id": "bile_bloomer",
       "title": "Shale Bloomer",
-      "body": [
-        "The Bile Bloomer's attacks leave Rubble on hit tiles and Expose targets. Shale Shell removes adjacent Rubble for extra Stoneskin."
+      "lore": [
+        "A flower of living stone, grown where no light has ever reached. Its petals are slate, and its seeds are shards.",
+        "It bursts in a spray of flying stone that leaves Rubble around it, and flicks shards that make the next hit on you land harder. It grows Stoneskin, and Rubble beside it makes that skin thicker."
       ]
     },
     {
@@ -630,8 +637,9 @@
       "section": "creatures",
       "enemy_id": "chainbound_gaoler",
       "title": "Chainbound Gaoler",
-      "body": [
-        "The Chainbound Gaoler uses Push, Pull and Immobilize to restrict movement."
+      "lore": [
+        "The Labyrinth's jailer, still walking the rounds of cells no one has left in centuries. It carries a hook on a length of chain for new prisoners.",
+        "It hooks you with its chain and drags you in, shackles you in place and batters you up close. It also hides behind Block."
       ]
     },
     {
@@ -639,8 +647,9 @@
       "section": "creatures",
       "enemy_id": "grave_surgeon",
       "title": "Grave Surgeon",
-      "body": [
-        "The Grave Surgeon heals allies and gives Block. The guard removes elemental ground from the target's tile."
+      "lore": [
+        "A plague doctor's coat with something patient inside it. It stitches up the Labyrinth's dead and sends them back to fight.",
+        "It hangs back to heal the other enemies and brace them with Block, and the bracing removes Fire, Ice or Electrified from under them. Up close, it cuts at you with a serrated saw."
       ]
     },
     {
@@ -648,8 +657,9 @@
       "section": "creatures",
       "enemy_id": "frostglass_lancer",
       "title": "Frostglass Lancer",
-      "body": [
-        "The Frostglass Lancer leaves Ice. Refract Guard removes Ice from the Lancer's tile."
+      "lore": [
+        "Ice given the shape of a knight and set to stand watch in the Rime Hall. Its spear is a single shard of glacier ice.",
+        "It drives its spear through a line of tiles and leaves Ice behind, or throws it from range, and its hardest strikes Stagger anyone standing on Ice. It also falls back behind a guard of Block."
       ]
     },
     {
@@ -657,9 +667,9 @@
       "section": "creatures",
       "enemy_id": "zekarion",
       "title": "Zekarion, the Raging Tempest",
-      "body": [
-        "Zekarion is supported by Lightning Wisps. Skybreak and Storm Lash leave Electrified.",
-        "When Zekarion uses Overload, each unit on Electrified takes 6 damage. At half Health, each unit on Electrified takes 7 damage. Stay off Electrified or lure Zekarion's Wisps onto Electrified."
+      "lore": [
+        "The storm dragon of the Tempest Spire. Lightning crawls over its scales, and the air around it never settles. In the world outside, people pray to it for rain and curse it for the floods.",
+        "Zekarion scatters lightning across the floor and leaves that ground Electrified, then uses Overload to strike everyone standing on it. Between storms, it lashes you with lightning and calls Lightning Wisps to its side."
       ]
     },
     {
@@ -667,8 +677,9 @@
       "section": "creatures",
       "enemy_id": "lightning_wisp",
       "title": "Lightning Wisp",
-      "body": [
-        "The Lightning Wisp leaves Electrified. Capacitor Arc Shocks targets hit through Electrified."
+      "lore": [
+        "A scrap of thundercloud given a will of its own. Zekarion calls Wisps down to fight for it.",
+        "It zips in to sting, charges the ground beneath it with Electrified, and fires arcs that leap along Electrified ground and Shock whoever they reach there."
       ]
     },
     {
@@ -688,7 +699,7 @@
       "icon": "detonate",
       "body": [
         "When this attack lands, each unit on a Marked tile takes X damage, and each Marked tile becomes Fire.",
-        "Meteorfall hits each Marked tile and leaves Fire. Whenever Vyraketh breathes, Fire spreads to each adjacent tile. Crownfire Bursts Vyraketh's Marked Fire while Vyraketh moves toward you. Replace that Fire to stop Crownfire's Burst, or lure the dragon into the Burst. The Meteorfall card leaves Marked tiles through enemy turns. At the start of your next turn before you Draw, deal damage to each unit on a Marked tile, then leave Fire on each Marked tile."
+        "Crownfire Bursts each of Vyraketh's Marked Fire tiles, then Vyraketh moves toward you and attacks. The Meteorfall card Marks tiles. At the start of your next turn, each unit on a Marked tile takes damage, and each Marked tile becomes Fire."
       ]
     },
     {
@@ -708,7 +719,7 @@
       "icon": "push",
       "body": [
         "An area Push or Pull moves each enemy in the area in a straight line away from or toward the source. The source is you or the tile the card names. An enemy at the source of a Pull stays in place.",
-        "A Push starts with the farthest enemy. A Pull starts with the nearest enemy. A Collision deals 2 damage per unmoved tile to the moving unit and each blocker hit. Squall Shot Pushes each enemy hit 2 tiles away from you."
+        "A Push starts with the farthest enemy. A Pull starts with the nearest enemy. A Collision deals 2 damage per unmoved tile to the moving unit and each blocker hit. Squall Pushes each enemy hit 2 tiles away from you."
       ]
     },
     {
@@ -747,7 +758,7 @@
       "icon": "frost_armor",
       "body": [
         "Each Crystal Mantle layer prevents damage from 1 direct hit, then breaks. Ground, Collision, traps and Health costs bypass Crystal Mantle.",
-        "Each layer extends Shatterstorm by 1 tile. Break layers before Shatterstorm to reduce the area. Shatterstorm breaks the remaining layers. Ice on Iskaldra's tile gives Iskaldra an extra layer. Remove that Ice before Iskaldra's turn. Crystal Mantle cards give you layers that last until broken or combat ends."
+        "Each layer extends Iskaldra's Shatterstorm by 1 tile, and Shatterstorm breaks the remaining layers. Crystal Mantle cards give you layers that last until broken or combat ends."
       ]
     },
     {
@@ -757,7 +768,7 @@
       "icon": "umbra_eclipse",
       "body": [
         "Last Eclipse hits you and your Illusions on Marked tiles, then starts Eclipse for 2 turns.",
-        "Night Coil puts out a Marked brazier before Noctyrax announces Last Eclipse. Walk or Blink onto that brazier's tile to relight the brazier. Light blocks Eclipse's darkness. Relight a brazier or create Light, then avoid or guard against the Marked tiles. Noctyrax replaces defeated Acolytes, up to 2 alive. Light and Vision reveal hidden Acolytes. Braziers still relight and Shades from Snuff still leave when the enemy's turn is skipped."
+        "Night Coil puts out the nearest brazier. Walk or Blink onto a dark brazier's tile to relight that brazier. Light blocks Eclipse's darkness."
       ]
     },
     {
@@ -765,8 +776,9 @@
       "section": "creatures",
       "enemy_id": "veilbound_acolyte",
       "title": "Veilbound Acolyte",
-      "body": [
-        "The Umbra hides the Veilbound Acolyte's tile. Light and Vision reveal the Acolyte before the Acolyte attacks."
+      "lore": [
+        "An acolyte who walked into the Umbra and came back wearing it. It serves Noctyrax at the heart of the dark.",
+        "It pricks you with needles of shadow from a short distance, then slips away again."
       ]
     },
     {
@@ -774,9 +786,9 @@
       "section": "creatures",
       "enemy_id": "tharokh",
       "title": "Tharokh, the Worldspine",
-      "body": [
-        "Earth dragon supported by Burrow Grubs.",
-        "After every second turn of yours, Tharokh's Marked tiles become Outcrops. A Marked tile stays flat if the unit on that tile cannot be moved to an open tile. At half Health, Tharokh's Marked tiles become Outcrops after each of your turns."
+      "lore": [
+        "An earth dragon so old that the Worldspine Roots grew around it. Its scales are slabs of bedrock. Outside these walls, kings are crowned on stones said to be its shed scales.",
+        "Tharokh sends lines of breaking stone across the room, breathes a wave of Rubble and rakes anything in reach of its claws. Upheaval raises Outcrops from the ground it Marks, and Burrow Grubs fight at its side."
       ]
     },
     {
@@ -784,9 +796,9 @@
       "section": "creatures",
       "enemy_id": "vyraketh",
       "title": "Vyraketh, the Cinder Crown",
-      "body": [
-        "Fire dragon that creates Marked Fire. Cinder Droplets also leave Fire.",
-        "Whenever Vyraketh breathes, Fire spreads to each adjacent tile. At half Health, Fire spreads after every second Vyraketh turn. Crownfire Bursts Vyraketh's Marked Fire. Vyraketh's bite Marks tiles again."
+      "lore": [
+        "The fire dragon that rules the Cinder Crown. Its scales glow like banked coals. Every hearth in the world above is lit in its name.",
+        "Vyraketh rains cinders that Mark the floor and set it burning, breathes flame and bites hard up close. Wildfire spreads its fires to the tiles around them, Crownfire sets off its Marked fires at once, and Cinder Droplets fight at its side."
       ]
     },
     {
@@ -794,9 +806,9 @@
       "section": "creatures",
       "enemy_id": "vaeloryx",
       "title": "Vaeloryx, the Hollow Gale",
-      "body": [
-        "Air dragon that strikes from the sky and dives at you, supported by Gust Shrikes.",
-        "After each Vaeloryx turn, Gust Pushes each unit 1 tile, then turns a quarter clockwise. At half Health, Gust Pushes 2 tiles. Move closer to Vaeloryx after the retreat to take less damage from Eye of the Storm."
+      "lore": [
+        "The wind dragon of the Hollow Gale, pale as cloud. Its wings never stop moving. Sailors far from here still pour out wine to it before they leave port.",
+        "Vaeloryx hooks you from afar and drags you in, dives through anything in its path, and whips up wind that throws back everyone near it. Its Gust shoves units downwind after each of its turns, and Gust Shrikes fly at its side."
       ]
     },
     {
@@ -804,9 +816,9 @@
       "section": "creatures",
       "enemy_id": "iskaldra",
       "title": "Iskaldra, the Rime Tyrant",
-      "body": [
-        "Ice dragon protected by Crystal Mantle layers. Rime Spitters leave Ice.",
-        "When Iskaldra uses Rime Talon, Frostbite deals 3 damage to each unit on Ice. At half Health, Frostbite hits after every second Iskaldra turn instead. Break Crystal Mantle layers to shrink Shatterstorm's area."
+      "lore": [
+        "The ice dragon of the Rime Hall, armored in crystal that grows back as fast as it breaks. The north keeps its winters long in Iskaldra's honor.",
+        "Iskaldra wraps itself in layers of Crystal Mantle, lances the floor with Ice and claws at close range. Each layer widens Shatterstorm, Frostbite hurts each unit standing on Ice, and Rime Spitters fight at its side."
       ]
     },
     {
@@ -814,9 +826,9 @@
       "section": "creatures",
       "enemy_id": "noctyrax",
       "title": "Noctyrax, the Last Eclipse",
-      "body": [
-        "Shadow dragon and final boss of depth 24, supported by Veilbound Acolytes.",
-        "When Noctyrax uses Void Claw, hidden Veilbound Acolytes Blink 3 tiles toward you. Night Coil puts out a brazier. Enter that brazier's tile to relight the brazier. Light blocks Eclipse's darkness."
+      "lore": [
+        "The dragon at the heart of the Umbra. Its kin wear crowns in the world above. These walls, and everything that walks between them, are its making.",
+        "Noctyrax drags you closer with coils of night that snuff out braziers, rakes with its claws and breathes darkness that ignores Block. Its Last Eclipse strikes Marked ground and then swallows the room in dark, and Veilbound Acolytes rise to fight beside it."
       ]
     },
     {
@@ -910,7 +922,7 @@
       "title": "Marked",
       "icon": "marked",
       "body": [
-        "Marked tiles show where this enemy acts on its next turn.",
+        "Marked tiles show where this enemy will act.",
         "Burrowed enemies cannot be targeted or moved. Area attacks hit Burrowed enemies. A Burrow Grub emerges on the Marked tile or the nearest open tile."
       ],
       "aliases": [
@@ -976,7 +988,7 @@
       "title": "Range",
       "icon": "range",
       "body": [
-        "Maximum distance to the target in tiles, counted without diagonals."
+        "How far this attack reaches in tiles, counted without diagonals."
       ],
       "default": true
     },
@@ -1228,6 +1240,266 @@
       "body": [
         "Hit each visible enemy that meets the named condition.",
         "Select no target. The condition may require Fire, Ice, Electrified or Light. Each hit is a direct hit. Play the card only if at least 1 enemy qualifies and is within Range."
+      ]
+    },
+    {
+      "id": "enemy:ember_tick",
+      "section": "creatures",
+      "enemy_id": "ember_tick",
+      "title": "Ember Tick",
+      "lore": [
+        "A tick swollen on the heat of the furnace halls. Fire shows through the cracks in its shell.",
+        "It scuttles in to bite. When it dies it Bursts, hurting every unit beside it and leaving Fire, and Kindle makes that Burst stronger."
+      ]
+    },
+    {
+      "id": "enemy:ember_hoarder",
+      "section": "creatures",
+      "enemy_id": "ember_hoarder",
+      "title": "Ember Hoarder",
+      "lore": [
+        "An Ember Tick that has gorged on the Labyrinth's Embers until it can barely run. It sits on its hoard with a brood of Ember Ticks around it.",
+        "It keeps its distance and scurries away from you, and Kindle makes the Burst it leaves when it dies stronger. If you don't catch it in time, it slips away with its hoard."
+      ]
+    },
+    {
+      "id": "enemy:slag_mortar",
+      "section": "creatures",
+      "enemy_id": "slag_mortar",
+      "title": "Slag Mortar",
+      "lore": [
+        "A squat brute with a furnace bowl strapped to its back, made to shell the halls of the Cinder Crown. It throws its slag without looking where it lands.",
+        "It lobs slag that Marks a cross of tiles on you, then lands on its next turn and leaves Fire. It also braces behind Block and fires scattered slag that knocks you back."
+      ]
+    },
+    {
+      "id": "enemy:ash_hound",
+      "section": "creatures",
+      "enemy_id": "ash_hound",
+      "title": "Ash Hound",
+      "lore": [
+        "A lean, scorched hound bred to run with the Ashen Reaver. Its hide still smoulders.",
+        "Ash Hounds run fast and bite, and their Flanking Bite knocks you back a tile."
+      ]
+    },
+    {
+      "id": "enemy:hoarfrost_seer",
+      "section": "creatures",
+      "enemy_id": "hoarfrost_seer",
+      "title": "Hoarfrost Seer",
+      "lore": [
+        "A hooded hermit who came north looking for Iskaldra's winter and never left the Rime Hall. It reads the frost the way others read the stars.",
+        "It marks the ground at your feet for Icefall, which lands on its next turn and leaves Ice, and its bolts Stagger anyone standing on Ice. It also falls back behind Block."
+      ]
+    },
+    {
+      "id": "enemy:glacial_mirror",
+      "section": "creatures",
+      "enemy_id": "glacial_mirror",
+      "title": "Glacial Mirror",
+      "lore": [
+        "A walking slab of glacier ice with a pane of clear crystal set in its chest. You can see yourself in it, a little colder than you are.",
+        "Its Reflect sends attacks made from a distance back at you. It grinds forward slowly, throws a line of refracted cold that Pierces Block and Staggers anyone on Ice, and shields the ally beside it, or itself, with Block."
+      ]
+    },
+    {
+      "id": "enemy:rime_whelp",
+      "section": "creatures",
+      "enemy_id": "rime_whelp",
+      "title": "Rime Whelp",
+      "lore": [
+        "A young Rimejaw that has not grown its full spines. Whelps follow the Rimejaw on its hunts.",
+        "It closes fast to bite, and its snapping jaws Stagger anyone standing on Ice."
+      ]
+    },
+    {
+      "id": "enemy:rime_spitter",
+      "section": "creatures",
+      "enemy_id": "rime_spitter",
+      "title": "Rime Spitter",
+      "lore": [
+        "A squat, pale toad with a throat full of frost. Iskaldra keeps them the way a lord keeps hounds.",
+        "It spits a needle of ice down a line that leaves Ice at the far end, and its frost spit Staggers anyone standing on Ice."
+      ]
+    },
+    {
+      "id": "enemy:arc_thrall",
+      "section": "creatures",
+      "enemy_id": "arc_thrall",
+      "title": "Arc Thrall",
+      "lore": [
+        "A hulking servant of the Tempest Spire, with an iron collar at its throat and a rod full of lightning in its fist. It has worn that collar so long it has forgotten it is there.",
+        "It hurls bolts from its rod that leave the ground Electrified, and up close its jab Shocks you."
+      ]
+    },
+    {
+      "id": "enemy:storm_capacitor",
+      "section": "creatures",
+      "enemy_id": "storm_capacitor",
+      "title": "Storm Capacitor",
+      "lore": [
+        "A jar of storm bound in iron and set into the floor of the Tempest Spire. Something inside it keeps trying to get out.",
+        "It never moves. It builds Charge, and at 3 Charge it unleashes Arc Lash, which leaps from unit to unit. Shock drains its Charge."
+      ]
+    },
+    {
+      "id": "enemy:bell_tender",
+      "section": "creatures",
+      "enemy_id": "bell_tender",
+      "title": "Bell Tender",
+      "lore": [
+        "A hooded bell-ringer of the Broken Choir, masked in brass. It carries the choir's song out across the floor.",
+        "It links tiles into Electrified ground for the storm to strike, and fires bolts from its staff."
+      ]
+    },
+    {
+      "id": "enemy:gale_herald",
+      "section": "creatures",
+      "enemy_id": "gale_herald",
+      "title": "Gale Herald",
+      "lore": [
+        "A herald wrapped in wind-torn banners, still sounding Vaeloryx's call through the Hollow Gale.",
+        "It blows its horn to call the wind, fires bolts of wind that knock you back, and stills the air around itself for Block."
+      ]
+    },
+    {
+      "id": "enemy:gust_shrike",
+      "section": "creatures",
+      "enemy_id": "gust_shrike",
+      "title": "Gust Shrike",
+      "lore": [
+        "A small, quick hawk of the Hollow Gale. Vaeloryx's wings throw them off like sparks.",
+        "It dives in from far off and hits you anywhere along its path, knocking you back. It also rakes with its talons and hovers out of reach behind Block."
+      ]
+    },
+    {
+      "id": "enemy:roc_fledgling",
+      "section": "creatures",
+      "enemy_id": "roc_fledgling",
+      "title": "Roc Fledgling",
+      "lore": [
+        "A young Gallows Roc, not yet grown into its wings. It follows the Roc out of the Hanging Roost to fight.",
+        "It darts in close and pecks at you."
+      ]
+    },
+    {
+      "id": "enemy:burrow_grub",
+      "section": "creatures",
+      "enemy_id": "burrow_grub",
+      "title": "Burrow Grub",
+      "lore": [
+        "A blind grub as thick as a man, chewing tunnels through the Worldspine Roots. Tharokh's roots are full of them.",
+        "It burrows under the floor and marks the tile under you, then erupts there on its next turn, throwing up Rubble and leaving itself Exposed. Above ground, it gnaws."
+      ]
+    },
+    {
+      "id": "enemy:briar_weaver",
+      "section": "creatures",
+      "enemy_id": "briar_weaver",
+      "title": "Briar Weaver",
+      "lore": [
+        "A hunched knot of living roots and thorns, grown out of the Worldspine Roots. It tends the Labyrinth's stone the way a gardener tends a hedge.",
+        "It Marks lines of floor that later heave up into Outcrops, lashes you with thorns from range and heals its most wounded ally nearby."
+      ]
+    },
+    {
+      "id": "enemy:stoneback_mite",
+      "section": "creatures",
+      "enemy_id": "stoneback_mite",
+      "title": "Stoneback Mite",
+      "lore": [
+        "A stone-shelled mite that lives among the Craghide's plates and follows it out to fight.",
+        "It claws at you, and its Driving Claw shoves you back while it braces behind a little Block."
+      ]
+    },
+    {
+      "id": "enemy:gloam_stalker",
+      "section": "creatures",
+      "enemy_id": "gloam_stalker",
+      "title": "Gloam Stalker",
+      "lore": [
+        "A hooded thing with sickles for hands that lives in the Umbra's deepest dark. You rarely see it before it is behind you.",
+        "It Fades into the dark and reappears behind you, then strikes from Ambush on its next turn. Otherwise it closes in and slashes."
+      ]
+    },
+    {
+      "id": "enemy:hollow_mimic",
+      "section": "creatures",
+      "enemy_id": "hollow_mimic",
+      "title": "Hollow Mimic",
+      "lore": [
+        "A shadow that has taken on your shape, down to the hair and the armor. The dark down here learns from everyone who walks in it.",
+        "It fires bolts of shadow from range. After its Echo, it hits back whenever you strike it up close, until its next turn. It also falls back out of reach."
+      ]
+    },
+    {
+      "id": "enemy:wick_shade",
+      "section": "creatures",
+      "enemy_id": "wick_shade",
+      "title": "Wick Shade",
+      "lore": [
+        "What is left of someone who lost their way in the dark: a hooded shape with one cold light where a face should be. The Last Lamplighter calls them out of the flames it snuffs.",
+        "It drifts toward you and grasps at you to drag you closer. In Last Light, it puts out the braziers you keep lit."
+      ]
+    },
+    {
+      "id": "enemy:ashen_reaver",
+      "section": "creatures",
+      "enemy_id": "ashen_reaver",
+      "title": "Ashen Reaver",
+      "lore": [
+        "An executioner in blackened plate, made to hold the Cinder Yard on the road to Vyraketh. Its falchion still glows from a forge no one has lit in an age.",
+        "The Reaver rakes the ground with lines of Fire and sweeps its falchion across the tiles in front of it, and its heaviest blow leaves it Exposed. Wildfire spreads its flames toward you every other turn."
+      ]
+    },
+    {
+      "id": "enemy:rimejaw",
+      "section": "creatures",
+      "enemy_id": "rimejaw",
+      "title": "Rimejaw",
+      "lore": [
+        "A long, pale beast with a bare skull for a face and spines of ice down its back. It hunts the Broken Rime on the road to Iskaldra.",
+        "It leaves Ice in its tracks and pounces from a distance, and its heavier bites Stagger anyone standing on Ice. Frostbite Staggers each unit on Ice after each of your turns."
+      ]
+    },
+    {
+      "id": "enemy:storm_cantor",
+      "section": "creatures",
+      "enemy_id": "storm_cantor",
+      "title": "Storm Cantor",
+      "lore": [
+        "A gilded figure that leads the Broken Choir on the road to Zekarion. It sings the hymns people above still sing to the storm, and down here the storm answers.",
+        "The Cantor lays chains of Electrified ground across the room, then its Peal strikes everyone standing on that ground. Up close it brings its staff down hard, and it calls Lightning Wisps to its side."
+      ]
+    },
+    {
+      "id": "enemy:gallows_roc",
+      "section": "creatures",
+      "enemy_id": "gallows_roc",
+      "title": "Gallows Roc",
+      "lore": [
+        "A vulture the size of a cart, with charms and gallows rope tangled in its feathers. It nests in the Hanging Roost on the road to Vaeloryx.",
+        "It hooks you from afar and drags you closer, beats its razor wings to throw you back, and dives on you from above. After each of your turns, its Gust blows across the room."
+      ]
+    },
+    {
+      "id": "enemy:craghide",
+      "section": "creatures",
+      "enemy_id": "craghide",
+      "title": "Craghide",
+      "lore": [
+        "A bear grown over with plates of rock, sleeping off the centuries in the Shattered Burrow on the road to Tharokh. It does not like to be woken.",
+        "Every other turn, it heaves Marked floor up into Outcrops. It cracks the ground around that stone to hurt you if you stand near it, and charges in for a crushing blow."
+      ]
+    },
+    {
+      "id": "enemy:last_lamplighter",
+      "section": "creatures",
+      "enemy_id": "last_lamplighter",
+      "title": "Last Lamplighter",
+      "lore": [
+        "The last keeper of the Labyrinth's braziers, still making its rounds at the Last Watch on the road to Noctyrax. Every flame it snuffs leaves the dark a little deeper.",
+        "It snuffs braziers and calls up a Wick Shade when none is left, hooks you closer with its lantern chain and walks its Last Procession in to strike. After each of your turns, hidden Wick Shades step toward you through the dark."
       ]
     }
   ]

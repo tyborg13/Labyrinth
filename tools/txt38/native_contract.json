@@ -1,0 +1,10 @@
+{
+  "min_images": 4,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "burrow_grub_moves_1920x1080.png", "regions": [{"rect": [760, 340, 710, 440], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "wick_shade_moves_1920x1080.png", "regions": [{"rect": [760, 340, 710, 440], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "gust_shrike_moves_1920x1080.png", "regions": [{"rect": [760, 340, 710, 440], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "gust_shrike_dive_hover_1920x1080.png", "regions": [{"rect": [420, 140, 1100, 740], "min_luma_range": 30, "min_luma_stdev": 6}]}
+  ]
+}

@@ -185,19 +185,17 @@ func _native_tooltip_content(wrapper: Window) -> Control:
 func _queue_native_tooltip_tighten() -> void:
 	if not is_inside_tree() or is_queued_for_deletion(): return
 	call_deferred("_tighten_native_tooltip_wrapper")
-	_tighten_native_tooltip_after_layout()
+	_tighten_native_tooltip_after_layout(get_tree(), self)
 
 
-func _tighten_native_tooltip_after_layout() -> void:
-	# The native popup owns this child. Its signals and pending layout passes
-	# can outlive the child's tree membership while the popup is being retired.
-	if not is_inside_tree() or is_queued_for_deletion(): return
-	var tree: SceneTree = get_tree()
+static func _tighten_native_tooltip_after_layout(tree: SceneTree, ornament: Node2D) -> void:
+	# The native popup can free its ornament during either frame wait.
+	# A static coroutine can resume and check the ornament's lifetime.
 	await tree.process_frame
-	if not is_inside_tree() or is_queued_for_deletion(): return
+	if not is_instance_valid(ornament) or not ornament.is_inside_tree() or ornament.is_queued_for_deletion(): return
 	await tree.process_frame
-	if not is_inside_tree() or is_queued_for_deletion(): return
-	_tighten_native_tooltip_wrapper()
+	if not is_instance_valid(ornament): return
+	ornament.call("_tighten_native_tooltip_wrapper")
 
 
 func _normalize_tooltip_label_minimums() -> void:

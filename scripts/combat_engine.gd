@@ -605,12 +605,7 @@ func skill_is_ready(state: Dictionary, skill_id: String) -> bool:
 				return false
 			if bool((state.get("skill_flags", {}) as Dictionary).get("movement_blink_armed", false)):
 				return false
-			var effect: Dictionary = SkillTreeLibrary.effect(skill_id)
-			var blink_action: Dictionary = {
-				"type": "blink",
-				"range": mini(player_movement_remaining(state), maxi(1, int(effect.get("range", 0)))),
-				"_movement_pool": true
-			}
+			var blink_action: Dictionary = _ghost_stride_movement_action(skill_id)
 			return player_action_can_resolve(state, blink_action) and not valid_targets_for_player_action(state, blink_action).is_empty()
 	return true
 
@@ -1406,9 +1401,9 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 		var component_has_opponent: Dictionary = {}
 		for tile: Vector2i in BoardSurfaceRules.tiles(conductor_state):
 			var reachable: bool = not DragonTrophyRules.route(self,state,resolved_action,tile,visible_lookup).is_empty() if targeting_type == "ranged" else PathUtils.manhattan(player_pos,tile) <= int(action.get("range",1)) and combat_line_of_sight(state,player_pos,tile)
-			if BoardSurfaceRules.is_conductive(conductor_state, tile) and reachable and is_tile_visible_to_player(state, tile, visible_lookup):
+			if BoardSurfaceRules.is_conductive(conductor_state, tile, true) and reachable and is_tile_visible_to_player(state, tile, visible_lookup):
 				if not component_has_opponent.has(tile):
-					var component: Array[Vector2i] = BoardSurfaceRules.connected_component(conductor_state, tile)
+					var component: Array[Vector2i] = BoardSurfaceRules.connected_component(conductor_state, tile, {}, true)
 					var useful: bool = false
 					for opponent: Dictionary in known_opponents:
 						if _surface_unit_intersects(opponent, component):
@@ -1580,7 +1575,7 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 func resolve_player_action_for_presentation(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
 	var trace: Dictionary = {"chain_hits": []}
 	var result: Dictionary = _apply_player_action(state, action, target_tile, true, trace)
-	return {"state": result, "chain_hits": trace["chain_hits"]}
+	return {"state": result, "chain_hits": trace["chain_hits"], "movement_bump": trace.get("movement_bump", {})}
 
 func apply_prevalidated_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
 	# Preview callers obtain target_tile from valid_targets_for_player_action and
@@ -1664,7 +1659,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 					_record_runtime_performance_phase("player_action_body_total", performance_phase_started)
 					_record_runtime_performance_phase("player_action_total", performance_total_started)
 					return next_state
-				next_state = _apply_player_move_along_path(next_state, resolved_action, target_tile, movement_path)
+				next_state = _apply_player_move_along_path(next_state, resolved_action, target_tile, movement_path, presentation_trace)
 		"blink":
 			if target_is_valid:
 				var blink_origin: Vector2i = player_pos
@@ -1850,8 +1845,7 @@ func _apply_player_move_along_path(
 	resolved_action: Dictionary,
 	target_tile: Vector2i,
 	movement_path: Array[Vector2i],
-	hidden_collision_tiles: Dictionary = {},
-	use_hidden_collision_lookup: bool = false
+	presentation_trace: Dictionary
 ) -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var loot_before: int = _unclaimed_loot_count(next_state)
@@ -1860,7 +1854,8 @@ func _apply_player_move_along_path(
 	# A Glassway trade enters only its landing tile, so an unseen body on the
 	# tiles between cannot stop it.
 	var trades: bool = not movement_path.is_empty() and IllusionRelicRules.can_trade(self, next_state, movement_path[movement_path.size() - 1])
-	var resolved_path: Array[Vector2i] = TypedArrays.vector2i(movement_path if trades else _player_path_until_hidden_collision(next_state, movement_path, hidden_collision_tiles, use_hidden_collision_lookup))
+	var bump: Dictionary = {}
+	var resolved_path: Array[Vector2i] = TypedArrays.vector2i(movement_path if trades else _player_path_until_hidden_collision(next_state, movement_path, bump))
 	performance_phase_started = _record_runtime_performance_phase("move_path_hidden_collision", performance_phase_started)
 	var movement_result: Dictionary = {}
 	var minimum_progress: bool = not bool(resolved_action.get("_movement_pool", false)) or player_movement_remaining(next_state) == player_movement_capacity(next_state)
@@ -1869,6 +1864,9 @@ func _apply_player_move_along_path(
 		next_state["last_player_movement"] = {"spent": int(movement_result.get("spent", 0))}
 	performance_phase_started = _record_runtime_performance_phase("move_path_traverse_total", performance_phase_started)
 	var resolved_endpoint: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", resolved_path[0])
+	if not bump.is_empty() and resolved_endpoint == resolved_path.back() and int(next_state["player"].get("hp", 0)) > 0:
+		bump["steps_reached"] = resolved_path.size() - 1
+		presentation_trace["movement_bump"] = bump
 	resolved_path = _movement_path_through_endpoint(resolved_path, resolved_endpoint)
 	# A Glassway trade covers only its endpoints and its distance, like a Blink.
 	var traded: bool = bool(movement_result.get("traded", false))
@@ -1942,7 +1940,10 @@ func _trigger_player_movement_radiance(state: Dictionary, action: Dictionary, pa
 		var sunpath_key: String = "skill_turn:%s" % sunpath_id
 		if distance >= int(sunpath_effect.get("minimum_distance", 3)) and not _turn_flag(next_state, sunpath_key):
 			_set_turn_flag(next_state, sunpath_key, true)
-			for position: Vector2i in _movement_light_positions(path, blinked):
+			var sunpath_positions: Array[Vector2i] = _movement_light_positions(path, blinked)
+			if str(action.get("type", "")) == "blink":
+				sunpath_positions = _sunpath_blink_positions(next_state["grid"], path[0], path.back())
+			for position: Vector2i in sunpath_positions:
 				next_state = _create_umbra_light_source(next_state, position, {
 					"radius": int(sunpath_effect.get("radius", 1)),
 					"silent": true
@@ -1955,6 +1956,13 @@ func _trigger_player_movement_radiance(state: Dictionary, action: Dictionary, pa
 	if not light_positions.is_empty():
 		_log(next_state, "Movement leaves a path of Light.")
 	return _trigger_movement_end_rewards(next_state, action)
+
+func _sunpath_blink_positions(grid: Array, origin: Vector2i, destination: Vector2i) -> Array[Vector2i]:
+	var positions: Array[Vector2i]
+	for tile: Vector2i in PathUtils._supercover_line(origin, destination):
+		if PathUtils.is_passable(grid, tile):
+			positions.append(tile)
+	return positions
 
 func _movement_light_positions(path: Array[Vector2i], blinked: bool) -> Array[Vector2i]:
 	if blinked:
@@ -3451,19 +3459,22 @@ func player_movement_action(state: Dictionary) -> Dictionary:
 	var ghost_stride_id: String = SkillTreeLibrary.skill_id_for_effect("arm_movement_blink")
 	var ghost_stride_armed: bool = bool((state.get("skill_flags", {}) as Dictionary).get("movement_blink_armed", false))
 	if remaining > 0 and not ghost_stride_id.is_empty() and ghost_stride_armed and has_skill(state, ghost_stride_id) and not skill_was_used(state, ghost_stride_id):
-		var effect: Dictionary = SkillTreeLibrary.effect(ghost_stride_id)
-		return {
-			"type": "blink",
-			"range": mini(remaining, maxi(1, int(effect.get("range", remaining)))),
-			"_movement_pool": true,
-			"_skill_id": ghost_stride_id,
-			"_card_action_types": ["blink"]
-		}
+		return _ghost_stride_movement_action(ghost_stride_id)
 	return {
 		"type": "move",
 		"range": remaining,
 		"_movement_pool": true,
 		"_card_action_types": ["move"]
+	}
+
+func _ghost_stride_movement_action(skill_id: String) -> Dictionary:
+	var effect: Dictionary = SkillTreeLibrary.effect(skill_id)
+	return {
+		"type": "blink",
+		"range": maxi(1, int(effect.get("range", 2))),
+		"_movement_pool": true,
+		"_skill_id": skill_id,
+		"_card_action_types": ["blink"]
 	}
 
 func player_movement_targets(state: Dictionary) -> Array[Vector2i]:
@@ -3490,14 +3501,15 @@ func apply_player_movement(state: Dictionary, target_tile: Vector2i) -> Dictiona
 		return movement_state
 	var origin: Vector2i = (_normalized_player(movement_state.get("player", {}))).get("pos", Vector2i.ZERO)
 	var undo_walk_path: Array[Vector2i] = path_for_player_action(movement_state, action, target_tile)
-	var next_state: Dictionary = apply_player_action(movement_state, action, target_tile)
+	var trace: Dictionary = {}
+	var next_state: Dictionary = _apply_player_action(movement_state, action, target_tile, true, trace)
 	var destination: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", origin)
 	# A resolved request can collide
 	# with an unseen actor. Consumers must still commit that resulting state.
 	var spent: int = int((next_state.get("last_player_movement", {}) as Dictionary).get("spent", 0))
-	if str(action.get("type", "")) == "blink":
-		spent = PathUtils.manhattan(origin, destination)
 	var remaining_before: int = player_movement_remaining(movement_state)
+	if str(action.get("type", "")) == "blink":
+		spent = mini(remaining_before, PathUtils.manhattan(origin, destination))
 	next_state["player_movement_capacity"] = player_movement_capacity(next_state)
 	next_state["player_movement_remaining"] = clampi(remaining_before - spent, 0, player_movement_capacity(next_state))
 	next_state["last_player_movement"] = {
@@ -3512,6 +3524,10 @@ func apply_player_movement(state: Dictionary, target_tile: Vector2i) -> Dictiona
 		"remaining_after": int(next_state.get("player_movement_remaining", 0)),
 		"capacity": int(next_state.get("player_movement_capacity", BASE_PLAYER_MOVEMENT))
 	}
+	var bump: Dictionary = trace.get("movement_bump", {})
+	if not bump.is_empty():
+		next_state["last_player_movement"]["blocked_tile"] = bump["blocked_tile"]
+		next_state["last_player_movement"]["steps_reached"] = bump["steps_reached"]
 	if spent > 0 and bool((next_state.get("skill_flags", {}) as Dictionary).get("movement_blink_armed", false)):
 		_erase_skill_flag(next_state, "movement_blink_armed")
 	# Pure report only; resolution, payment, RNG and consequences stay unchanged.
@@ -6565,8 +6581,11 @@ func _action_with_target_state_relic_modifiers(state: Dictionary, action: Dictio
 			)
 	return resolved_action
 
-func _action_with_light_target_skill_modifier(state: Dictionary, action: Dictionary, enemy_index: int) -> Dictionary:
+func _action_with_light_target_skill_modifier(state: Dictionary, action: Dictionary, enemy_index: int, hit: Dictionary = {}) -> Dictionary:
 	var resolved_action: Dictionary = action.duplicate(true)
+	# Chain jumps share the native "actor" trace kind, with a positive head-relative hop.
+	if str(hit.get("kind_trace", "actor")) != "actor" or int(hit.get("enemy_hop", 0)) > 0:
+		return resolved_action
 	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("light_target_expose")
 	if skill_id.is_empty() or not has_skill(state, skill_id):
 		return resolved_action
@@ -7652,31 +7671,34 @@ func _move_player_along_path(state: Dictionary, path: Array[Vector2i], allowance
 func _player_path_until_hidden_collision(
 	state: Dictionary,
 	path: Array[Vector2i],
-	hidden_collision_tiles: Dictionary = {},
-	use_hidden_collision_lookup: bool = false
+	bump: Dictionary
 ) -> Array[Vector2i]:
 	var resolved: Array[Vector2i]
 	if path.is_empty():
 		return resolved
 	resolved.append(path[0])
-	var hidden_enemy_tiles: Dictionary = hidden_collision_tiles
-	if not use_hidden_collision_lookup:
-		hidden_enemy_tiles = _occupied_enemy_tiles(state)
-		var visible_enemy_tiles: Dictionary = _occupied_visible_enemy_tiles(state)
-		for visible_tile_var: Variant in visible_enemy_tiles.keys():
-			hidden_enemy_tiles.erase(visible_tile_var)
+	var hidden_enemy_tiles: Dictionary = _occupied_enemy_tiles(state)
+	for visible_tile: Vector2i in _occupied_visible_enemy_tiles(state):
+		hidden_enemy_tiles.erase(visible_tile)
+	var vault: bool = not SurfaceVarietyRules.effect(_relic_effects(state), "move_through_enemies_stagger").is_empty()
 	for index: int in range(1, path.size()):
 		var tile: Vector2i = path[index]
-		if hidden_enemy_tiles.has(tile) and SurfaceVarietyRules.effect(_relic_effects(state), "move_through_enemies_stagger").is_empty():
+		if hidden_enemy_tiles.has(tile) and not vault:
 			var umbra: Dictionary = (state.get("umbra", {}) as Dictionary).duplicate(true)
 			umbra["movement_interrupted_total"] = int(umbra.get("movement_interrupted_total", 0)) + 1
 			state["umbra"] = umbra
 			_log(state, "Something in the Umbra blocks the way.")
+			bump["blocked_tile"] = tile
 			break
 		resolved.append(tile)
-	if not SurfaceVarietyRules.effect(_relic_effects(state), "move_through_enemies_stagger").is_empty():
+	if vault:
 		while resolved.size() > 1 and _enemy_index_at_tile(state, resolved.back()) >= 0:
 			resolved.pop_back()
+		# Vaulting can cross an occupied tile but still requires a free
+		# landing. A hidden landing explains why the route was shortened.
+		var landing: Vector2i = path.back()
+		if resolved.size() < path.size() and hidden_enemy_tiles.has(landing):
+			bump["blocked_tile"] = landing
 	return resolved
 
 func _preferred_pickup_scores(state: Dictionary) -> Dictionary:
@@ -12361,11 +12383,13 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 			visited[actor["key"]] = true
 	var reach: int = int(action.get("chain", 0))
 	var lightning: bool = _action_element(action) == "lightning" and int(action.get("damage", 0)) > 0 and not bool(action.get("no_conduction", false))
+	var rule_beat: bool = bool(action.get("_battlefield_rule_fuel", false))
+	var allow_fire: bool = actor_kind == "player" and lightning and not rule_beat
 	var conductive: Array[Vector2i]
 	var lightning_ground: Dictionary = {}
 	if reach > 0 or lightning:
 		for tile: Vector2i in BoardSurfaceRules.tiles(conductor_state):
-			if not BoardSurfaceRules.is_conductive(conductor_state, tile, bool(action.get("_battlefield_rule_fuel", false))):
+			if not BoardSurfaceRules.is_conductive(conductor_state, tile, allow_fire, rule_beat):
 				continue
 			lightning_ground[tile] = true
 			# An optional Chain relay requires visible ground. Once the strike
@@ -12409,7 +12433,7 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 					relays[node["to"]] = true
 					used_conductors[node["to"]] = "chain"
 					if _action_element(action) == "lightning":
-						for member: Vector2i in BoardSurfaceRules.connected_component(conductor_state, node["to"], lightning_ground):
+						for member: Vector2i in BoardSurfaceRules.connected_component(conductor_state, node["to"], lightning_ground, allow_fire):
 							served_components[member] = true
 				else:
 					visited[node["key"]] = true
@@ -12437,7 +12461,7 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 		for tile: Vector2i in _sorted_tiles_from_lookup(touched):
 			if not lightning_ground.has(tile) or networks.has(tile):
 				continue
-			var component: Array[Vector2i] = BoardSurfaceRules.connected_component(conductor_state, tile, lightning_ground)
+			var component: Array[Vector2i] = BoardSurfaceRules.connected_component(conductor_state, tile, lightning_ground, allow_fire)
 			var paths: Dictionary = _surface_component_paths(tile, component)
 			for member: Vector2i in component:
 				networks[member] = true
@@ -12930,7 +12954,7 @@ func _surface_chain_useful_route(state: Dictionary, opponents: Array[Dictionary]
 			var component_goal: bool = false
 			if gap > reach and lightning and not nodes.is_empty() and not served.has(at):
 				if not components.has(at):
-					var component: Array[Vector2i] = BoardSurfaceRules.connected_component(state, at, visible_ground)
+					var component: Array[Vector2i] = BoardSurfaceRules.connected_component(state, at, visible_ground, player_chain)
 					components[at] = component
 				component_goal = _surface_unit_intersects(actor["unit"] as Dictionary, components[at])
 			if gap > reach and not component_goal:
@@ -13006,7 +13030,7 @@ func _surface_chain_displacement(state: Dictionary, actor: Dictionary, action: D
 			if bonus.has(field):
 				hit_action[field] = int(hit_action.get(field, 0)) + int(bonus[field])
 	hit_action = _action_with_target_state_relic_modifiers(state, hit_action, index)
-	hit_action = _action_with_light_target_skill_modifier(state, hit_action, index)
+	hit_action = _action_with_light_target_skill_modifier(state, hit_action, index, actor)
 	hit_action = CardKeywordRules.action_with_state_bonus(self, state, hit_action, index)
 	state = _damage_enemy(state, index, _damage_for_enemy_target(state, hit_action, index), true, _action_pierces_defense(hit_action))
 	if GuardianRelicRules.amount(state,"force_enemy_line")>0 and _action_has_forced_movement(hit_action):
