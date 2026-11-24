@@ -52,6 +52,9 @@ static func stage_defeat(combat_engine: RefCounted, run_engine: RefCounted, stat
 	var receipt: Dictionary = run_ended_receipt(run_engine, state, "defeat", run_context)
 	# The original defeat emitter ran after the terminal wallet was settled.
 	receipt["payload"]["held_embers"] = 0
+	var room: Dictionary = run_engine.room_metadata(state, combat.get("room_coord", state.get("current_room", Vector2i.ZERO)))
+	receipt["payload"]["defeat_fight_number"] = int(room.get("fight_number", 0))
+	receipt["payload"]["defeat_room_type"] = str(combat.get("room_type", room.get("type", "")))
 	state["progression"] = stage_receipt(state["progression"], receipt)
 
 static func context(_combat_engine: RefCounted, _run_engine: RefCounted, _progression: Dictionary, run_state: Dictionary, combat_state: Dictionary = {}, card_id: String = "", card_instance_id: String = "") -> Dictionary:
@@ -65,6 +68,7 @@ static func context(_combat_engine: RefCounted, _run_engine: RefCounted, _progre
 	var context: Dictionary = {
 		"balance_transition": (combat_state.get("balance_transition", {}) as Dictionary).duplicate(true),
 		"run_id": str(run_analytics.get("run_id", "")),
+		"debug_boss_run": bool(run_state.get("debug_boss_run", false)),
 		"depth": int(run_state.get("umbra_depth", 0)),
 		"combat_id": str(combat_analytics.get("combat_id", "")),
 		"turn": int(combat_state.get("turn", 0)),

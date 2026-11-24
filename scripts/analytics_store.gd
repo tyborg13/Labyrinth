@@ -335,6 +335,7 @@ func _event_record(event_type: String, context: Dictionary, payload: Dictionary,
 		"session_id": _session_id,
 		"sequence": _sequence,
 		"run_id": str(context.get("run_id", "")),
+		"debug_boss_run": bool(context.get("debug_boss_run", false)),
 		"combat_id": str(context.get("combat_id", "")),
 		"turn": int(context.get("turn", 0)),
 		"initiative_clock": int(context.get("initiative_clock", 0)),
@@ -380,16 +381,17 @@ func _append_records(records: Array) -> bool:
 	return _append_records_at(_event_file_path(), records)
 
 func _append_records_at(path: String, records: Array) -> bool:
+	if records.is_empty(): return deferred_writes or flush_pending_events()
 	if not deferred_writes:
 		if not flush_pending_events(): return false
-		return PersistenceDisk.run(_append_jsonl_at.bind(path, _serialize_records(records)))
-	if records.is_empty(): return true
-	if not bool(_open_batch.get("sealed", true)) and str(_open_batch["path"]) == path:
+		if not PersistenceDisk.run(_append_jsonl_at.bind(path, _serialize_records(records))): return false
+	elif not bool(_open_batch.get("sealed", true)) and str(_open_batch["path"]) == path:
 		(_open_batch["records"] as Array).append_array(records)
 	else:
 		_open_batch = {"sealed": false, "path": path, "records": records}
 		_pending_batches.append(_open_batch)
 		_writer.submit_prepared(_prepare_queued_batch.bind(_open_batch), false, _settle_queued_batch.bind(_open_batch))
+	preload("res://scripts/play_stats.gd").observe_records(records)
 	return true
 
 static func _prepare_queued_batch(batch: Dictionary) -> Callable:

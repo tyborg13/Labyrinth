@@ -27,6 +27,12 @@ Runtime frame-time/render-load collection is specified separately in [performanc
 
 The game now records local-only analytics as append-only JSON Lines under `user://analytics/` by default. The storage format is intentionally boring so it can later be uploaded to S3 and queried or compacted into Parquet without changing the in-game emitter.
 
+## Steam play stats
+
+The Steam build observes selected local events to update aggregated Steam
+User Stats. The JSONL stays on the player's machine. See the
+[collection and reporting specification](steam_play_stats.md).
+
 ## Storage
 
 - File format: newline-delimited JSON (`.jsonl`)

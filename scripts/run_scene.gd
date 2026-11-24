@@ -2201,6 +2201,13 @@ func _refresh_guided_tutorial_live_geometry() -> void:
 	]:
 		_layout_contextual_combat_prompt_overlay()
 
+func play_stats_run_clock() -> Array:
+	if _is_debug_boss_run() or _run_state.is_empty(): return []
+	return [
+		str(_run_state.get("analytics", {}).get("run_id", _run_play_clock._play_run_id)),
+		_run_play_clock.play_seconds, float(_run_state.get("run_stats", {}).get("run_seconds", 0.0)),
+	]
+
 func _physics_process(delta: float) -> void:
 	_run_play_clock.sample_scene_play_time(self)
 	if not _controller_is_active():
@@ -9523,7 +9530,9 @@ func _boot_initial_run(stage_graph: bool) -> Dictionary:
 	if should_resume and not debug_boss:
 		saved_run = ProgressionStore.load_checkpoint_for_resume()
 		# The cover reports the failed load when no run was installed.
-		if saved_run.is_empty(): return {}
+		if saved_run.is_empty():
+			root.set_meta("play_stats_checkpoint_load_failed", true)
+			return {}
 	_progression = ProgressionStore.load_data()
 	_reconcile_progression_analytics_outbox()
 	if debug_boss:
@@ -9532,6 +9541,7 @@ func _boot_initial_run(stage_graph: bool) -> Dictionary:
 	if should_resume:
 		_load_run_state(saved_run)
 		if has_installed_run(): _analytics_log_run_resumed()
+		else: root.set_meta("play_stats_checkpoint_load_failed", true)
 		return {}
 	return _start_run(stage_graph)
 
@@ -28798,6 +28808,7 @@ func _on_restart_pressed() -> void:
 	if _is_debug_boss_run():
 		_start_debug_boss_run()
 		return
+	preload("res://scripts/play_stats.gd").notify("rise_again")
 	_start_run()
 
 func _on_menu_button_pressed() -> void:
@@ -29460,7 +29471,21 @@ func _on_save_and_quit_pressed() -> void:
 func _on_exit_to_desktop_pressed() -> void:
 	preload("res://scripts/application_shutdown.gd").request(get_tree(), "exit_to_desktop")
 
+func play_stats_quit_context() -> Dictionary:
+	if _is_debug_boss_run(): return {"screen": "other", "collect": false}
+	var mode: String = str(_run_state.get("mode", ""))
+	var screen: String = preload("res://scripts/play_stats.gd").run_screen(
+		mode, _visible_control(_large_map_scrim), _dialogue_active,
+		_merchant_shop_open and not _current_room_merchant_kind().is_empty(),
+		_visible_control(_run_end_recap), not _run_state.get("guardian_reward", {}).is_empty()
+	)
+	var fights: int = int(_run_state.get("analytics", {}).get("combat_counter", 0))
+	var active: bool = not _run_state.is_empty() and not _run_abandoned and not bool(_run_state.get("game_over", false))
+	return {"screen": screen, "fights": fights if active else -1}
+
 func prepare_application_quit(reason: String) -> void:
+	var steam := preload("res://scripts/play_stats.gd").service()
+	if steam != null and steam.has_method("capture_clean_quit"): steam.capture_clean_quit(self)
 	await _save_for_quit()
 	_finalize_performance_telemetry_scene(reason)
 

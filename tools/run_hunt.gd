@@ -425,7 +425,10 @@ func _demo_terminal_reload(run_id: String, ended: Dictionary) -> Dictionary:
 	current_scene = null
 	for frame: int in range(SETTLE_FRAMES): await process_frame
 	check["profile_preserved"] = Store.load_data() == profile
-	_enter_scene(true)
+	# A finished run leaves no save, so the player's next step is New Game.
+	# Since perf-146 (2026-11-19) a resume request with no save keeps its intent
+	# (error cover, no silent new run), so re-enter the way New Game does.
+	_enter_scene(false)
 	for frame: int in range(SETTLE_FRAMES): await process_frame
 	var next: Dictionary = scene.get("_run_state")
 	check["new_run"] = int(next.get("run_index", 0)) > int(ended.get("run_index", 0)) and str(next.get("mode")) not in ["victory", "defeat", "embrace"]

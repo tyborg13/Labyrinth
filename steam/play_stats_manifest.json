@@ -1,0 +1,568 @@
+{
+ "version": 1,
+ "_doc": "Director-authored Steam User Stats for player analytics (demo app 5575620 first). Every stat is INT, set by client, increment only, min 0, default 0. player_flag: max 1, aggregated, so the global sum counts players. counter: aggregated sum. player_value: per-account helper, not aggregated. Names never change once published; add play_v2_* for new meanings.",
+ "app_ids": {
+  "demo": 5575620,
+  "main": 4530510
+ },
+ "stats": [
+  {
+   "name": "play_v1_p_launched",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: launched",
+   "when": "The main menu finishes loading."
+  },
+  {
+   "name": "play_v1_p_run_started",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: started a run",
+   "when": "A new run starts (not a resume)."
+  },
+  {
+   "name": "play_v1_p_fight_won",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: won a fight",
+   "when": "The player wins any fight."
+  },
+  {
+   "name": "play_v1_p_fight3",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: reached fight 3",
+   "when": "A fight starts with fight_number >= 3."
+  },
+  {
+   "name": "play_v1_p_fight5",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: reached fight 5",
+   "when": "A fight starts with fight_number >= 5."
+  },
+  {
+   "name": "play_v1_p_guardian",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: reached a Guardian",
+   "when": "A fight starts in a room_type 'guardian' room."
+  },
+  {
+   "name": "play_v1_p_boss",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: reached the dragon",
+   "when": "A fight starts in a room_type 'boss' room."
+  },
+  {
+   "name": "play_v1_p_boss_won",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: beat the dragon",
+   "when": "A run ends with outcome 'victory'."
+  },
+  {
+   "name": "play_v1_p_run2",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: started a 2nd run",
+   "when": "A new run starts and this account's play_v1_runs_started is now >= 2."
+  },
+  {
+   "name": "play_v1_p_run_after_win",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: played on after a win",
+   "when": "A new run starts and this account's play_v1_runs_won is >= 1."
+  },
+  {
+   "name": "play_v1_p_day2",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: came back another day",
+   "when": "The game launches on a later UTC day than play_v1_first_day."
+  },
+  {
+   "name": "play_v1_p_day7",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: came back a week later",
+   "when": "The game launches 7 or more UTC days after play_v1_first_day."
+  },
+  {
+   "name": "play_v1_p_wishlist",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: pressed Wishlist",
+   "when": "Any Wishlist button or link is pressed."
+  },
+  {
+   "name": "play_v1_p_discord",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: pressed Discord or Feedback",
+   "when": "Any Discord or feedback link is pressed."
+  },
+  {
+   "name": "play_v1_p_gamepad",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: used a controller",
+   "when": "Any gamepad button press, or stick/trigger motion past the deadzone."
+  },
+  {
+   "name": "play_v1_p_os_windows",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: Windows",
+   "when": "Launched on Windows."
+  },
+  {
+   "name": "play_v1_p_os_macos",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: macOS",
+   "when": "Launched on macOS."
+  },
+  {
+   "name": "play_v1_p_os_linux",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: Linux (not Deck)",
+   "when": "Launched on Linux and not on a Steam Deck."
+  },
+  {
+   "name": "play_v1_p_os_steamdeck",
+   "kind": "player_flag",
+   "aggregated": true,
+   "max": 1,
+   "display": "Players: Steam Deck",
+   "when": "Launched on a Steam Deck (Steam reports it); never also counts as Linux."
+  },
+  {
+   "name": "play_v1_first_day",
+   "kind": "player_value",
+   "aggregated": false,
+   "display": "First launch day (UTC days since 1970)",
+   "when": "Set once, at the first launch where it is still 0, to the current UTC day number. Never changed again."
+  },
+  {
+   "name": "play_v1_sessions",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Sessions",
+   "when": "The main menu finishes loading after an app launch (once per launch)."
+  },
+  {
+   "name": "play_v1_play_minutes",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Minutes played (window focused)",
+   "when": "+1 for each full minute the game window has focus."
+  },
+  {
+   "name": "play_v1_run_minutes",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Minutes inside runs",
+   "when": "+1 for each full minute of the existing run play clock (the one the Chronicle reports)."
+  },
+  {
+   "name": "play_v1_runs_started",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs started",
+   "when": "A new run starts (not a resume)."
+  },
+  {
+   "name": "play_v1_runs_resumed",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs resumed",
+   "when": "Continue loads a saved run."
+  },
+  {
+   "name": "play_v1_runs_won",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs won",
+   "when": "A run ends with outcome 'victory'."
+  },
+  {
+   "name": "play_v1_runs_died",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs lost",
+   "when": "A run ends with outcome 'defeat'."
+  },
+  {
+   "name": "play_v1_runs_withdrew",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs withdrawn at the Hearth",
+   "when": "A run ends with outcome 'embrace'."
+  },
+  {
+   "name": "play_v1_runs_abandoned",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Saved runs abandoned",
+   "when": "A saved, unfinished run is discarded by the player (New Game over a save, or Abandon run)."
+  },
+  {
+   "name": "play_v1_runs_reached_boss",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs that reached the dragon",
+   "when": "A fight starts in a room_type 'boss' room (once per run)."
+  },
+  {
+   "name": "play_v1_fights_started_1",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Fights started: fight 1",
+   "when": "A fight starts with fight_number == 1."
+  },
+  {
+   "name": "play_v1_fights_started_2",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Fights started: fight 2",
+   "when": "A fight starts with fight_number == 2."
+  },
+  {
+   "name": "play_v1_fights_started_3",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Fights started: fight 3",
+   "when": "A fight starts with fight_number == 3."
+  },
+  {
+   "name": "play_v1_fights_started_4",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Fights started: fight 4",
+   "when": "A fight starts with fight_number == 4."
+  },
+  {
+   "name": "play_v1_fights_started_5",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Fights started: fight 5",
+   "when": "A fight starts with fight_number == 5."
+  },
+  {
+   "name": "play_v1_fights_started_6",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Fights started: fight 6",
+   "when": "A fight starts with fight_number == 6."
+  },
+  {
+   "name": "play_v1_fights_started_7",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Fights started: fight 7 or later",
+   "when": "A fight starts with fight_number >= 7."
+  },
+  {
+   "name": "play_v1_fights_won",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Fights won",
+   "when": "The player wins a fight."
+  },
+  {
+   "name": "play_v1_died_fight_1",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs lost in fight 1",
+   "when": "A run is lost during the fight with fight_number == 1."
+  },
+  {
+   "name": "play_v1_died_fight_2",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs lost in fight 2",
+   "when": "A run is lost during the fight with fight_number == 2."
+  },
+  {
+   "name": "play_v1_died_fight_3",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs lost in fight 3",
+   "when": "A run is lost during the fight with fight_number == 3."
+  },
+  {
+   "name": "play_v1_died_fight_4",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs lost in fight 4",
+   "when": "A run is lost during the fight with fight_number == 4."
+  },
+  {
+   "name": "play_v1_died_fight_5",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs lost in fight 5",
+   "when": "A run is lost during the fight with fight_number == 5."
+  },
+  {
+   "name": "play_v1_died_fight_6",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs lost in fight 6",
+   "when": "A run is lost during the fight with fight_number == 6."
+  },
+  {
+   "name": "play_v1_died_fight_7",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs lost in fight 7 or later",
+   "when": "A run is lost during the fight with fight_number >= 7."
+  },
+  {
+   "name": "play_v1_died_combat",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs lost in a normal fight",
+   "when": "A run is lost during a fight whose room_type is 'combat'."
+  },
+  {
+   "name": "play_v1_died_special",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs lost in a special room fight",
+   "when": "A run is lost during a fight whose room_type is 'special'."
+  },
+  {
+   "name": "play_v1_died_guardian",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs lost in a Guardian fight",
+   "when": "A run is lost during a fight whose room_type is 'guardian'."
+  },
+  {
+   "name": "play_v1_died_boss",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs lost in the dragon fight",
+   "when": "A run is lost during a fight whose room_type is 'boss'."
+  },
+  {
+   "name": "play_v1_died_other",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Runs lost outside a fight",
+   "when": "A run is lost while no fight is in progress."
+  },
+  {
+   "name": "play_v1_tutorial_started",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Guided tutorial started",
+   "when": "The guided first-fight tutorial starts."
+  },
+  {
+   "name": "play_v1_tutorial_left_early",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Guided tutorial left early",
+   "when": "The guided tutorial ends before its final step (skipped, dismissed or abandoned)."
+  },
+  {
+   "name": "play_v1_quit_menu",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Clean quits from menu",
+   "when": "A clean quit (Quit button, window close, Alt+F4, Steam's Exit Game) while the player is on the main menu (including its Chronicle, Grimoire and Settings)."
+  },
+  {
+   "name": "play_v1_quit_map",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Clean quits from map",
+   "when": "A clean quit (Quit button, window close, Alt+F4, Steam's Exit Game) while the player is on the room map or room travel."
+  },
+  {
+   "name": "play_v1_quit_fight",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Clean quits from fight",
+   "when": "A clean quit (Quit button, window close, Alt+F4, Steam's Exit Game) while the player is on a fight (pre-battle or combat, including overlays opened from it)."
+  },
+  {
+   "name": "play_v1_quit_reward",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Clean quits from reward",
+   "when": "A clean quit (Quit button, window close, Alt+F4, Steam's Exit Game) while the player is on post-fight rewards."
+  },
+  {
+   "name": "play_v1_quit_event",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Clean quits from event",
+   "when": "A clean quit (Quit button, window close, Alt+F4, Steam's Exit Game) while the player is on a map event, mystery, dialogue or rest."
+  },
+  {
+   "name": "play_v1_quit_shop",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Clean quits from shop",
+   "when": "A clean quit (Quit button, window close, Alt+F4, Steam's Exit Game) while the player is on a merchant."
+  },
+  {
+   "name": "play_v1_quit_run_end",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Clean quits from run end",
+   "when": "A clean quit (Quit button, window close, Alt+F4, Steam's Exit Game) while the player is on the run-end or demo-end panel."
+  },
+  {
+   "name": "play_v1_quit_other",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Clean quits from other",
+   "when": "A clean quit (Quit button, window close, Alt+F4, Steam's Exit Game) while the player is on any other screen."
+  },
+  {
+   "name": "play_v1_quit_midrun_f0_1",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Clean quits mid-run after 0-1 fights",
+   "when": "A clean quit while a run is in progress (map, fight, reward, event or shop) and that run has started 0-1 fights."
+  },
+  {
+   "name": "play_v1_quit_midrun_f2_3",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Clean quits mid-run after 2-3 fights",
+   "when": "A clean quit while a run is in progress (map, fight, reward, event or shop) and that run has started 2-3 fights."
+  },
+  {
+   "name": "play_v1_quit_midrun_f4_5",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Clean quits mid-run after 4-5 fights",
+   "when": "A clean quit while a run is in progress (map, fight, reward, event or shop) and that run has started 4-5 fights."
+  },
+  {
+   "name": "play_v1_quit_midrun_f6p",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Clean quits mid-run after 6 or more fights",
+   "when": "A clean quit while a run is in progress (map, fight, reward, event or shop) and that run has started 6 or more fights."
+  },
+  {
+   "name": "play_v1_sess_lt5",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Sessions lasting under 5 min",
+   "when": "A session ends (launch to quit, wall clock) lasting under 5 min. Unclean sessions are counted at the next launch from the last minute the marker recorded."
+  },
+  {
+   "name": "play_v1_sess_5_15",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Sessions lasting 5-15 min",
+   "when": "A session ends (launch to quit, wall clock) lasting 5-15 min. Unclean sessions are counted at the next launch from the last minute the marker recorded."
+  },
+  {
+   "name": "play_v1_sess_15_30",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Sessions lasting 15-30 min",
+   "when": "A session ends (launch to quit, wall clock) lasting 15-30 min. Unclean sessions are counted at the next launch from the last minute the marker recorded."
+  },
+  {
+   "name": "play_v1_sess_30_60",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Sessions lasting 30-60 min",
+   "when": "A session ends (launch to quit, wall clock) lasting 30-60 min. Unclean sessions are counted at the next launch from the last minute the marker recorded."
+  },
+  {
+   "name": "play_v1_sess_60p",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Sessions lasting 60 min or more",
+   "when": "A session ends (launch to quit, wall clock) lasting 60 min or more. Unclean sessions are counted at the next launch from the last minute the marker recorded."
+  },
+  {
+   "name": "play_v1_unclean_exits",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Sessions that ended without a clean quit",
+   "when": "The next launch finds the previous session never quit cleanly (crash, force quit, power loss)."
+  },
+  {
+   "name": "play_v1_load_errors",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Saved run or profile failed to load",
+   "when": "A saved run or the profile fails to load and the player sees the load-error cover."
+  },
+  {
+   "name": "play_v1_save_errors",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Saves that failed",
+   "when": "A profile or run checkpoint save fails (the existing failure paths)."
+  },
+  {
+   "name": "play_v1_wishlist_end",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Wishlist pressed on the end panel",
+   "when": "Wishlist pressed on the end panel."
+  },
+  {
+   "name": "play_v1_wishlist_menu",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Wishlist pressed on the menu or settings",
+   "when": "Wishlist pressed on the menu or settings."
+  },
+  {
+   "name": "play_v1_discord_end",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Discord/Feedback pressed on the end panel",
+   "when": "Discord/Feedback pressed on the end panel."
+  },
+  {
+   "name": "play_v1_discord_menu",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Discord pressed on the menu or settings",
+   "when": "Discord pressed on the menu or settings."
+  },
+  {
+   "name": "play_v1_rise_again",
+   "kind": "counter",
+   "aggregated": true,
+   "display": "Rise Again pressed",
+   "when": "Rise Again pressed."
+  }
+ ]
+}

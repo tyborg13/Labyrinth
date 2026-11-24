@@ -15,6 +15,7 @@ const SceneLoads = preload("res://scripts/menu_run_preload.gd")
 static var _hitch_trace_enabled: bool = OS.get_environment("LABYRINTH_HITCH_TRACE") == "1"
 const CombatAtmosphere = preload("res://scripts/combat_atmosphere.gd")
 const ChroniclePanel = preload("res://scripts/chronicle_panel.gd")
+const BuildInfo = preload("res://scripts/build_info.gd")
 const DemoBuild = preload("res://scripts/demo_build.gd")
 const DemoEndPanel = preload("res://scripts/demo_end_panel.gd")
 const DemoLayout = preload("res://scripts/main_menu_demo_layout.gd")
@@ -189,6 +190,7 @@ var _umbra_primary_button: Button
 var _umbra_normal_style: StyleBoxFlat
 var _umbra_selected_style: StyleBoxFlat
 var _demo_links: Array[Button]
+var _build_label: Label
 var _settings_input_blocker: Control
 var _settings_menu_input: Dictionary = {}
 var _settings_menu_selection: Button
@@ -272,6 +274,13 @@ func _build_menu() -> void:
 	add_child(_chronicle)
 	_chronicle.closed.connect(_on_chronicle_closed)
 	_build_demo_links()
+	_build_label = Label.new()
+	_build_label.name = "BuildLabel"
+	_build_label.text = BuildInfo.label_text()
+	_build_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_build_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_build_label.focus_mode = Control.FOCUS_NONE
+	add_child(_build_label)
 	_chronicle.visibility_changed.connect(_on_chronicle_visibility_changed)
 	_initialize_title_arrays()
 	settings_back_button = settings_panel.call("back_button") as Button
@@ -293,6 +302,9 @@ func _style_menu() -> void:
 	_apply_style()
 	_build_controller_prompt_bar()
 
+func play_stats_quit_context() -> Dictionary:
+	return {"screen": "menu"} if not _boot_preparing else {"screen": "other"}
+
 func _activate_menu() -> void:
 	var _trace := _boot_trace("activation")
 	var router: Node = get_node_or_null("/root/InputRouter")
@@ -304,6 +316,7 @@ func _activate_menu() -> void:
 	_warm_grimoire_after_first_frame.call_deferred()
 
 	preload("res://scripts/controller_gui_navigation.gd").install(self)
+	preload("res://scripts/play_stats.gd").notify("menu_loaded")
 
 func _boot_trace(label: String) -> RefCounted:
 	if not _hitch_trace_enabled: return null
@@ -455,6 +468,11 @@ func _apply_style() -> void:
 	_apply_label_style(embers_label, UI_FONT, 22, Color("f6d99f"), Color("100908"), 3)
 	_apply_label_style(footer_label, TEXT_FONT, 15, Color("dbc59b"), Color("100908"), 2)
 	footer_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_build_label.add_theme_font_override("font", footer_label.get_theme_font("font"))
+	_build_label.add_theme_font_size_override("font_size", footer_label.get_theme_font_size("font_size"))
+	_build_label.add_theme_color_override("font_color", footer_label.get_theme_color("font_color"))
+	_build_label.add_theme_color_override("font_outline_color", footer_label.get_theme_color("font_outline_color"))
+	_build_label.add_theme_constant_override("outline_size", footer_label.get_theme_constant("outline_size"))
 
 	replacement_panel.add_theme_stylebox_override("panel", _make_context_panel_style(DANGER_ACCENT, 0.94))
 	_apply_label_style($ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementTitle, UI_FONT, 27, Color("fff1cf"), Color("090708"), 4)
@@ -860,6 +878,10 @@ func _update_layout(title_only: bool = false) -> void:
 	call_deferred("_layout_demo_links")
 	profile_block.position = Vector2(margin_x, profile_y)
 	profile_block.size = Vector2(profile_width, profile_height)
+	# Use the default VBox row offset without following the profile node's visibility or position.
+	var detail_y: float = profile_y + embers_label.get_combined_minimum_size().y + profile_block.get_theme_constant("separation")
+	_build_label.reset_size()
+	_build_label.position = Vector2(viewport_size.x - margin_x - _build_label.size.x, detail_y)
 
 	left_scrim.position = Vector2.ZERO
 	left_scrim.size = Vector2.ZERO
@@ -1341,6 +1363,9 @@ func _on_run_loading_failed() -> void:
 		_loading_error.canceled.connect(_restore_menu_focus_after_loading_error)
 		add_child(_loading_error)
 	_loading_error.popup_centered()
+	if get_tree().root.has_meta("play_stats_checkpoint_load_failed"):
+		get_tree().root.remove_meta("play_stats_checkpoint_load_failed")
+		preload("res://scripts/play_stats.gd").notify("load_errors")
 
 func _restore_menu_focus_after_loading_error() -> void:
 	if _using_keyboard_navigation:

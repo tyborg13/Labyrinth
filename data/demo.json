@@ -5,14 +5,14 @@
   "store_app_id": 4530510,
   "store_url": "https://store.steampowered.com/app/4530510/",
   "discord_url": "https://discord.gg/fb7J52bceX",
-  "feedback_url": "",
+  "feedback_url": "https://discord.gg/fb7J52bceX",
   "text": {
     "end_title": "Thanks for Playing the Demo",
     "end_body": "The full game takes you deeper into the Umbra, with more dragons to face before you escape. Wishlist it on Steam to hear the moment it launches.",
     "links_line": "If you're enjoying the demo, a wishlist on Steam helps a lot.",
     "wishlist": "Wishlist on Steam",
     "discord": "Join the Discord",
-    "feedback": "Share Feedback",
+    "feedback": "Share Feedback on Discord",
     "keystone_tag": "Full game",
     "keystone_tooltip": "Available in the full game."
   }

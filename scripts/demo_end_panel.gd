@@ -28,7 +28,8 @@ var plates: Array[Button]
 var wishlist_plate: Button
 var _original_neighbors: Dictionary = {}
 
-static func activate(action: String) -> void:
+static func activate(action: String, source: String = "menu") -> void:
+	preload("res://scripts/play_stats.gd").notify("button", [action, source])
 	if action == "wishlist":
 		if OS.has_feature(TEST_OVERRIDE_FEATURE) and store_page_override_for_test.is_valid():
 			store_page_override_for_test.call()
@@ -42,11 +43,11 @@ static func activate(action: String) -> void:
 			else:
 				OS.shell_open(url)
 
-static func make_link(action: String) -> UiQuietLink:
+static func make_link(action: String, source: String = "menu") -> UiQuietLink:
 	var link := UiQuietLink.new()
 	link.name = "Demo%sLink" % action.capitalize()
 	link.text = link_text(action)
-	link.pressed.connect(activate.bind(action))
+	link.pressed.connect(activate.bind(action, source))
 	link.size = link.get_combined_minimum_size()
 	return link
 
@@ -90,7 +91,7 @@ func configure(panel_kind: String, chronicle: Button, rise: Button, menu: Button
 		wishlist_plate.text = str(copy["wishlist"])
 		wishlist_plate.add_theme_font_override("font", UiTypography.ui_font())
 		wishlist_plate.add_theme_font_size_override("font_size", WISHLIST_SIZE)
-		wishlist_plate.pressed.connect(activate.bind("wishlist"))
+		wishlist_plate.pressed.connect(activate.bind("wishlist", "end"))
 		rise.get_parent().add_child(wishlist_plate)
 		var skin := UiSkin.new()
 		skin.apply_button_stylebox_overrides(wishlist_plate, UiSkin.VARIANT_LARGE)
@@ -104,13 +105,17 @@ func configure(panel_kind: String, chronicle: Button, rise: Button, menu: Button
 		add_child(_label("DemoLinksLine", str(copy["links_line"]), UiTypography.text_font(), BODY_SIZE, Palette.TEXT_2, Rect2(0, top, 780, 30)))
 		links_y = top + 40.0
 	var x: float = 0.0
-	var actions: Array[String] = TypedArrays.strings(["discord", "feedback"])
+	var config: Dictionary = DemoRules.config()
+	var feedback_url: String = str(config["feedback_url"])
+	var actions: Array[String] = TypedArrays.strings([])
 	if kind == "links":
-		actions.push_front("wishlist")
+		actions.append("wishlist")
+	if feedback_url.is_empty() or feedback_url != str(config["discord_url"]):
+		actions.append("discord")
+	if not feedback_url.is_empty():
+		actions.append("feedback")
 	for action: String in actions:
-		if action == "feedback" and str(DemoRules.config()["feedback_url"]).is_empty():
-			continue
-		var link := make_link(action)
+		var link := make_link(action, "end")
 		link.owner_manages_selection = true
 		link.position = Vector2(x, links_y)
 		add_child(link)

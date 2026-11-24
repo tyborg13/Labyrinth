@@ -1,0 +1,24 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*/1920x1080/01_demo_menu.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [1500, 954, 348, 48], "min_luma_range": 20, "min_luma_stdev": 3}]
+    },
+    {
+      "pattern": "*/1920x1080/02_demo_full.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [1010, 730, 780, 305], "min_luma_range": 20, "min_luma_stdev": 3}]
+    },
+    {
+      "pattern": "*/1920x1080/03_demo_links.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [1010, 610, 780, 110], "min_luma_range": 20, "min_luma_stdev": 3}]
+    }
+  ]
+}

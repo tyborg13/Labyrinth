@@ -18,16 +18,20 @@ const FIXTURE_SEED: int = 1
 const ACTION_TIMEOUT_FRAMES: int = 3600
 const STARTUP_TIMEOUT_FRAMES: int = 10800
 const LAYOUT_FRAMES: int = 6
+# Seed 1 on map layout revision 8 (eco-03): no event is reachable before a
+# Craghide from the routed opening fight, so the route takes one connecting
+# fight to Craghide and inspects the first event on the way to Tharokh.
 const OPENING_FIGHT := Vector2i(1, 1)
-const FIRST_EVENT := Vector2i(-1, -1)
-const CRAGHIDE := Vector2i(2, 2)
+const TO_CRAGHIDE: Array[Vector2i] = Array([Vector2i(2, 2)], TYPE_VECTOR2I, "", null)
+const CRAGHIDE := Vector2i(-2, 1)
+const ROUTED_EVENT := Vector2i(0, 3)
 const TO_THAROKH: Array[Vector2i] = Array([
-	Vector2i(0, 2), Vector2i(-2, 2), Vector2i(-2, -1), Vector2i(3, -1),
-	Vector2i(3, 3), Vector2i(-1, 3), Vector2i(4, 0),
+	Vector2i(-1, -2), Vector2i(1, -2), Vector2i(3, 0), Vector2i(0, 3),
+	Vector2i(-3, 0), Vector2i(-2, -3), Vector2i(4, 0),
 ], TYPE_VECTOR2I, "", null)
 const CHOREOGRAPHY_WATCHDOG_SECONDS: float = 900.0 # native at 30 fps with audio runs ~5-6 min
 const POINTER_AWAY := Vector2(960, 96)
-const CHAPTERS := ["Main menu and map", "Normal fight", "Rewards and event", "Craghide and Tharokh", "Return to menu"]
+const CHAPTERS := ["Main menu and map", "Normal fight", "Rewards", "Craghide, event and Tharokh", "Return to menu"]
 # The brief specifies short reading holds and an overall duration range, with
 # individual dwell times left open for the director.
 const TODO_DESIGN_READING_HOLD_SECONDS: float = -1.0
@@ -113,10 +117,11 @@ func _run() -> void:
 	chapter(2)
 	await claim_reward(true)
 	if failed: return
-	await enter_room(FIRST_EVENT)
-	if failed: return
-	await resolve_event(true)
-	if failed: return
+	for destination: Vector2i in TO_CRAGHIDE:
+		await enter_room(destination)
+		if failed: return
+		await resolve_surface()
+		if failed: return
 	chapter(3)
 	await enter_room(CRAGHIDE)
 	if failed: return
@@ -134,7 +139,12 @@ func _run() -> void:
 		await enter_room(destination)
 		if failed: return
 		if destination == TO_THAROKH.back(): break
-		await resolve_surface()
+		if destination == ROUTED_EVENT:
+			await settle_narration()
+			if failed: return
+			await resolve_event(true)
+		else:
+			await resolve_surface()
 		if failed: return
 	await begin_battle()
 	if failed: return
@@ -347,7 +357,7 @@ func resolve_event(inspect: bool) -> void:
 	for choice: Button in choices:
 		if not driver.usable(choice) or not bool(choice.get("available")): continue
 		if chosen == null: chosen = choice
-		if not inspect or preview.first_concrete(view.call("cached_preview_lines", choice.get("choice_id"))).is_empty(): continue
+		if not inspect or preview.hover_line(view.call("cached_preview_lines", choice.get("choice_id"))).is_empty(): continue
 		chosen = choice
 		var index: int = choices.find(choice)
 		driver.motion(driver.point(choice))
