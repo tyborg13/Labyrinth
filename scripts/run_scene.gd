@@ -32639,9 +32639,12 @@ func _maybe_auto_trigger_room_dialogue() -> void:
 	if _dialogue_active or str(_run_state.get("mode", "room")) != "room":
 		return
 	var current_room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
-	# Boons begin on deliberate conversation, not the automatic room narration.
-	if OpeningBoonRules.pending(_run_state) or _opening_boon_flow.active(): return
 	var trigger_key: String = _dialogue_trigger_key(current_room)
+	# Boons begin on deliberate conversation, not the automatic room narration.
+	# That conversation replaces this visit's narration, so it never replays after.
+	if OpeningBoonRules.pending(_run_state) or _opening_boon_flow.active():
+		_last_auto_dialogue_key = trigger_key
+		return
 	if trigger_key == _last_auto_dialogue_key:
 		return
 	var dialogue: Dictionary = _dialogue_engine.build_room_dialogue(current_room, _run_state, _progression)
