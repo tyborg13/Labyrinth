@@ -15,6 +15,7 @@ const KEYWORD_COLOR: Color = UiPalette.GOLD_BRIGHT
 # existing noninteractive labels and labels with their own custom scripts.
 class GlossaryRichLabel extends RichTextLabel:
 	func _make_custom_tooltip(for_text: String) -> Object:
+		if for_text.strip_edges().is_empty(): return null
 		return load("res://scripts/inline_icon_text.gd").glossary_panel(for_text)
 
 # Use the combat panel factory and glossary entry copy for inline hit targets.

@@ -104,4 +104,6 @@ func _get_tooltip(at_position: Vector2) -> String:
 	return Text.tooltip_at(self, get_global_transform() * at_position)
 
 func _make_custom_tooltip(for_text: String) -> Object:
+	# Godot asks for a custom tooltip even where the text is empty (off an icon).
+	if for_text.strip_edges().is_empty(): return null
 	return Text.Inline.glossary_panel(for_text)
