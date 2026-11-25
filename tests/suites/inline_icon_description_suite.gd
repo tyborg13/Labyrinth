@@ -111,6 +111,9 @@ static func run(expect: Callable) -> void:
 	var txt35: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt35_relic_copy.json"))
 	for relic_id: String in txt35:
 		approved[relic_id]["description"] = txt35[relic_id]
+	var vrb01: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/vrb01_relic_copy.json"))
+	for relic_id: String in vrb01:
+		approved[relic_id]["description"] = vrb01[relic_id]
 	var relic_icon_count: int = 0
 	for relic_id: String in GameData.relic_ids():
 		var description: String = str(GameData.relic_def(relic_id).get("description", ""))

@@ -6,7 +6,7 @@ const Grimoire = preload("res://scripts/grimoire_library.gd")
 const Glossary = preload("res://scripts/glossary.gd")
 const Skills = preload("res://scripts/skill_tree_library.gd")
 const DiscoverySync = preload("res://scripts/grimoire_discovery_sync.gd")
-const RETIRED_TERMS: PackedStringArray = ["dive", "veil", "lob", "icefall", "burrow", "erupt", "flurry", "aoe", "detonate", "discharge", "shatter_illusion", "freeze", "chilled", "petrify", "bleed", "sunder", "truesight", "dispel_umbra", "radiance"] # sta-01/mrk-01/flu-01/pla-04; protected copy stays intact.
+const RETIRED_TERMS: PackedStringArray = ["dive", "veil", "lob", "icefall", "burrow", "erupt", "flurry", "aoe", "detonate", "discharge", "shatter_illusion", "freeze", "chilled", "petrify", "bleed", "sunder", "truesight", "dispel_umbra", "radiance", "surface_consume", "quicken", "next_attack"]
 ## pla-04 (Burst merge): the approved copy superseding the protected records.
 const PLA08_COPY_PATH: String = "res://tests/fixtures/pla08_light_vision_copy.json"
 const PLA04_COPY_PATH: String = "res://tests/fixtures/pla04_burst_copy.json"
@@ -70,7 +70,7 @@ func _run() -> void:
 	var entry_map: Dictionary = Grimoire.entry_map()
 	var copy20: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(TXT20_COPY_PATH))
 	var pla04: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PLA04_COPY_PATH))
-	_expect(Glossary.all_entries().size() == 128, "Final glossary contains all 128 live entries")
+	_expect(Glossary.all_entries().size() == 125, "Final glossary contains all 125 live entries")
 	_expect(Glossary.definition("marked") == "Marked tiles show where this enemy will act.", "Marked retains its approved definition")
 	var deferred_copy: String = "Skip a card reward to save 1 offered card. Replace 1 card in your next non-boss reward with that card."
 	_expect(Glossary.definition("skill_deferred_choice") == deferred_copy and Skills.description("deferred_choice") == deferred_copy, "Deferred Choice uses its exact shared non-boss reward rule")

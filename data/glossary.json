@@ -118,20 +118,6 @@
     "aliases": []
   },
   {
-    "id": "surface_consume",
-    "name": "Expend",
-    "icon": "surface_consume",
-    "definition": "Remove the named ground to use this effect.",
-    "aliases": [
-      "consume_surface",
-      "Expends",
-      "Expended",
-      "Expending",
-      "Consume Ground",
-      "Consume Surface"
-    ]
-  },
-  {
     "id": "surface_relocate",
     "name": "Relocate Ground",
     "icon": "surface_relocate",
@@ -319,24 +305,10 @@
     "aliases": []
   },
   {
-    "id": "quicken",
-    "name": "Quicken",
-    "icon": "quicken",
-    "definition": "Your next card this turn costs X less Time.",
-    "aliases": []
-  },
-  {
     "id": "rite",
     "name": "Rite",
     "icon": "rite",
     "definition": "This card's effect lasts for the rest of combat, and this card Exhausts.",
-    "aliases": []
-  },
-  {
-    "id": "next_attack",
-    "name": "Next Attack",
-    "icon": "next_attack",
-    "definition": "Your next attack this turn gains the named bonus.",
     "aliases": []
   },
   {

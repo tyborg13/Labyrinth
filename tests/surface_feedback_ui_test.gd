@@ -48,7 +48,7 @@ func _initialize() -> void:
 	quit(0 if failures.is_empty() else 1)
 
 func _test_patterns() -> void:
-	_expect(str(Icons.surface_condition_token({"surface": "fire", "subject": "consumed"}).get("suffix")) == "Expended:", "Fire fuel condition names consumption")
+	_expect(str(Icons.surface_condition_token({"surface": "fire", "subject": "consumed"}).get("suffix")) == "Removed:", "Fire fuel condition names removal")
 	_expect(str(Icons.surface_condition_token({"surface": "electrified", "subject": "conducted"}).get("suffix")) == "used:", "Reusable conductor condition names use, not consumption")
 	var halo: Dictionary = Data.card_def("wildfire_halo")
 	_expect(_pattern_count(Icons.rows_for_actions(halo.get("actions", []))) == 1, "Wildfire Halo shares one target pattern")

@@ -4,6 +4,7 @@ const Runtime = preload("res://scripts/parallel_runtime.gd")
 const Data = preload("res://scripts/game_data.gd")
 const ItemRules = preload("res://scripts/item_relic_rules.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
+const CardHover = preload("res://scripts/card_keyword_hover.gd")
 const Glossary = preload("res://scripts/glossary.gd")
 const Grimoire = preload("res://scripts/grimoire_library.gd")
 const PanelText = preload("res://scripts/card_panel_text.gd")
@@ -44,7 +45,7 @@ func _run() -> void:
 				definitions["upgrade:%s:%s:%d" % [id, element["key"], index]] = Data.preview_card_with_mod(id, options[index], {})
 	for id: String in definitions:
 		var card: Dictionary = definitions[id]
-		var entries: Array[Dictionary] = _entries(card)
+		var entries: Array[Dictionary] = _entries(card, str(card.get("base_card_id", card.get("id", id))))
 		for problem: String in stack_errors(entries, card):
 			_expect(false, id + ": " + problem)
 		_checks += entries.size()
@@ -65,10 +66,10 @@ func _run() -> void:
 	print("CARD PANEL TEXT TEST RESULT: %s (%d definitions, %d panels, %d checks, %d failures)" % ["PASS" if _failures.is_empty() else "FAIL", definitions.size(), dump.size(), _checks, _failures.size()])
 	quit(0 if _failures.is_empty() else 1)
 
-static func _entries(card: Dictionary) -> Array[Dictionary]:
+static func _entries(card: Dictionary, card_id: String = "") -> Array[Dictionary]:
 	var leading: Array = []
 	if Icons.card_is_rite(card): leading.append("rite")
-	return Icons.tooltip_entries_for_rows(Icons.rows_for_card(card), leading)
+	return CardHover.entries_for_card(card_id, Icons.rows_for_card(card), leading)
 
 static func stack_errors(entries: Array[Dictionary], card: Dictionary) -> Array[String]:
 	var errors: Array[String]
@@ -94,11 +95,16 @@ static func stack_errors(entries: Array[Dictionary], card: Dictionary) -> Array[
 		var radius: RegExMatch = light_number.search(body)
 		var is_light_rule: bool = term == "illuminate" and body == Glossary.fill_amount(light_template, radius.get_string(1) if radius != null else null)
 		var word_budget: int = 20 if is_light_rule else 16
+		if term == "next_attack" and body.contains("for each tile you moved this turn"):
+			word_budget = 22 # The approved Headlong sentence is also used by its fallback row.
 		if body.contains("\n") or marks != 1 or body.split(" ", false).size() > word_budget:
 			errors.append("R1: " + title + ": " + body)
 		if sentences.has(body): errors.append("R4 repeated sentence: " + body)
 		if hidden.has(term): errors.append("R5 Cleanse status: " + term)
-		if not term_titles.has(title) or title.is_empty() or title.split(" ", false).size() > 4 or title.ends_with("."):
+		var uses_title: bool = term not in ["surface_consume", "quicken", "next_attack"]
+		if uses_title and (not term_titles.has(title) or title.split(" ", false).size() > 4 or title.ends_with(".")):
+			errors.append("R6 title: " + title)
+		elif not uses_title and not title.is_empty():
 			errors.append("R6 title: " + title)
 		var semantic: String = term + "\u001f" + body
 		if semantics.has(semantic): errors.append("R7 repeated term and text: " + term)
@@ -163,6 +169,10 @@ func _test_grimoire() -> void:
 			continue
 		var fact: Dictionary = facts[row["id"]]
 		var owner: String = fact["owner"]
+		if owner in ["keyword:surface_consume", "keyword:quicken", "keyword:next_attack"]:
+			_expect(not entries.has(owner), "Retired term has no topic: " + owner)
+			if fact["appended"]: appended += 1
+			continue
 		var status: Dictionary = _json(PLA07_COPY)
 		if owner in ice["retired_grimoire_entries"] or owner in status["retired_grimoire_entries"]:
 			_expect(not entries.has(owner), "Retired control topic stays absent: " + owner)
@@ -205,8 +215,8 @@ func _test_assembly() -> void:
 func _test_feedback_copy_and_counted_tiles() -> void:
 	_expect(PanelText.copy("item_once_per_combat")["card_tooltip"] == "This item can be used once per combat and returns next combat.", "Template rules use the item as the subject")
 	_expect(PanelText.copy("empower_health", {"n": 1})["card_tooltip"] == "Lose 1 Health after the card resolves.", "The Empower Health tooltip explains payment timing")
-	_expect(str(PanelText.copy("next_attack_element", {"element": "Air"})["card_tooltip"]).ends_with("Only an Air card uses this bonus."), "Templated Air uses an")
-	_expect(str(PanelText.copy("next_attack_element", {"element": "Lightning"})["tooltip"]).ends_with("Only a Lightning card uses this bonus."), "Templated Lightning uses a in native tooltips")
+	_expect(str(PanelText.copy("next_attack_element", {"element": "Air"})["card_tooltip"]).ends_with("Only an Air attack uses this bonus."), "Templated Air uses an")
+	_expect(str(PanelText.copy("next_attack_element", {"element": "Lightning"})["tooltip"]).ends_with("Only a Lightning attack uses this bonus."), "Templated Lightning uses a in native tooltips")
 	var blood_price: Dictionary = Data.card_def("blood_price")
 	_expect(str(Icons.empower_copy(blood_price)["card_tooltip"]).ends_with("Empower for 2 Health: +8 damage and Pierce."), "Damage bonus uses the shared Empower template")
 	_expect(PanelText.copy("unchanged_leaves_an_illusion_with_this_much_health_where_you_stood")["card_tooltip"] == "Leave an Illusion with X Health on the tile you left.", "Unbound Illusion Health uses X")

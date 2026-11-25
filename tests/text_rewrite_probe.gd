@@ -177,7 +177,7 @@ func _grimoire_pages(scene: Control) -> void:
 	scene._close_dialogue()
 	scene._open_grimoire_overlay()
 	await _settle()
-	for id: String in ["keyword:illuminate", "keyword:surface_consume", "keyword:chilled", "combat:surface_techniques", "combat:card_plays"]:
+	for id: String in ["keyword:illuminate", "keyword:time", "keyword:chilled", "combat:surface_techniques", "combat:card_plays"]:
 		scene._on_grimoire_entry_pressed(id)
 		await _settle()
 		var expected: Dictionary = Grimoire.entry_def(id)

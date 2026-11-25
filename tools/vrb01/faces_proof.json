@@ -1,0 +1,32 @@
+{
+  "min_images": 26,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "hand_spike_mantle.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_spike_mantle.png", "width": 1920, "height": 1080},
+    {"pattern": "hand_capacitor.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_capacitor.png", "width": 1920, "height": 1080},
+    {"pattern": "hand_charged_orb.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_charged_orb.png", "width": 1920, "height": 1080},
+    {"pattern": "hand_headlong.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_headlong.png", "width": 1920, "height": 1080},
+    {"pattern": "hand_shadow_gate.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_shadow_gate.png", "width": 1920, "height": 1080},
+    {"pattern": "hand_sworn_oath.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_sworn_oath.png", "width": 1920, "height": 1080},
+    {"pattern": "hand_whetstone.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_whetstone.png", "width": 1920, "height": 1080},
+    {"pattern": "hand_galvanize.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_galvanize.png", "width": 1920, "height": 1080},
+    {"pattern": "hand_hourglass_sand.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_hourglass_sand.png", "width": 1920, "height": 1080},
+    {"pattern": "hand_spur_spark.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_spur_spark.png", "width": 1920, "height": 1080},
+    {"pattern": "hand_static_rush.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_static_rush.png", "width": 1920, "height": 1080},
+    {"pattern": "hand_stolen_moment.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_stolen_moment.png", "width": 1920, "height": 1080},
+    {"pattern": "deck_grid.png", "width": 1920, "height": 1080},
+    {"pattern": "deck_grid_2.png", "width": 1920, "height": 1080}
+  ]
+}

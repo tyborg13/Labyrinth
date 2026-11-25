@@ -29,10 +29,21 @@ class CardPanelTextTest(unittest.TestCase):
         )
         rows = {row["id"]: row for row in director["rows"]}
         updated = read("tests/fixtures/txt20_rules_copy.json")["panel_rows"]
+        next_attack_rows = ("next_attack_move", "next_attack_pierce", "next_attack_chain", "next_attack_damage")
+        vrb01_text = dict.fromkeys(next_attack_rows, "{sentence}")
+        vrb01_text.update(quicken="Your next card this turn costs {n} less Time.",
+                          expend_beneath_you="Remove the {ground} from your tile.")
+        vrb01_titles = {"keg_detonate": "Burst", "shatter_illusion": "Burst", "next_attack_move": "", "quicken": ""}
         exception_strip = read("tests/fixtures/pla01_exception_strip.json")["card_panel_text"]
         for key, sentence in exception_strip.items():
             self.assertEqual(templates[key]["text"], sentence)
         for key, row in updated.items():
+            if key in vrb01_text or key == "expend_after_hit":
+                continue
+            if key in vrb01_titles:
+                row = dict(row, title=vrb01_titles[key])
+                if key == "shatter_illusion":
+                    row["legacy"] = row["legacy"].replace("Shatter Illusion\n", "Burst\n", 1)
             self.assertEqual(templates[key], row)
         # pla-04 (Burst merge): no player-facing "Terrain Burst"; these titles read "Burst".
         pla04 = read("tests/fixtures/pla04_burst_copy.json")["panel_titles"]
@@ -53,9 +64,23 @@ class CardPanelTextTest(unittest.TestCase):
                     expected = expected.replace("outcrop", "Outcrop")
                 if key in {"light_trail", "light_target", "light_land"}:
                     expected = read("tests/fixtures/pla08_light_vision_copy.json")["definitions"]["illuminate"]
-                self.assertEqual(templates[key]["text"], updated.get(key, {}).get("text", expected))
-                self.assertEqual(templates[key]["title"], pla04.get(key, rows[key]["title"]))
+                self.assertEqual(templates[key]["text"], vrb01_text.get(key, updated.get(key, {}).get("text", expected)))
+                title = vrb01_titles.get(key, pla04.get(key, rows[key]["title"]))
+                self.assertEqual(templates[key]["title"], title)
         self.assertNotIn("worldspine_burst", templates)
+        self.assertNotIn("expend_after_hit", templates)
+        self.assertEqual(templates["remove_ground"], {
+            "title": "", "text": "Remove the {ground} {where}.",
+            "legacy": "Remove the {ground} {where}.", "term": "surface_consume",
+        })
+        self.assertEqual(templates["expend_beneath_you"], {
+            "title": "", "text": vrb01_text["expend_beneath_you"],
+            "legacy": vrb01_text["expend_beneath_you"], "term": "surface_consume",
+        })
+        for key in next_attack_rows:
+            self.assertEqual(templates[key], {
+                "title": "", "text": "{sentence}", "legacy": "{legacy}", "term": "next_attack",
+            })
         self.assertEqual(templates["terrain_burst_own"]["text"], "Destroy an adjacent Outcrop you raised.")
         self.assertEqual(templates["raise_outcrop_around_target"]["text"],
                          "Raise an Outcrop with X Health on each empty tile adjacent to the target.")

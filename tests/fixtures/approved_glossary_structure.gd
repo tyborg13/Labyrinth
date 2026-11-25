@@ -54,6 +54,21 @@ const PLA09_PANELS: Dictionary = {
 	"grounding": ["stoneskin", "surface_consume", "surface_electrified"],
 }
 
+const VRB01_PANELS: Dictionary = {
+	"spike_mantle": ["melee", "pierce", "surface_rubble", "stoneskin"],
+	"capacitor": ["block", "element_lightning", "chain"],
+	"charged_orb": ["time", "element_lightning", "chain"],
+	"headlong": ["move"],
+	"shadow_gate": ["blink"],
+	"sworn_oath": ["block"],
+	"whetstone": ["consume", "pierce"],
+	"galvanize": ["draw", "time"],
+	"hourglass_sand": ["consume", "time", "draw"],
+	"spur_spark": ["move", "surface_electrified", "time"],
+	"static_rush": ["move", "time"],
+	"stolen_moment": ["time", "draw"],
+}
+
 # CRD-33 adds a target-specific damage panel alongside the All Enemies keyword.
 const CRD33_PANELS: Dictionary = {
 	"stoke": ["all_enemies", "all_enemies", "surface_fire"],
@@ -89,6 +104,8 @@ static func entries(id: String, historical: Dictionary) -> Array:
 		return (GEAR02_PANELS[id] as Array).map(func(icon: String) -> Dictionary: return {"icon": icon, "body_lines": 1})
 	if CRD33_PANELS.has(id):
 		return (CRD33_PANELS[id] as Array).map(func(icon: String) -> Dictionary: return {"icon": icon, "body_lines": 1})
+	if VRB01_PANELS.has(id):
+		return (VRB01_PANELS[id] as Array).map(func(icon: String) -> Dictionary: return {"icon": icon, "body_lines": 1})
 	if PLA09_PANELS.has(id):
 		return (PLA09_PANELS[id] as Array).map(func(icon: String) -> Dictionary: return {"icon": icon, "body_lines": 1})
 	if PLA07_PANELS.has(id):

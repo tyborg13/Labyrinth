@@ -71,7 +71,6 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"pull": "keyword:pull",
 	"surface": "keyword:surface",
 	"detonate": "keyword:burst",
-	"consume_surface": "keyword:surface_consume",
 	"surface_relocate": "keyword:surface_relocate",
 	"lightning_strikes": "combat:lightning_strikes",
 	"summon_minions": "combat:summons",
@@ -85,8 +84,6 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"frost_armor": "combat:crystal_armor",
 	"umbra_eclipse": "combat:boss_eclipse",
 	"retaliate": "keyword:retaliate",
-	"quicken": "keyword:quicken",
-	"next_attack": "keyword:next_attack",
 	# Wave-4 maneuver family (spec/card_mechanics_maneuver.md).
 	"force_area": "combat:area_force",
 	"swap": "combat:swap",

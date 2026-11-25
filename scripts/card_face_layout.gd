@@ -260,6 +260,8 @@ static func _words(face: Dictionary, font: Font, text_size: int, layout_scale: f
 			current.append({"kind": "number", "text": str(segment.get("display", segment["number"])), "segment": int(segment["_index"])})
 		elif segment.has("duration"):
 			current.append({"kind": "number", "text": str(segment.get("display", int(segment["duration"]))), "segment": int(segment["_index"])})
+		elif segment.has("number"):
+			current.append({"kind": "number", "text": str(segment.get("display", int(segment["number"]))), "segment": int(segment["_index"])})
 		elif segment.has("pattern"):
 			current.append({"kind": "pattern", "pattern": str(segment["pattern"]), "segment": int(segment["_index"])})
 	if not current.is_empty():

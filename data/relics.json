@@ -991,7 +991,7 @@
   "black_sun_dial": {
     "name": "Black Sun Dial",
     "rarity": "legendary",
-    "description": "Each ground tile you remove with @kw(surface_consume) or @kw(burst) gives your next attack +3 damage, up to +9.",
+    "description": "Each ground tile you remove or @kw(burst) gives your next attack +3 damage, up to +9.",
     "icon_path": "res://assets/art/relics/black_sun_dial.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -1090,7 +1090,7 @@
   "hourglass_splinter": {
     "name": "Hourglass Splinter",
     "rarity": "rare",
-    "description": "When you play a card that costs 6 or more @term(time), @kw(quicken) 2.",
+    "description": "When you play a card that costs 6 or more @term(time), your next card this turn costs 2 less Time.",
     "icon_path": "res://assets/art/relics/hourglass_splinter.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2430,7 +2430,7 @@
   "overclock_coil": {
     "name": "Overclock Coil",
     "rarity": "rare",
-    "description": "When you @kw(empower) a card, @kw(quicken) 2.",
+    "description": "When you @kw(empower) a card, your next card this turn costs 2 less Time.",
     "icon_path": "res://assets/art/relics/overclock_coil.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2607,7 +2607,7 @@
   "echoing_blade": {
     "name": "Echoing Blade",
     "rarity": "epic",
-    "description": "When a @kw(follow_up) bonus applies, @kw(quicken) 1. Your next card this turn deals 2 more damage.",
+    "description": "When a @kw(follow_up) bonus applies, your next card this turn costs 1 less Time. Your next card this turn deals 2 more damage.",
     "icon_path": "res://assets/art/relics/echoing_blade.png",
     "accent": "#9b62d6",
     "design_version": 4,

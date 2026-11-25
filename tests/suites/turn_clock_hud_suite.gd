@@ -394,7 +394,7 @@ static func _assert_badge_tooltip(scene: Node, expect: Callable) -> void:
 	var modified: Dictionary = GameData.card_def("quick_stab").duplicate(true)
 	modified["_quicken_discount"] = 1
 	card.call("_refresh_time_badge", modified)
-	expect.call(badge.tooltip_text.ends_with("\nQuickened: −1"), "The Time badge preserves modifier lines")
+	expect.call(badge.tooltip_text.ends_with("\nThis card costs 1 less Time this turn."), "The Time badge preserves modifier lines")
 	card.call("_refresh_time_badge", GameData.card_def("quick_stab"))
 
 # gfix-23 (perf-154b review): a fresh controller selection computes its Pass

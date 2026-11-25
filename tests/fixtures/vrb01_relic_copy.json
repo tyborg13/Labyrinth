@@ -1,0 +1,6 @@
+{
+  "black_sun_dial": "Each ground tile you remove or @kw(burst) gives your next attack +3 damage, up to +9.",
+  "hourglass_splinter": "When you play a card that costs 6 or more @term(time), your next card this turn costs 2 less Time.",
+  "overclock_coil": "When you @kw(empower) a card, your next card this turn costs 2 less Time.",
+  "echoing_blade": "When a @kw(follow_up) bonus applies, your next card this turn costs 1 less Time. Your next card this turn deals 2 more damage."
+}

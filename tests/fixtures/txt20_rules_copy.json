@@ -852,8 +852,8 @@
     },
     "next_attack_element": {
       "title": "",
-      "text": "Only a {element} card uses this bonus.",
-      "legacy": "Only a {element} card uses this bonus."
+      "text": "Only a {element} attack uses this bonus.",
+      "legacy": "Only a {element} attack uses this bonus."
     },
     "empower_health": {
       "title": "",

@@ -427,26 +427,6 @@
       ]
     },
     {
-      "id": "keyword:quicken",
-      "section": "keywords",
-      "title": "Quicken",
-      "icon": "quicken",
-      "body": [
-        "Your next card this turn costs X less Time.",
-        "Quicken reduces Time to a minimum of 1. Quicken adds together. Unused Quicken ends with your turn. The Time badge shows the discount."
-      ]
-    },
-    {
-      "id": "keyword:next_attack",
-      "section": "keywords",
-      "title": "Next Attack",
-      "icon": "next_attack",
-      "body": [
-        "Your next attack this turn gains the named bonus.",
-        "A bonus that names a card family waits for a card of that family. Bonuses add together and are spent by the same attack. Unused bonuses end with your turn."
-      ]
-    },
-    {
       "id": "keyword:rite",
       "section": "keywords",
       "title": "Rite",
@@ -880,16 +860,6 @@
       ]
     },
     {
-      "id": "keyword:surface_consume",
-      "section": "keywords",
-      "title": "Expend",
-      "icon": "surface_consume",
-      "body": [
-        "Remove the named ground to use this effect.",
-        "If the card hits, remove the ground after the hit."
-      ]
-    },
-    {
       "id": "keyword:surface_relocate",
       "section": "keywords",
       "title": "Relocate Ground",
@@ -999,6 +969,7 @@
       "icon": "time",
       "body": [
         "Spending Time makes your next turn come later.",
+        "A card always costs at least 1 Time.",
         "Each of your first 2 unused Card Plays adds 5 Time."
       ],
       "default": true
@@ -1228,7 +1199,7 @@
       "title": "Ground Techniques",
       "icon": "surface_consume",
       "body": [
-        "Expend removes ground to use the listed effect. Burst destroys ground and deals damage.",
+        "Burst destroys ground and deals damage.",
         "Frost Circuit leaves Electrified on the tile, then deals 2 damage and Shocks the enemy on the tile. On Ice: also on each connected Ice tile. Discharge Bursts the Electrified tile and each connected Electrified tile. Wards leave ground on each adjacent enemy's tile. Ice gives Expose on entry and on turn start."
       ]
     },

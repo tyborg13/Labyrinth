@@ -91,7 +91,7 @@ func _run() -> void:
 		await _tooltip(rite_badges[1], "rite_tooltip")
 	if slow != null:
 		var badge: Control = slow.get("_time_badge") as Control
-		expect(badge != null and str(badge.tooltip_text).contains("Quickened: −2"), "The Time badge explains the Quicken discount")
+		expect(badge != null and str(badge.tooltip_text).contains("This card costs 2 less Time this turn."), "The Time badge explains the Quicken discount")
 		if badge != null:
 			await _tooltip(slow as Control, "quickened_time_tooltip", badge.tooltip_text)
 	print("CARD KEYWORDS W3 PROOF: ", "PASS" if failed == 0 else "FAIL")

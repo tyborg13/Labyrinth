@@ -4,6 +4,7 @@ const Fixture = preload("res://tests/glossary_fixture.gd")
 const STRUCTURE_PATH: String = "res://tests/glossary_card_structure_before.json"
 const Glossary = preload("res://scripts/glossary.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const CardHover = preload("res://scripts/card_keyword_hover.gd")
 const Stack = preload("res://scripts/card_focus_tooltip_stack.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const InlineIconText = preload("res://scripts/inline_icon_text.gd")
@@ -62,7 +63,7 @@ func _card_structure() -> void:
 		var card: Dictionary = GameData.card_def(id)
 		var leading: Array = []
 		if ActionIcons.card_is_rite(card): leading.append("rite")
-		var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(ActionIcons.rows_for_card(card), leading)
+		var entries: Array[Dictionary] = CardHover.entries_for_card(id, ActionIcons.rows_for_card(card), leading)
 		if bool(card.get("light_vision_family", false)):
 			for entry: Dictionary in entries:
 				_expect(str(entry["icon"]) not in ["truesight", "dispel_umbra", "radiance"], "Live Light/Vision stacks omit retired terms: " + id)
@@ -85,6 +86,8 @@ func _test_data() -> void:
 			_expect(ActionIcons.description(key) == ActionIcons.MARKED_MOVE_DESCRIPTIONS[key] and Glossary.lookup(key)["id"] == "marked", "Move copy is contextual; shared keyword is Marked: " + key)
 		elif key == "flurry":
 			_expect(Glossary.lookup(key).is_empty() and not ActionIcons.all_icon_keys().has(key), "Dormant Flurry stays outside the live glossary and icon inventory")
+		elif key in ["surface_consume", "quicken", "next_attack"]:
+			_expect(Glossary.lookup(key).is_empty() and ActionIcons.label(key).is_empty(), "Retired keyword keeps only the art: " + key)
 		elif key != "dive":
 			_expect(ActionIcons.description(key) == Glossary.definition(key), "Card/nested token reads glossary: " + key)
 	var skill: Dictionary = Glossary._entries["skill_quick_wits"]
@@ -125,7 +128,7 @@ func _test_data() -> void:
 	_expect(Glossary.ids_in_text("[color=red]Stagger[/color] misfire timekeeper") == ["stagger"], "Word boundaries and BBCode")
 	_expect(Glossary.ids_in_text("Fire Ice @icon(surface_fire) @icon(element_ice)") == ["surface_fire", "element_ice"], "Ambiguous names never alias elements to surfaces")
 	_expect(Glossary.ids_in_text("Each time you swap targets, consume ground before your next attack.").is_empty(), "Ordinary prose does not invent Time, Swap or item Consume mechanics")
-	_expect(Glossary.ids_in_text("@kw(surface_consume) @term(surface_rubble)") == ["surface_consume", "surface_rubble"], "Explicit ground removal resolves Expend rather than item Consume")
+	_expect(Glossary.ids_in_text("Remove the @term(surface_rubble).") == ["surface_rubble"], "Ground removal links to the named ground")
 	_expect(Glossary.ids_in_text("Time @icon(consume) Swap") == ["time", "consume", "swap"], "Authored keywords and explicit tokens still resolve")
 	var many: String = "@icon(health) @icon(block) @icon(stoneskin) @icon(time) @icon(move) @icon(draw) @icon(empower)"
 	_expect(Glossary.ids_in_text(many, Glossary.MAX_RELIC_PANELS) == ["health", "block", "stoneskin", "time", "move", "draw"], "Six panels in appearance order; no more indicator")

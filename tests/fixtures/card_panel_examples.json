@@ -341,8 +341,8 @@
     "card": "headlong",
     "panels": [
       {
-        "title": "Next Attack",
-        "text": "Your next attack this turn deals +1 damage per tile you moved, up to +4."
+        "title": "",
+        "text": "Your next attack this turn deals 1 more damage for each tile you moved this turn, up to 4 more."
       }
     ]
   },
@@ -359,8 +359,8 @@
     "card": "whetstone",
     "panels": [
       {
-        "title": "Next Attack",
-        "text": "Your next attack this turn deals 4 more and Pierces."
+        "title": "",
+        "text": "Your next attack this turn deals 4 more damage and gains Pierce."
       },
       {
         "title": "Pierce",
@@ -372,8 +372,8 @@
     "card": "capacitor",
     "panels": [
       {
-        "title": "Next Attack",
-        "text": "Your next Lightning card this turn gains Chain 2."
+        "title": "",
+        "text": "Your next Lightning attack this turn gains Chain 2."
       },
       {
         "title": "Chain",
@@ -399,7 +399,7 @@
     "card": "spur_spark",
     "panels": [
       {
-        "title": "Quicken",
+        "title": "",
         "text": "Your next card this turn costs 1 less Time."
       }
     ]
@@ -453,8 +453,8 @@
     "card": "flashsteam",
     "panels": [
       {
-        "title": "Expend",
-        "text": "After the hit, remove Ice on each tile in the area."
+        "title": "",
+        "text": "Remove the Ice on each tile in the area."
       }
     ],
     "definition": {

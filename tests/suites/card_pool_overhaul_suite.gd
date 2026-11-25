@@ -559,8 +559,8 @@ static func _test_wave23_grimoire_unlocks(expect: Callable) -> void:
 		"stonefist": ["keyword:stoneskin"],
 		"couched_lance": ["keyword:move"],
 		"deflect": ["keyword:retaliate"],
-		"galvanize": ["keyword:quicken"],
-		"whetstone": ["keyword:next_attack", "keyword:pierce"],
+		"galvanize": ["keyword:draw"],
+		"whetstone": ["keyword:consume", "keyword:pierce"],
 		"thorn_crown_pact": ["keyword:rite", "keyword:retaliate", "keyword:health_cost"],
 		"rite_of_hoarfrost": ["keyword:rite", "keyword:stagger", "keyword:block", "keyword:draw"],
 		"salamander_heart": ["keyword:surface_fire", "keyword:stoneskin"],
@@ -763,7 +763,7 @@ static func _test_wave4_hand_rows_roles_and_grimoire(expect: Callable) -> void:
 		"rockburst": ["keyword:burst"],
 		"powder_keg": ["combat:outcrops"],
 		"sleet_squall": ["keyword:push"],
-		"shadow_gate": ["keyword:next_attack", "keyword:blink"],
+		"shadow_gate": ["keyword:blink"],
 	}
 	for card_id: String in expected:
 		var ids: Array[String] = Grimoire.entry_ids_for_card_ids([card_id])

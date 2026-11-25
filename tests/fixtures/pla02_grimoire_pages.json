@@ -127,14 +127,6 @@
       "Until the holder's next turn, melee hits and hits from adjacent tiles deal X damage back.",
       "Retaliate triggers once per enemy attack. Add Retaliate damage together and use the largest Shock and Push values. Block and Stoneskin absorb Retaliate damage. An enemy defeated by Retaliate gives the usual rewards and no Card Play. An Illusion's Retaliate triggers once per enemy attack."
     ],
-    "keyword:quicken": [
-      "Your next card this turn costs X less Time.",
-      "Quicken reduces Time to a minimum of 1. Quicken adds together. Unused Quicken ends with your turn. The Time badge shows the discount."
-    ],
-    "keyword:next_attack": [
-      "Your next attack this turn gains the named bonus.",
-      "A bonus that names a card family waits for a card of that family. Bonuses add together and are spent by the same attack. Unused bonuses end with your turn."
-    ],
     "keyword:rite": [
       "This card's effect lasts for the rest of combat, and this card Exhausts.",
       "With Worldspine, at the start of your turn, each enemy adjacent to an Outcrop you raised takes 3 damage."
@@ -231,10 +223,6 @@
       "Leaving Rubble costs 2 Movement.",
       "The first step is allowed if you have Movement remaining."
     ],
-    "keyword:surface_consume": [
-      "Remove the named ground to use this effect.",
-      "If the card hits, remove the ground after the hit."
-    ],
     "keyword:surface_relocate": [
       "Move the ground on one tile to another open tile."
     ],
@@ -269,6 +257,7 @@
     ],
     "keyword:time": [
       "Spending Time makes your next turn come later.",
+      "A card always costs at least 1 Time.",
       "Each of your first 2 unused Card Plays adds 5 Time."
     ],
     "keyword:eclipse": [
@@ -351,7 +340,7 @@
       "An Item from either of your 2 slots joins your deck and has Consume."
     ],
     "combat:surface_techniques": [
-      "Expend removes ground to use the listed effect. Burst destroys ground and deals damage.",
+      "Burst destroys ground and deals damage.",
       "Frost Circuit leaves Electrified on the tile, then deals 2 damage and Shocks the enemy on the tile. On Ice, Frost Circuit does the same on each connected Ice tile. Discharge Bursts the Electrified tile and each connected Electrified tile. Wards leave ground on each adjacent enemy's tile. Ice gives Expose on entry and on turn start."
     ],
     "combat:sweeping_strikes": [

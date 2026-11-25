@@ -269,7 +269,7 @@ static func _test_feint_echo(engine: CombatEngine, expect: Callable) -> void:
 	expect.call(int((active[0] as Dictionary)["damage"]) == 3 and bool((active[0] as Dictionary).get("_follow_up_active", false)), "Feint activates first-card Follow-up after independent movement")
 	s = play(engine, s, "u4_follow", Vector2i(3, 2))
 	expect.call(TempoRules.quicken_pending(s) == 1 and TempoRules.player_badges(s).size() == 2, "Echo Follow-up grants Quicken and next-attack badges")
-	expect.call(str(TempoRules.player_badges(s)[1]["tooltip"]).contains("Next card's attacks"), "Echo badge explains its whole-next-card scope")
+	expect.call(str(TempoRules.player_badges(s)[1]["tooltip"]).contains("Your next card this turn deals"), "Echo badge explains its whole-next-card scope")
 	s = resume(s)
 	var preview: Dictionary = engine.apply_player_action(s, engine.card_play_actions("u4_double", s)[0], Vector2i(3, 2))
 	preview = engine.apply_player_action(preview, engine.card_play_actions("u4_double", s)[1], Vector2i(3, 2))

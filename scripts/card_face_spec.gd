@@ -7,7 +7,10 @@ extends RefCounted
 ##     {"text": "..."}                          words; a segment carries its own spaces
 ##     {"term": icon id, "word": "...", "number": n or null}
 ##     {"damage": "melee" | "ranged", "number": n}
+##     {"number": n, "bind": key}              a live number in prose
 ##     {"pattern": pattern id}
+##   bind: optional explicit key in a live row's face_values, also for damage
+##   sentence_panels: keep only panels for words and tokens in the sentence
 ## Cards marked {"simple": true}, or absent from the file, use live icon rows.
 ##   duration: a Vision turn count in ordinary prose
 ## Simple faces specify row order. Icons and values come from the live rows.
@@ -207,6 +210,8 @@ static func validate(card_id: String, spec: Dictionary) -> Array:
 			problems.append("%s: segment %d is not an object" % [card_id, index])
 			continue
 		var segment: Dictionary = segment_var
+		if segment.has("bind") and (str(segment["bind"]).is_empty() or typeof(segment.get("number")) not in [TYPE_INT, TYPE_FLOAT]):
+			problems.append("%s: segment %d binding needs a key and a numeric value" % [card_id, index])
 		if segment.has("text"):
 			if segment.size() != 1 or str(segment["text"]).is_empty():
 				problems.append("%s: segment %d text segment has extra keys or no text" % [card_id, index])
@@ -228,6 +233,8 @@ static func validate(card_id: String, spec: Dictionary) -> Array:
 		elif segment.has("pattern"):
 			if pattern_offsets(str(segment["pattern"])).is_empty():
 				problems.append("%s: segment %d unknown pattern %s" % [card_id, index, str(segment["pattern"])])
+		elif segment.has("number") and segment.has("bind"):
+			pass
 		else:
 			problems.append("%s: segment %d has no known kind" % [card_id, index])
 	return problems

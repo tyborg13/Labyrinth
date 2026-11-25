@@ -6,6 +6,8 @@ extends RefCounted
 ## per-icon native tooltips are off because the column explains every icon.
 
 const Icons = preload("res://scripts/action_icon_library.gd")
+const Faces = preload("res://scripts/card_face_spec.gd")
+const Glossary = preload("res://scripts/glossary.gd")
 
 ## trigger receives hover and focus; card is the CardWidget that supplies the
 ## keywords (the trigger itself when it is the card). The column sits beside
@@ -31,7 +33,31 @@ static func entries_for(widget: Control) -> Array[Dictionary]:
 	var card: Dictionary = widget.call("_display_card_def") if widget.has_method("_display_card_def") else {}
 	if Icons.card_is_rite(card): leading.append("rite")
 	var rows: Array = widget.call("display_summary_rows") if widget.has_method("display_summary_rows") else Icons.rows_for_card(card)
-	return Icons.tooltip_entries_for_rows(rows, leading)
+	return entries_for_card(str(widget.card_id) if widget is CardWidget else "", rows, leading)
+
+static func entries_for_card(card_id: String, rows: Array, leading: Array = []) -> Array[Dictionary]:
+	var entries: Array[Dictionary] = Icons.tooltip_entries_for_rows(rows, leading)
+	var spec: Dictionary = Faces.spec_for(card_id)
+	if not bool(spec.get("sentence_panels", false)) or not CardWidget.sentence_rows_match(card_id, rows):
+		return entries
+	var sentence_icons: Array = []
+	for segment: Dictionary in spec["sentence"]:
+		if segment.has("term") or segment.has("damage"):
+			var icon: String = str(segment.get("term", segment.get("damage", "")))
+			if not sentence_icons.has(icon): sentence_icons.append(icon)
+		elif segment.has("text"):
+			for icon: String in Glossary.ids_in_text(segment["text"]):
+				if not sentence_icons.has(icon): sentence_icons.append(icon)
+	var filtered: Array[Dictionary]
+	for icon: String in sentence_icons:
+		if icon == "time":
+			# Time is an inline term here. The standalone card-cost badge is
+			# deliberately excluded from the usual keyword stack.
+			filtered.append_array(Icons.tooltip_entries_for_rows([], ["time"]))
+		else:
+			for entry: Dictionary in entries:
+				if entry["icon"] == icon: filtered.append(entry)
+	return filtered
 
 static func _show(trigger: Control, stack: Control, source: Control) -> void:
 	if not is_instance_valid(trigger) or not is_instance_valid(stack) or not is_instance_valid(source) or not trigger.is_visible_in_tree(): return

@@ -2,7 +2,7 @@ extends RefCounted
 
 ## Automatic modal focus is silent. Only a new pointer motion or a navigation
 ## focus change may expose the secondary card's glossary stack.
-const Icons = preload("res://scripts/action_icon_library.gd")
+const CardHover = preload("res://scripts/card_keyword_hover.gd")
 const NAVIGATION_ACTIONS := [&"ui_focus_next", &"ui_focus_prev", &"ui_up", &"ui_down", &"ui_left", &"ui_right"]
 var _cards: Array[Control]
 var _stack: Control
@@ -51,7 +51,7 @@ func _display_changed(widget: Control) -> void:
 func _show(widget: Control, refresh: bool = false) -> void:
 	if not is_instance_valid(_stack): return
 	if not refresh and _owner == widget and _stack.visible: return
-	var entries: Array[Dictionary] = Icons.tooltip_entries_for_rows(widget.display_summary_rows())
+	var entries: Array[Dictionary] = CardHover.entries_for(widget)
 	_stack.show_for(widget, entries)
 	_owner = widget
 

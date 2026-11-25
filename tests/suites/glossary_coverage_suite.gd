@@ -6,6 +6,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const InlineIconText = preload("res://scripts/inline_icon_text.gd")
 const TokenSyntax = preload("res://scripts/inline_token_syntax.gd")
+const CONTEXTUAL_ART: Array = ["surface_consume", "quicken", "next_attack"]
 var _expect_callback: Callable
 var _tokens: int = 0
 var _checks: int = 0
@@ -44,7 +45,10 @@ func _coverage() -> void:
 		_expect(ActionIcons.description(id) == entry["definition"], "Canonical glossary definition: " + id)
 	print("GLOSSARY TODO_DESIGN: %d [%s]" % [todos.size(), ", ".join(todos)])
 	for key: String in ActionIcons.all_icon_keys():
-		_expect(not _raw_definition(key).strip_edges().is_empty(), "Registry definition exists: " + key)
+		if key in CONTEXTUAL_ART:
+			_expect(_raw_definition(key).is_empty() and ActionIcons.label(key).is_empty(), "Retired art has no registry copy: " + key)
+		else:
+			_expect(not _raw_definition(key).strip_edges().is_empty(), "Registry definition exists: " + key)
 	for skill_id: String in SkillTreeLibrary.visible_ids():
 		var skill: Dictionary = SkillTreeLibrary.definitions()[skill_id]
 		_expect(not str(skill.get("description", "")).strip_edges().is_empty(), "Skill description exists: " + skill_id)
@@ -57,7 +61,9 @@ func _coverage() -> void:
 			for token: Dictionary in row:
 				var key: String = str(token.get("icon", ""))
 				if key == "aoe_pattern": continue # Geometry has no keyword identity.
-				if not key.is_empty():
+				if key in CONTEXTUAL_ART:
+					_expect(not ActionIcons.token_tooltip(token).strip_edges().is_empty(), card_id + " contextual tooltip: " + key)
+				elif not key.is_empty():
 					_expect(not _raw_definition(key).strip_edges().is_empty(), card_id + " rendered token definition: " + key)
 				_check_text(str(token.get("tooltip", "")))
 	for enemy: Dictionary in GameData.enemies().values():
@@ -134,7 +140,11 @@ func _scan_scripts(path: String) -> void:
 			icons.compile('"icon"\\s*:\\s*"([a-z_]+)"')
 			for token: RegExMatch in icons.search_all(source):
 				_tokens += 1
-				_expect(not _raw_definition(token.get_string(1)).strip_edges().is_empty(), "Status badge icon resolves: " + file + ":" + token.get_string(1))
+				var key: String = token.get_string(1)
+				if file == "tempo_rules.gd" and key in CONTEXTUAL_ART:
+					_expect(not ActionIcons.icon_path(key).is_empty() and _raw_definition(key).is_empty(), "Status badge keeps contextual art: " + key)
+				else:
+					_expect(not _raw_definition(key).strip_edges().is_empty(), "Status badge icon resolves: " + file + ":" + key)
 
 func _expect(condition: bool, message: String) -> void:
 	_checks += 1

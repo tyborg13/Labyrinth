@@ -1464,7 +1464,7 @@ func _refresh_time_badge(card: Dictionary) -> void:
 	if time_saved > 0: detail += "\nSpends %d stored Time." % time_saved
 	if int(card.get("_rite_time_discount", 0)) > 0: detail += "\nRite: −%d" % int(card["_rite_time_discount"])
 	if int(card.get("_relic_time_discount", 0)) > 0: detail += "\n%s: −%d" % [str(GameData.relic_def(str(card.get("_relic_time_discount_relic", ""))).get("name", "Relic")), int(card["_relic_time_discount"])]
-	if int(card.get("_quicken_discount", 0)) > 0: detail += "\nQuickened: −%d" % int(card["_quicken_discount"])
+	if int(card.get("_quicken_discount", 0)) > 0: detail += "\nThis card costs %d less Time this turn." % int(card["_quicken_discount"])
 	if tempo_surcharge > 0: detail += "\n%s: +%d" % [str(GameData.relic_def(str(card.get("_tempo_time_surcharge_relic", ""))).get("name", "Relic")), tempo_surcharge]
 	if item_surcharge > 0: detail += "\n%s: +%d" % [str(GameData.relic_def(str(card.get("_item_time_surcharge_relic", ""))).get("name", "Relic")), item_surcharge]
 	if total_surcharge > tempo_surcharge + item_surcharge: detail += "\nEmpower adds %d Time." % (total_surcharge - tempo_surcharge - item_surcharge)
@@ -1552,9 +1552,8 @@ func _resolved_sentence_face(rows: Array) -> Dictionary:
 	if not spec.has("sentence") or UiTypography.text_font() == null or UiTypography.ui_font() == null:
 		return {}
 	var printed_tokens: Array = []
-	var printed_shape: Array = _face_rows_shape(_printed_rows_for_face(), printed_tokens)
 	var live_tokens: Array = []
-	if _face_rows_shape(rows, live_tokens) != printed_shape:
+	if not sentence_rows_match(card_id, rows, printed_tokens, live_tokens):
 		return {}
 	var face: Dictionary = spec.duplicate(true)
 	var used: Dictionary = {}
@@ -1569,6 +1568,10 @@ func _resolved_sentence_face(rows: Array) -> Dictionary:
 			if duration_index >= 0:
 				used[duration_index] = true
 				_bind_face_value(segment, "time", int(segment["duration"]), printed_tokens[duration_index], live_tokens[duration_index])
+			continue
+		if segment.has("bind"):
+			if not _bind_explicit_face_value(segment, live_tokens):
+				return {}
 			continue
 		if not (segment.has("term") or segment.has("damage")):
 			continue
@@ -1599,6 +1602,20 @@ func _resolved_sentence_face(rows: Array) -> Dictionary:
 			_bind_face_value(chip_dict, "range", int(chip_dict.get("range", 0)), printed_tokens[range_index], live_tokens[range_index])
 	return face
 
+static func _bind_explicit_face_value(segment: Dictionary, live_tokens: Array) -> bool:
+	var key: String = segment["bind"]
+	for token: Dictionary in live_tokens:
+		var values: Dictionary = token.get("face_values", {})
+		if not values.has(key):
+			continue
+		var number: int = int(values[key])
+		segment["display"] = str(number).replace("-", "−")
+		segment["tone"] = str(token.get("tone", "neutral"))
+		if segment.has("damage"):
+			segment["tooltip"] = ActionIcons.token_tooltip(token, true)
+		return true
+	return false
+
 func _bind_face_value(target: Dictionary, icon_key: String, printed_number: int, printed: Dictionary, live: Dictionary) -> void:
 	var contextual_damage: bool = live.has("damage_target_tooltip")
 	if contextual_damage:
@@ -1618,7 +1635,10 @@ func _bind_face_value(target: Dictionary, icon_key: String, printed_number: int,
 		var base: String = ActionIcons.tooltip(icon_key, printed_number + delta)
 		target["tooltip"] = ActionIcons.token_tooltip({"tooltip": base, "modifiers": live.get("modifiers", [])})
 
-func _printed_rows_for_face() -> Array:
+static func sentence_rows_match(id: String, rows: Array, printed_tokens: Array = [], live_tokens: Array = []) -> bool:
+	return _face_rows_shape(rows, live_tokens) == _face_rows_shape(_printed_rows_for_face(id), printed_tokens)
+
+static func _printed_rows_for_face(card_id: String) -> Array:
 	var source: Variant = GameData.cards().get(card_id, {})
 	var key: Array = [card_id, hash(source)]
 	if not _printed_face_rows.has(key):
@@ -1644,12 +1664,14 @@ static func _face_rows_shape(rows: Array, tokens: Array) -> Array:
 			tokens.append(token)
 			var value: Variant = token.get("value", null)
 			var value_shape: Variant = null
-			if typeof(value) == TYPE_STRING and _numeric_value_text.search(str(value)) == null:
+			var numeric_caption: bool = bool(token.get("face_numeric_caption", false))
+			if not numeric_caption and typeof(value) == TYPE_STRING and _numeric_value_text.search(str(value)) == null:
 				value_shape = value
 			row_shape.append([str(token.get("kind", "")), str(token.get("icon", "")), str(token.get("field", "")),
-				str(token.get("surface", "")), str(token.get("prefix", "")), str(token.get("suffix", "")),
+				str(token.get("surface", "")), str(token.get("prefix", "")), "" if numeric_caption else str(token.get("suffix", "")),
 				str(token.get("keyword_segment", "")), str(token.get("state_condition", "")),
-				str(token.get("pattern", "")), bool(token.get("show_origin", false)), value_shape])
+				str(token.get("pattern", "")), bool(token.get("show_origin", false)), value_shape,
+				(token.get("face_values", {}) as Dictionary).keys()])
 		shape.append(row_shape)
 	return shape
 

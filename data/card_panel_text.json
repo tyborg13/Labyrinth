@@ -36,9 +36,9 @@
     "term": "block"
   },
   "shatter_illusion": {
-    "title": "Shatter Illusion",
+    "title": "Burst",
     "text": null,
-    "legacy": "Shatter Illusion\nDestroy one of your illusions within range. It counts as destroyed for illusion effects.",
+    "legacy": "Burst\nDestroy one of your illusions within range. It counts as destroyed for illusion effects.",
     "term": "shatter_illusion"
   },
   "terrain_burst_own": {
@@ -123,16 +123,16 @@
     "term": "range"
   },
   "keg_detonate": {
-    "title": "Detonate",
+    "title": "Burst",
     "text": "When the keg is destroyed, the keg Bursts {n}.",
     "legacy": "When the keg is destroyed, the keg Bursts {n}.",
     "term": "detonate",
     "diagram_text": "@pattern(cross) When the keg is destroyed, the keg Bursts {n}."
   },
   "quicken": {
-    "title": "Quicken",
+    "title": "",
     "text": "Your next card this turn costs {n} less Time.",
-    "legacy": "Quicken {n}\nYour next card this turn costs {n} less Time (minimum 1).",
+    "legacy": "Your next card this turn costs {n} less Time.",
     "term": "quicken"
   },
   "swap": {
@@ -313,16 +313,16 @@
     "term": "push",
     "diagram_text": "@pattern(hollow_diamond:{r}:origin) Push each enemy within {r} tiles of you {n} tiles away."
   },
-  "expend_after_hit": {
-    "title": "Expend",
-    "text": "After the hit, remove {ground} {where}.",
-    "legacy": "Expend\nAfter the hit, remove {ground} {where}.",
+  "remove_ground": {
+    "title": "",
+    "text": "Remove the {ground} {where}.",
+    "legacy": "Remove the {ground} {where}.",
     "term": "surface_consume"
   },
   "expend_beneath_you": {
-    "title": "Expend",
-    "text": "Remove {ground} from your tile.",
-    "legacy": "Remove {ground} from your tile.",
+    "title": "",
+    "text": "Remove the {ground} from your tile.",
+    "legacy": "Remove the {ground} from your tile.",
     "term": "surface_consume"
   },
   "ice_to_electrified": {
@@ -344,26 +344,26 @@
     "term": "empower"
   },
   "next_attack_move": {
-    "title": "Next Attack",
-    "text": "Your next attack this turn deals +1 damage per tile you moved, up to +{n}.",
+    "title": "",
+    "text": "{sentence}",
     "legacy": "{legacy}",
     "term": "next_attack"
   },
   "next_attack_pierce": {
-    "title": "Next Attack",
-    "text": "Your next attack this turn deals {n} more and Pierces.",
+    "title": "",
+    "text": "{sentence}",
     "legacy": "{legacy}",
     "term": "next_attack"
   },
   "next_attack_chain": {
-    "title": "Next Attack",
-    "text": "Your next Lightning card this turn gains Chain {n}.",
+    "title": "",
+    "text": "{sentence}",
     "legacy": "{legacy}",
     "term": "next_attack"
   },
   "next_attack_damage": {
-    "title": "Next Attack",
-    "text": "Your next attack this turn deals {n} more.",
+    "title": "",
+    "text": "{sentence}",
     "legacy": "{legacy}",
     "term": "next_attack"
   },
@@ -492,8 +492,8 @@
   },
   "next_attack_element": {
     "title": "",
-    "text": "Only a {element} card uses this bonus.",
-    "legacy": "Only a {element} card uses this bonus."
+    "text": "Only a {element} attack uses this bonus.",
+    "legacy": "Only a {element} attack uses this bonus."
   },
   "empower_health": {
     "title": "",

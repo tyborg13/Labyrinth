@@ -8,7 +8,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 TEXT = "Each ground tile you Expend or Burst gives your next attack +3 damage (up to +9)."
 # pla-04: Bursts destroy ground instead of Expending it, so the Dial counts both (director ruling 2026-11-20).
-INLINE_TEXT = "Each ground tile you remove with @kw(surface_consume) or @kw(burst) gives your next attack +3 damage, up to +9."
+INLINE_TEXT = "Each ground tile you remove or @kw(burst) gives your next attack +3 damage, up to +9."
 EFFECTS = [{"type": "expend_next_attack_damage", "damage": 3, "max": 9}]
 RATIONALE = (
     "one-sentence rework after owner playtest 13; the riders were cut and the bonus rose to +3 per tile"

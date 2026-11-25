@@ -8,6 +8,19 @@ static var _loaded: bool = false
 static var _counted_tiles: RegEx
 static var _filled_article := RegEx.create_from_string("\\b([Aa])n? \\{(\\w+)\\}")
 
+static func next_attack_sentence(damage: int, pierce: bool, chain: int, element: String, per_tile: Dictionary = {}) -> String:
+	var subject: String = "Your next attack this turn" if element.is_empty() or element == "none" else "Your next %s attack this turn" % element.capitalize()
+	var effects: PackedStringArray = []
+	if not per_tile.is_empty():
+		effects.append("deals %d more damage for each tile you moved this turn, up to %d more" % [int(per_tile.get("damage", 1)), int(per_tile.get("max", 0))])
+	elif damage > 0 or (not pierce and chain <= 0):
+		effects.append("deals %d more damage" % damage)
+	if pierce:
+		effects.append("gains Pierce")
+	if chain > 0:
+		effects.append("gains Chain %d" % chain)
+	return "%s %s." % [subject, join_names(effects)]
+
 static func copy(id: String, values: Dictionary = {}, glossary_override: String = "") -> Dictionary:
 	if not _loaded:
 		_loaded = true

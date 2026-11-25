@@ -1757,7 +1757,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 			_log(next_state, "Retaliate %d." % int(resolved_action.get("amount", 0)))
 		"quicken":
 			TempoRules.gain_quicken(next_state, resolved_action)
-			_log(next_state, "Quicken %d: the next card costs less Time." % int(resolved_action.get("amount", 0)))
+			_log(next_state, "Your next card this turn costs %d less Time." % int(resolved_action.get("amount", 0)))
 		"next_attack":
 			TempoRules.gain_next_attack(next_state, resolved_action, _action_card_name(resolved_action))
 		"rite":
@@ -12695,7 +12695,7 @@ func _resolve_surface_consumer(state: Dictionary, action: Dictionary, target: Ve
 		# Card fields have already been converted to runtime fixed point by GameData.
 		var raw_reward: Dictionary = SurfaceCardRules.scaled_consume_reward(reward, selected.size()).duplicate(true)
 		raw_reward["_runtime_amount"] = true
-		state = apply_surface_reward(state, raw_reward, {"source_name": "Expended ground"})
+		state = apply_surface_reward(state, raw_reward, {"source_name": "Removed ground"})
 	return state
 
 func _flush_surface_deaths(state: Dictionary, trace: Dictionary = {}) -> Dictionary:

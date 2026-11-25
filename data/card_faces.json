@@ -911,5 +911,159 @@
       {"term": "rite", "word": "Rite", "number": null},
       {"text": ": at the start of your turn, deal 3 damage to each enemy adjacent to your Outcrops."}
     ]
+  },
+  "spike_mantle": {
+    "chip": null,
+    "sentence_panels": true,
+    "sentence": [
+      {"damage": "melee", "number": 8},
+      {"text": " with "},
+      {"term": "pierce", "word": "Pierce", "number": null},
+      {"text": " "},
+      {"pattern": "neighbors"},
+      {"text": ". Each "},
+      {"term": "surface_rubble", "word": "Rubble", "number": null},
+      {"text": " tile hit: "},
+      {"damage": "melee", "number": 4, "bonus": true, "bind": "surface_bonus_damage"},
+      {"text": ". Then remove each "},
+      {"term": "surface_rubble", "word": "Rubble", "number": null},
+      {"text": " tile adjacent to you: gain "},
+      {"term": "stoneskin", "word": "Stoneskin", "number": 4},
+      {"text": "."}
+    ]
+  },
+  "capacitor": {
+    "chip": null,
+    "sentence_panels": true,
+    "sentence": [
+      {"text": "Gain "},
+      {"term": "block", "word": "Block", "number": 4},
+      {"text": ". Your next Lightning attack this turn gains "},
+      {"term": "chain", "word": "Chain", "number": 2},
+      {"text": "."}
+    ]
+  },
+  "charged_orb": {
+    "chip": null,
+    "sentence_panels": true,
+    "sentence": [
+      {"text": "Your next card this turn costs "},
+      {"number": 2, "bind": "quicken_amount"},
+      {"text": " less "},
+      {"term": "time", "word": "Time", "number": null},
+      {"text": ". Your next Lightning attack this turn gains "},
+      {"term": "chain", "word": "Chain", "number": 1},
+      {"text": "."}
+    ]
+  },
+  "headlong": {
+    "chip": null,
+    "sentence_panels": true,
+    "sentence": [
+      {"term": "move", "word": "Move", "number": 4},
+      {"text": ". Your next attack this turn deals "},
+      {"number": 1, "bind": "next_attack_per_tile_damage"},
+      {"text": " more damage for each tile you moved this turn, up to "},
+      {"number": 4, "bind": "next_attack_per_tile_max"},
+      {"text": " more."}
+    ]
+  },
+  "shadow_gate": {
+    "chip": null,
+    "sentence_panels": true,
+    "sentence": [
+      {"term": "blink", "word": "Blink", "number": 4},
+      {"text": ". Your next attack this turn deals "},
+      {"number": 3, "bind": "next_attack_damage"},
+      {"text": " more damage."}
+    ]
+  },
+  "sworn_oath": {
+    "chip": null,
+    "sentence_panels": true,
+    "sentence": [
+      {"text": "Gain "},
+      {"term": "block", "word": "Block", "number": 3},
+      {"text": ". Your next attack this turn deals "},
+      {"number": 3, "bind": "next_attack_damage"},
+      {"text": " more damage."}
+    ]
+  },
+  "whetstone": {
+    "chip": null,
+    "sentence_panels": true,
+    "sentence": [
+      {"term": "consume", "word": "Consume", "number": null},
+      {"text": ". Your next attack this turn deals "},
+      {"number": 4, "bind": "next_attack_damage"},
+      {"text": " more damage and gains "},
+      {"term": "pierce", "word": "Pierce", "number": null},
+      {"text": "."}
+    ]
+  },
+  "galvanize": {
+    "chip": null,
+    "sentence_panels": true,
+    "sentence": [
+      {"term": "draw", "word": "Draw", "number": 1},
+      {"text": ". Your next card this turn costs "},
+      {"number": 2, "bind": "quicken_amount"},
+      {"text": " less "},
+      {"term": "time", "word": "Time", "number": null},
+      {"text": "."}
+    ]
+  },
+  "hourglass_sand": {
+    "chip": null,
+    "sentence_panels": true,
+    "sentence": [
+      {"term": "consume", "word": "Consume", "number": null},
+      {"text": ". Your next card this turn costs "},
+      {"number": 4, "bind": "quicken_amount"},
+      {"text": " less "},
+      {"term": "time", "word": "Time", "number": null},
+      {"text": ". "},
+      {"term": "draw", "word": "Draw", "number": 1},
+      {"text": "."}
+    ]
+  },
+  "spur_spark": {
+    "chip": null,
+    "sentence_panels": true,
+    "sentence": [
+      {"term": "move", "word": "Move", "number": 2},
+      {"text": ", then leave "},
+      {"term": "surface_electrified", "word": "Electrified", "number": null},
+      {"text": " on your tile. Your next card this turn costs "},
+      {"number": 1, "bind": "quicken_amount"},
+      {"text": " less "},
+      {"term": "time", "word": "Time", "number": null},
+      {"text": "."}
+    ]
+  },
+  "static_rush": {
+    "chip": null,
+    "sentence_panels": true,
+    "sentence": [
+      {"term": "move", "word": "Move", "number": 2},
+      {"text": ". Your next card this turn costs "},
+      {"number": 2, "bind": "quicken_amount"},
+      {"text": " less "},
+      {"term": "time", "word": "Time", "number": null},
+      {"text": "."}
+    ]
+  },
+  "stolen_moment": {
+    "chip": null,
+    "sentence_panels": true,
+    "sentence": [
+      {"text": "Your next card this turn costs "},
+      {"number": 3, "bind": "quicken_amount"},
+      {"text": " less "},
+      {"term": "time", "word": "Time", "number": null},
+      {"text": ". "},
+      {"term": "draw", "word": "Draw", "number": 1},
+      {"text": "."}
+    ]
   }
 }

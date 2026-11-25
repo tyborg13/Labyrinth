@@ -376,6 +376,7 @@ static func _test_authored_copy(expect: Callable) -> void:
 	# The retired riders supersede the status mentions in the historical record.
 	approved["coffin_nails"] = str(approved["coffin_nails"]).replace("@term(bleed) 1", "@term(expose) 2")
 	var copy20: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt20_rules_copy.json"))["relic_descriptions"]
+	var vrb01: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/vrb01_relic_copy.json"))
 	var copy26: Dictionary = {}
 	for edit: Dictionary in JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/txt-26/text_edits.json")):
 		copy26[edit["id"]] = edit
@@ -388,7 +389,7 @@ static func _test_authored_copy(expect: Callable) -> void:
 			var edit: Dictionary = copy26[relic_id]
 			text = text.replace(edit["old"], edit["new"])
 		var markup: String = str(GameData.relic_def(relic_id).get("description", ""))
-		var expected: String = GameData._format_relic_description({"description": text, "effects": GameData.relics()[relic_id]["effects"]})
+		var expected: String = GameData._format_relic_description({"description": vrb01.get(relic_id, text), "effects": GameData.relics()[relic_id]["effects"]})
 		expect.call(markup == expected, "U1 exact copy/%s: preserve every word, token, number and punctuation mark" % relic_id)
 	# An inline icon stands alone: letters glued to it ("@icon(stagger)ed",
 	# "@icon(illusion)s") render as a glyph followed by a stray suffix.

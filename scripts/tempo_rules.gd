@@ -9,6 +9,7 @@ class_name TempoRules
 ## See spec/card_keywords_wave3.md.
 
 const RiteRules = preload("res://scripts/rite_rules.gd")
+const PanelText = preload("res://scripts/card_panel_text.gd")
 
 const QUICKEN_KEY: String = "quicken_pending"
 const NEXT_ATTACK_KEY: String = "next_attack_buffs"
@@ -307,8 +308,11 @@ static func damage_modifiers(state: Dictionary, action: Dictionary) -> Array[Dic
 		var damage: int = buff_damage(state, buff)
 		if damage <= 0:
 			continue
+		var source: String = str(buff.get("source", ""))
+		if source.is_empty():
+			source = PanelText.next_attack_sentence(damage, false, 0, str(buff.get("element", "")))
 		result.append({
-			"source": str(buff.get("source", "Next attack")) if not str(buff.get("source", "")).is_empty() else "Next attack",
+			"source": source,
 			"kind": "next_attack",
 			"amount": damage,
 			"detail": "Next attack this turn"
@@ -325,7 +329,7 @@ static func display_action(state: Dictionary, action: Dictionary) -> Dictionary:
 	var modifiers: Dictionary = (result.get("_modifiers", {}) as Dictionary).duplicate(true) if typeof(result.get("_modifiers", null)) == TYPE_DICTIONARY else {}
 	var source: String = ", ".join(PackedStringArray(bonus.get("sources", []) as Array)).strip_edges()
 	if source.is_empty():
-		source = "Next attack"
+		source = PanelText.next_attack_sentence(int(bonus["damage"]), bool(bonus["pierce"]), int(bonus["chain"]), _action_element(action))
 	if int(bonus.get("chain", 0)) > 0:
 		var before_chain: int = int(result.get("chain", 0))
 		result["chain"] = before_chain + int(bonus["chain"])
@@ -352,7 +356,7 @@ static func player_badges(state: Dictionary) -> Array[Dictionary]:
 			"fill": Color("27465a"),
 			"border": Color("a8e4ff"),
 			"icon_tint": Color.WHITE,
-			"tooltip": "Quicken %d\nYour next card this turn costs %d less Time (minimum 1)." % [quicken, quicken]
+			"tooltip": "Your next card this turn costs %d less Time." % quicken
 		})
 	var buffs: Array = next_attack_buffs(state)
 	if buffs.is_empty():
@@ -365,25 +369,16 @@ static func player_badges(state: Dictionary) -> Array[Dictionary]:
 		var buff: Dictionary = buff_var as Dictionary
 		var damage: int = buff_damage(state, buff)
 		total_damage += damage
-		var parts: PackedStringArray = []
-		if damage > 0:
-			parts.append("+%d damage" % damage)
-		if bool(buff.get("pierce", false)):
-			parts.append("Pierce")
-		if int(buff.get("chain", 0)) > 0:
-			parts.append("Chain %d" % int(buff.get("chain", 0)))
-		var element_id: String = str(buff.get("element", ""))
-		var subject: String = "Next %s attack" % element_id.capitalize() if not element_id.is_empty() else "Next attack"
 		if bool(buff.get("card_scoped", false)):
-			subject = "Next card's attacks"
-		var source: String = str(buff.get("source", ""))
-		lines.append("%s: %s%s" % [subject, ", ".join(parts), (" (%s)" % source) if not source.is_empty() else ""])
+			lines.append("Your next card this turn deals %d more damage." % damage)
+		else:
+			lines.append(PanelText.next_attack_sentence(damage, bool(buff.get("pierce", false)), int(buff.get("chain", 0)), str(buff.get("element", ""))))
 	badges.append({
 		"icon": "next_attack",
 		"count": total_damage,
 		"fill": Color("5a2621"),
 		"border": Color("ffb08a"),
 		"icon_tint": Color.WHITE,
-		"tooltip": "Next attack\n%s\nExpires at the end of this turn." % "\n".join(lines)
+		"tooltip": " ".join(lines)
 	})
 	return badges

@@ -17104,7 +17104,8 @@ func _show_card_focus_tooltips(index: int) -> void:
 	var leading_icons: Array = []
 	if ActionIcons.card_is_rite(card):
 		leading_icons.append("rite")
-	var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(
+	var entries: Array[Dictionary] = CardKeywordHover.entries_for_card(
+		card_id,
 		display.get("summary_rows", []) as Array,
 		leading_icons
 	)
@@ -34578,7 +34579,7 @@ func _add_surface_relic_commands() -> void:
 		if str(future.get("type", "")) != "detonate": continue
 		for option: Dictionary in SurfaceRelicRules.action_variants(_preview_combat_state, future):
 			if str(option.get("_surface_relic_label", "")) != "Crush Rubble": continue
-			_add_action_context_button(("✓ " if SurfaceRelicRules.mode_enabled(future, "crush") else "") + "Crush Rubble", _select_surface_relic_variant.bind(option, future_index), "Use Rubble for this card's Detonate, leaving Fire behind.", true)
+			_add_action_context_button(("✓ " if SurfaceRelicRules.mode_enabled(future, "crush") else "") + "Crush Rubble", _select_surface_relic_variant.bind(option, future_index), "Use Rubble for this card's Burst, leaving Fire behind.", true)
 
 func _add_ice_spill_command(action: Dictionary, index: int, tooltip: String = "Choose a direction for Ice moved by Rimecatcher Vial.") -> void:
 	var direction_index: int = PathUtils.DIRS_4.find(action.get("_ice_spill_direction", Vector2i.ZERO))

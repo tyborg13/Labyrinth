@@ -1,6 +1,7 @@
 extends RefCounted
 
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const CardHover = preload("res://scripts/card_keyword_hover.gd")
 const Stack = preload("res://scripts/card_focus_tooltip_stack.gd")
 
 const CardDisplay = preload("res://scripts/card_display_overrides.gd")
@@ -198,7 +199,7 @@ func with_keywords(preview: Control, card_ids: Array) -> Control:
 		var rows: Array = CardDisplay.for_card(id, state, card)["summary_rows"] if use_run_display else ActionIcons.rows_for_card(card)
 		var leading: Array = []
 		if ActionIcons.card_is_rite(card): leading.append("rite")
-		for entry: Dictionary in ActionIcons.tooltip_entries_for_rows(rows, leading):
+		for entry: Dictionary in CardHover.entries_for_card(id, rows, leading):
 			var key: String = str(entry.get("semantic_key", entry["tooltip"]))
 			if seen.has(key): continue
 			seen[key] = true

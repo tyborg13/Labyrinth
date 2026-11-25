@@ -35,7 +35,8 @@ MARKED_BODY = [MARKED_DEFINITION, *PLA02_PAGES["keyword:marked"][1:]]
 TRAPS_BODY = [TRAP_DEFINITION, *PLA02_PAGES["combat:traps"][1:]]
 PLA08_RETIRED = set(PLA08["retired"])
 UNCHANGED_SHA256 = "17be644b843ba6c56d6fed1fef19d4c98b339b70edf0a8fae91f3f72b2051cd0"
-RETIRED_TERMS = {"dive", "veil", "flurry", "aoe"}  # sta-01/flu-01: keep protected historical copy untouched.
+VRB01_RETIRED = {"surface_consume", "quicken", "next_attack"}
+RETIRED_TERMS = {"dive", "veil", "flurry", "aoe"} | VRB01_RETIRED
 METADATA_SHA256 = "452541bfabda9d9a177a13e383c14c147a78746c0492e0eace190b58caf3bab2"
 
 UMBRA_AREA_BODY = "Darkness that limits your sight. Hidden enemies show no intent and can't be targeted. Attacks that hit an area hit hidden enemies on those tiles too."
@@ -81,13 +82,14 @@ class ShortCardTooltipsTest(unittest.TestCase):
                     self.assertEqual(by_id[change["id"]]["definition"], self.superseding.get(change["id"], change["tooltip"]))
         self.assertEqual(by_id["marked"]["definition"], MARKED_DEFINITION)
         expected = json.loads((ROOT / 'tests/goldens/glossary_metadata.json').read_text())
-        expected['metadata'] = [e for e in expected['metadata'] if e['id'] not in {'mirror', 'flurry', 'aoe', 'worldspines'} | PLA08_RETIRED]
+        expected['metadata'] = [e for e in expected['metadata'] if e['id'] not in {'mirror', 'flurry', 'aoe', 'worldspines'} | PLA08_RETIRED | VRB01_RETIRED]
         metadata = [{key: value for key, value in entry.items() if key != "definition"}
                     for entry in self.glossary]
         self.assertEqual(metadata, burst_metadata_supersession(marked_metadata_supersession(expected['metadata'])))
         unchanged = [entry for entry in self.glossary if entry['id'] in self.copy['unchanged_ids']]
         # pla-06: the playability supersessions also cover otherwise unchanged ids (Frostbite).
-        expected_unchanged = [dict(entry, definition=self.superseding.get(entry['id'], entry['definition'])) for entry in expected['unchanged']]
+        expected_unchanged = [dict(entry, definition=self.superseding.get(entry['id'], entry['definition']))
+                              for entry in expected['unchanged'] if entry['id'] not in VRB01_RETIRED]
         self.assertEqual(unchanged, expected_unchanged)
 
     def test_full_rules_retained_in_expected_topics(self):
@@ -195,7 +197,7 @@ class ShortCardTooltipsTest(unittest.TestCase):
         boon = (ROOT / "scripts/opening_boon_inspection.gd").read_text()
         self.assertNotIn('["time"]', boon)
         # card-02: boon inspection uses the retained face's effective rows.
-        self.assertIn('Icons.tooltip_entries_for_rows(widget.display_summary_rows())', boon)
+        self.assertIn('entries_for(widget)', boon)
 
 
 if __name__ == "__main__":

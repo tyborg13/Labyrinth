@@ -389,9 +389,9 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(entries.has(GrimoireLibrary.equipment_card_entry_id("lantern_shot")), "Equipment-provided Lantern Shot should have a Grimoire card entry")
 	for light_card_id: String in ["guiding_flare", "dawnstep", "prism_sight", "storm_beacon", "glowstone_ward", "daybreak"]:
 		_assert(entries.has(GrimoireLibrary.magick_entry_id(light_card_id)), "Light Magick has a Grimoire card entry: %s" % light_card_id)
-	for keyword: String in ["surface", "surface_fire", "surface_ice", "surface_electrified", "surface_rubble", "burst", "surface_consume", "surface_relocate"]:
+	for keyword: String in ["surface", "surface_fire", "surface_ice", "surface_electrified", "surface_rubble", "burst", "surface_relocate"]:
 		_assert(entries.has("keyword:%s" % keyword), "Grimoire includes the distinct %s mechanic" % keyword)
-	for retired_topic: String in ["combat:intensity", "keyword:burn", "keyword:poison", "keyword:bleed", "keyword:sunder", "keyword:chilled", "keyword:freeze", "keyword:petrify", "keyword:radiance", "keyword:truesight", "keyword:dispel_umbra"]:
+	for retired_topic: String in ["combat:intensity", "keyword:burn", "keyword:poison", "keyword:bleed", "keyword:sunder", "keyword:chilled", "keyword:freeze", "keyword:petrify", "keyword:radiance", "keyword:truesight", "keyword:dispel_umbra", "keyword:surface_consume", "keyword:quicken", "keyword:next_attack"]:
 		_assert(not entries.has(retired_topic), "Retired rules must not remain discoverable")
 	var defaults: Array[String] = GrimoireLibrary.default_entry_ids()
 	_assert(defaults.has("basic:run"), "Grimoire defaults should include run basics")
@@ -514,7 +514,7 @@ func _test_relic_data_rarity_and_offer_weights() -> void:
 	_assert(str(GameData.relic_def("thornmail_brooch").get("description", "")).contains("to hit the area instead and leave @term(surface_rubble) on each tile."), "Faultline Brooch should explain its optional melee footprint transformation")
 	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")) == "At the start of combat, @kw(draw) 1 fewer card. At the end of your turn, convert your @term(block) into @term(stoneskin).", "Obsidian Heart should explain its end-of-turn block conversion")
 	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("At the start of combat, @kw(draw) 1 fewer card."), "Obsidian Heart should format its negative opening draw through the approved keyword")
-	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")) == "Each ground tile you remove with @kw(surface_consume) or @kw(burst) gives your next attack +3 damage, up to +9.", "Black Sun Dial should describe its capped next-attack damage")
+	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")) == "Each ground tile you remove or @kw(burst) gives your next attack +3 damage, up to +9.", "Black Sun Dial should describe its capped next-attack damage")
 	_assert(GameData.relic_offer_weight("pilgrim_boots") > GameData.relic_offer_weight("ember_lens"), "Common relics should be offered more often than rare relics")
 	_assert(GameData.relic_offer_weight("ember_lens") > GameData.relic_offer_weight("bloodglass_knife"), "Rare relics should be offered more often than epic relics")
 	_assert(GameData.relic_offer_weight("bloodglass_knife") > GameData.relic_offer_weight("storm_crown"), "Epic relics should be offered more often than legendary relics")

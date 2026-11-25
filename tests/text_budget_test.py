@@ -120,12 +120,14 @@ class TextBudgetTest(unittest.TestCase):
         short_copy.update(BURST_DEFINITIONS)
         for key in PLA08_COPY["retired"]:
             live.pop(key)
+        for key in ("surface_consume", "quicken", "next_attack"):
+            live.pop(key)
         short_copy.update(PLA08_COPY["definitions"])
         short_copy.update(TXT20_COPY["glossary_definitions"])
         short_copy.update(read("tests/fixtures/pla01_exception_strip.json")["glossary"])
         short_copy.update(marked=TXT27_MARKED_DEFINITION, traps=TRAP_DEFINITION)
         self.assertEqual(set(self.glossary), set(live))
-        self.assertEqual(len(live), 128)
+        self.assertEqual(len(live), 125)
         for key, source in live.items():
             with self.subTest(entry=key):
                 actual = self.glossary[key]
@@ -152,7 +154,7 @@ class TextBudgetTest(unittest.TestCase):
         txt13 = TXT13_APPROVED_COPY["relic_descriptions"]
         superseded = FLURRY_RETIREMENT["relic_descriptions"] | txt13 | PLA04_COPY["relic_descriptions"] | PLA08_COPY["relic_descriptions"]
         edits = {edit["id"]: edit for edit in read("spec/peer_benchmark/staged/txt-26/text_edits.json")}
-        approved_copy = read("tests/fixtures/txt35_relic_copy.json")
+        approved_copy = read("tests/fixtures/txt35_relic_copy.json") | read("tests/fixtures/vrb01_relic_copy.json")
 
         def apply_director_edit(relic_id, description):
             edit = edits.get(relic_id)
