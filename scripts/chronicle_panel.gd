@@ -276,14 +276,15 @@ static func _prepare_record_art(panel: Control, revision: int) -> void:
 	var textures: Dictionary = {}
 	var tiles := PackedStringArray()
 	for record: Dictionary in panel.records:
-		for pair: Array in record["deck"]:
-			var definition: Dictionary = Rules.card_definition(pair[0], record.get("deck_card_definitions", {}))
+		var build: Dictionary = Rules.display_build(record)
+		for pair: Array in build["deck"]:
+			var definition: Dictionary = build["card_definitions"][pair[0]]
 			var art: String = CardTile.CARD_BACK_PATH if definition.is_empty() else str(definition.get("art_path", ""))
 			if art.is_empty() or tiles.has(art): continue
 			tiles.append(art)
 			if not Assets.has_cached_texture(art): textures[art] = false
-		for id: String in record["relics"]: _add_record_icon(textures, str(GameData.relic_def(id).get("icon_path", "")))
-		for id: String in record["gear"]: _add_record_icon(textures, str(GameData.equipment_def(id).get("icon_path", "")))
+		for id: String in build["relics"]: _add_record_icon(textures, str(GameData.relic_def(id).get("icon_path", "")))
+		for id: String in build["gear"]: _add_record_icon(textures, str(GameData.equipment_def(id).get("icon_path", "")))
 	if not textures.is_empty(): await Assets.prepare_textures_for(tree.root, textures, present, alive)
 	for art: String in tiles:
 		if CardTile._tile_art_cache.has(art): continue
@@ -363,9 +364,8 @@ func _build_detail(record: Dictionary) -> void:
 	_clear(_detail)
 	if not is_instance_valid(_tooltip_host):
 		_tooltip_host = PreviewBuilders.new()
-	_tooltip_host.definitions = {}
-	for pair: Array in record["deck"]:
-		_tooltip_host.definitions[pair[0]] = Rules.card_definition(pair[0], record.get("deck_card_definitions", {}))
+	var build: Dictionary = Rules.display_build(record)
+	_tooltip_host.definitions = build["card_definitions"]
 	_detail_scroll.scroll_vertical = 0
 	var title_row := HBoxContainer.new()
 	title_row.custom_minimum_size.y = 70
@@ -423,7 +423,7 @@ func _build_detail(record: Dictionary) -> void:
 		for feat: Dictionary in record["feats"]:
 			var feat_row := HBoxContainer.new()
 			feat_row.add_child(_label("◆", 17, Palette.GOLD))
-			var text := _label("%s — %s" % [feat["title"], preload("res://scripts/run_score_rules.gd").feat_detail_for_display(str(feat["title"]), str(feat["detail"]))], 17, Palette.GOLD_BRIGHT)
+			var text := _label("%s — %s" % [Rules.display_printed_text(feat["title"]), Rules.display_printed_text(Rules.Score.feat_detail_for_display(str(feat["title"]), str(feat["detail"])))], 17, Palette.GOLD_BRIGHT)
 			text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			feat_row.add_child(text)
@@ -435,16 +435,16 @@ func _build_detail(record: Dictionary) -> void:
 	_detail.add_child(build_row)
 	var gear_column := _column(build_row, "GEAR")
 	gear_column.name = "ChronicleGear"
-	gear_column.custom_minimum_size.x = maxi(0, record["gear"].size() * 60 - 8)
+	gear_column.custom_minimum_size.x = maxi(0, build["gear"].size() * 60 - 8)
 	gear_column.size_flags_horizontal = Control.SIZE_FILL
-	_build_items(gear_column, record["gear"], false)
+	_build_items(gear_column, build["gear"], false)
 	var relic_column := _column(build_row, "RELICS")
 	relic_column.name = "ChronicleRelics"
 	relic_column.custom_minimum_size.x = 0
-	_build_items(relic_column, record["relics"], true)
+	_build_items(relic_column, build["relics"], true)
 	_spacer(_detail, DETAIL_ROW_GAP)
 	_detail.add_child(_heading("SPELLS"))
-	_spell_groups = CardTile.grouped_deck(record["deck"], _tooltip_host.definitions)
+	_spell_groups = CardTile.grouped_deck(build["deck"], _tooltip_host.definitions)
 	_spell_grid = GridContainer.new()
 	_spell_grid.name = "ChronicleSpells"
 	_spell_grid.add_theme_constant_override("h_separation", CardTile.TILE_GAP)

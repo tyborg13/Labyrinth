@@ -459,7 +459,7 @@
     "id": "terrain_burst",
     "name": "Groundsplit",
     "icon": "terrain_burst",
-    "definition": "This enemy damages each unit adjacent to terrain this enemy raised.",
+    "definition": "This enemy damages you if you stand within 2 tiles of an Outcrop this enemy raised.",
     "aliases": []
   },
   {

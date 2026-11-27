@@ -379,14 +379,14 @@ static func _ensure_progression_state_in_place(progression: Dictionary) -> void:
 	var unlocked_wanted: Dictionary = _entry_id_set(progression.get(UNLOCKED_KEY, []))
 	_add_entry_ids_to_set(unlocked_wanted, _default_entry_ids_ref())
 	var unlocked: Array[String] = _ordered_entry_ids_from_set(unlocked_wanted)
-	progression[UNLOCKED_KEY] = unlocked
+	progression[UNLOCKED_KEY] = _with_unknown_profile_ids(unlocked, progression.get(UNLOCKED_KEY, []))
 	var unlocked_set: Dictionary = _entry_id_set(unlocked)
 	var unread_set: Dictionary = _entry_id_set(progression.get(UNREAD_KEY, []))
 	var filtered_unread: Array[String]
 	for entry_id: String in _entry_ids_ref():
 		if unread_set.has(entry_id) and unlocked_set.has(entry_id):
 			filtered_unread.append(entry_id)
-	progression[UNREAD_KEY] = filtered_unread
+	progression[UNREAD_KEY] = _with_unknown_profile_ids(filtered_unread, progression.get(UNREAD_KEY, []))
 
 static func _ensure_run_state_in_place(next_state: Dictionary) -> void:
 	var unlocked: Array[String] = normalize_entry_ids(next_state.get(UNLOCKED_KEY, []))
@@ -396,7 +396,7 @@ static func _ensure_run_state_in_place(next_state: Dictionary) -> void:
 		if not progression.is_empty():
 			_ensure_progression_state_in_place(progression)
 			next_state["progression"] = progression
-			for entry_id: String in progression.get(UNLOCKED_KEY, []):
+			for entry_id: String in normalize_entry_ids(progression.get(UNLOCKED_KEY, [])):
 				if not unlocked.has(entry_id):
 					unlocked.append(entry_id)
 	var has_unlocked_key: bool = next_state.has(UNLOCKED_KEY)
@@ -409,7 +409,7 @@ static func _ensure_run_state_in_place(next_state: Dictionary) -> void:
 	next_state[UNLOCKED_KEY] = unlocked
 	var unread: Array[String] = normalize_entry_ids(next_state.get(UNREAD_KEY, []))
 	if not progression.is_empty():
-		for entry_id: String in progression.get(UNREAD_KEY, []):
+		for entry_id: String in normalize_entry_ids(progression.get(UNREAD_KEY, [])):
 			if not unread.has(entry_id):
 				unread.append(entry_id)
 	var filtered_unread: Array[String]
@@ -461,8 +461,8 @@ static func unlock_entries(run_state: Dictionary, candidate_ids: Array) -> Dicti
 	next_state[UNLOCKED_KEY] = ordered_entry_ids(unlocked)
 	next_state[UNREAD_KEY] = ordered_entry_ids(unread)
 	if not progression.is_empty():
-		progression[UNLOCKED_KEY] = ordered_entry_ids(progression_unlocked)
-		progression[UNREAD_KEY] = ordered_entry_ids(progression_unread)
+		progression[UNLOCKED_KEY] = _with_unknown_profile_ids(ordered_entry_ids(progression_unlocked), progression_unlocked)
+		progression[UNREAD_KEY] = _with_unknown_profile_ids(ordered_entry_ids(progression_unread), progression_unread)
 		next_state["progression"] = progression
 	if not added.is_empty():
 		next_state[NOTICE_KEY] = notice_for_added_entries(added)
@@ -480,7 +480,7 @@ static func clear_unread(run_state: Dictionary) -> Dictionary:
 	if typeof(next_state.get("progression", {})) == TYPE_DICTIONARY:
 		var progression: Dictionary = next_state.get("progression", {}) as Dictionary
 		if not progression.is_empty():
-			progression[UNREAD_KEY] = []
+			progression[UNREAD_KEY] = _with_unknown_profile_ids(_empty_string_array(), progression.get(UNREAD_KEY, []))
 			next_state["progression"] = progression
 	return next_state
 
@@ -544,12 +544,32 @@ static func _entry_id_set(value: Variant) -> Dictionary:
 	if typeof(value) != TYPE_ARRAY:
 		return result
 	for id_var: Variant in value:
-		var entry_id: String = str(id_var)
-		if entry_id in ["keyword:icefall", "keyword:lob", "keyword:burrow", "keyword:erupt"]: entry_id = "keyword:marked"
-		if entry_id == "keyword:outcrop": entry_id = "combat:outcrops"
+		var entry_id: String = _entry_alias(str(id_var))
 		if not entry_id.is_empty():
 			result[entry_id] = true
 	return result
+
+static func _entry_alias(entry_id: String) -> String:
+	if entry_id in ["keyword:icefall", "keyword:lob", "keyword:burrow", "keyword:erupt"]: return "keyword:marked"
+	if entry_id == "keyword:outcrop": return "combat:outcrops"
+	return entry_id
+
+# Unknown discoveries remain in the profile. The run catalog and all displayed
+# counts use normalize_entry_ids, which only exposes known entries.
+static func retain_unknown_profile_ids(target: Dictionary, profile: Dictionary) -> void:
+	if target.is_empty() or profile.is_empty():
+		return
+	for key: String in [UNLOCKED_KEY, UNREAD_KEY]:
+		target[key] = _with_unknown_profile_ids(normalize_entry_ids(target.get(key, [])), profile.get(key, []))
+
+static func _with_unknown_profile_ids(known: Array[String], stored: Variant) -> Array[String]:
+	if stored is Array:
+		var catalog: Dictionary = _entry_map_ref()
+		for value: Variant in stored:
+			var id: String = str(value)
+			if not id.is_empty() and not catalog.has(_entry_alias(id)) and not known.has(id):
+				known.append(id)
+	return known
 
 static func _add_entry_ids_to_set(target: Dictionary, values: Variant) -> void:
 	if typeof(values) != TYPE_ARRAY:

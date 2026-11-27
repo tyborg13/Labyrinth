@@ -1039,7 +1039,7 @@
       "title": "Groundsplit",
       "icon": "terrain_burst",
       "body": [
-        "This enemy damages each unit adjacent to terrain this enemy raised."
+        "This enemy damages you if you stand within 2 tiles of an Outcrop this enemy raised."
       ]
     },
     {

@@ -228,25 +228,25 @@
   },
   "only_fire": {
     "title": "Fire",
-    "text": "Hit each visible enemy on Fire.",
+    "text": null,
     "legacy": "Each Enemy on Fire\nHit each visible enemy on Fire.",
     "term": "surface_fire"
   },
   "only_ice": {
     "title": "Ice",
-    "text": "Hit each visible enemy on Ice.",
+    "text": null,
     "legacy": "Each Enemy on Ice\nHit each visible enemy on Ice.",
     "term": "surface_ice"
   },
   "only_light": {
     "title": "Light",
-    "text": "Hit each visible enemy in Light.",
-    "legacy": "Each Enemy in Light\nHit each visible enemy in Light.",
+    "text": "An enemy starting a turn in Light gains Expose 2.",
+    "legacy": "An enemy starting a turn in Light gains Expose 2.",
     "term": "illuminate"
   },
   "only_electrified": {
     "title": "Electrified",
-    "text": "Hit each visible enemy on Electrified.",
+    "text": null,
     "legacy": "Each Enemy on Electrified\nHit each visible enemy on Electrified.",
     "term": "surface_electrified"
   },
@@ -448,8 +448,8 @@
     "diagram_text": "@pattern(neighbors:origin) Hit each enemy adjacent to the destroyed Illusion."
   },
   "unchanged_any_of_your_illusions_on_the_board": {
-    "text": "Any of your illusions on the board.",
-    "legacy": "Any of your illusions on the board."
+    "text": "Any of your visible Illusions on the board.",
+    "legacy": "Any of your visible Illusions on the board."
   },
   "unchanged_swap_range": {
     "text": "Swap range.",

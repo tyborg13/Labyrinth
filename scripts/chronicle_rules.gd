@@ -6,6 +6,8 @@ const DemoRules = preload("res://scripts/demo_rules.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const Vocabulary = preload("res://scripts/renamed_content_vocabulary.gd")
+const Glossary = preload("res://scripts/glossary.gd")
 const RECORD_LIMIT: int = 50
 const RESULT_IDENTITY_KEY: String = "result_identity"
 const PATH_KEY: String = "chronicle_path"
@@ -14,6 +16,10 @@ const UNKNOWN_SECTION_NAME: String = "The Labyrinth"
 const MONTHS := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 static var _terminal_snapshots: Dictionary = {}
+static var _printed_name_repairs: Dictionary = {}
+static var _printed_name_pattern: RegEx
+static var _legacy_neutralizer: RegEx = Vocabulary.neutralizer()
+static var _neutralized_id_token: RegEx = RegEx.create_from_string("(?<![[:alnum:]])%s(?![[:alnum:]_-])" % Vocabulary.NEUTRAL_WORD)
 
 # The existing terminal adapters request their result ID immediately before
 # passing score-only metrics to the store. Carry the complete terminal snapshot
@@ -67,7 +73,7 @@ static func enter_room(state: Dictionary, room: Dictionary) -> void:
 		var location_state: Dictionary = state.duplicate(false)
 		location_state["current_room"] = section.get("entry", state.get("current_room", Vector2i.ZERO))
 		var section_name: String = str(Score.location(location_state).get("biome_name", ""))
-		names.append(display_section_name(section_name))
+		names.append(_section_name_or_fallback(section_name))
 	var kind: String = str(room.get("type", ""))
 	if kind in ["start", "threshold", ""]:
 		return
@@ -93,7 +99,7 @@ static func build_record(state: Dictionary, outcome: String, scored: Dictionary,
 		"run_id": record_id(state), "outcome": outcome,
 		"end_title": str(Score.seeded_text(Score.identity(state), outcome)["title"]),
 		"ended_at": local_date(date), "run_seconds": float(stats["run_seconds"]),
-		"section_index": section_index, "section_name": display_section_name(str(location["biome_name"])),
+		"section_index": section_index, "section_name": _section_name_or_fallback(str(location["biome_name"])),
 		"room_index": (path[section_index] as Array).size() if section_index < path.size() else 0,
 		"room_total": int(location["room_count"]), "score_total": int(scored.get("total", 0)),
 		"feats": feats, "killer_text": killer_text(stats["killer"], outcome), "path": path,
@@ -137,20 +143,129 @@ static func killer_text(killer: Dictionary, outcome: String) -> String:
 	for intent: Dictionary in enemy.get("intents", []):
 		if str(intent.get("id", "")) == str(killer.get("intent_id", "")):
 			intent_name = str(intent.get("name", intent_name))
-	var enemy_text: String = "Felled by %s" % preload("res://scripts/glossary.gd").with_article(str(enemy["name"]))
+	var enemy_text: String = "Felled by %s" % Glossary.with_article(str(enemy["name"]))
 	return enemy_text if intent_name.is_empty() else "%s's %s" % [enemy_text, intent_name]
 
 # Old Chronicle records store their printed text, not the original killer.
-# Resolve only the former fallbacks at presentation time; never migrate or
+# Resolve fallbacks and damaged names at presentation time; never migrate or
 # rewrite a saved record (including section_names in its path).
 static func display_killer_text(record: Dictionary) -> String:
 	var text: String = str(record.get("killer_text", ""))
 	if text.is_empty():
 		return killer_text({}, str(record.get("outcome", "")))
-	return text.replace("TODO_DESIGN_UNKNOWN_KILLER", UNKNOWN_KILLER_TEXT).replace("'s TODO_DESIGN_UNKNOWN_INTENT", "").replace("TODO_DESIGN_TRAP_NAME", "a trap").replace("TODO_DESIGN_SURFACE_NAME", "a hazard")
+	text = text.replace("TODO_DESIGN_UNKNOWN_KILLER", UNKNOWN_KILLER_TEXT).replace("'s TODO_DESIGN_UNKNOWN_INTENT", "").replace("TODO_DESIGN_TRAP_NAME", "a trap").replace("TODO_DESIGN_SURFACE_NAME", "a hazard")
+	return display_printed_text(text)
 
 static func display_section_name(value: String) -> String:
+	return display_printed_text(_section_name_or_fallback(value))
+
+static func _section_name_or_fallback(value: String) -> String:
 	return UNKNOWN_SECTION_NAME if value.is_empty() or value == "TODO_DESIGN_SECTION_NAME" else value
+
+static func display_printed_text(value: String) -> String:
+	if not value.contains(Vocabulary.NEUTRAL_WORD):
+		return value
+	if _printed_name_pattern == null:
+		_prepare_printed_name_repairs()
+	var text: String = ""
+	var end: int = 0
+	for hit: RegExMatch in _printed_name_pattern.search_all(value):
+		text += value.substr(end, hit.get_start() - end) + str(_printed_name_repairs[hit.get_string()])
+		end = hit.get_end()
+	return text + value.substr(end)
+
+static func _prepare_printed_name_repairs() -> void:
+	var names: Dictionary = {}
+	for catalog: Dictionary in Vocabulary.catalogs():
+		for definition: Dictionary in catalog.values():
+			names[str(definition.get("name", definition.get("title", "")))] = true
+	for definition: Dictionary in Vocabulary.nested_definitions():
+		names[str(definition.get("name", ""))] = true
+	var known_spelling: Dictionary = {}
+	for name: String in names:
+		known_spelling[name.to_lower()] = true
+	for name: String in names:
+		if not name.to_lower().begins_with(Vocabulary.LEGACY_PREFIX):
+			continue
+		var damaged: String = _legacy_neutralizer.sub(name, Vocabulary.NEUTRAL_WORD, true)
+		if not known_spelling.has(damaged.to_lower()):
+			_printed_name_repairs[damaged] = "" if _printed_name_repairs.has(damaged) else name
+	var alternatives: Array = _printed_name_repairs.keys()
+	alternatives.sort_custom(func(left: String, right: String) -> bool: return left.length() > right.length())
+	var terms := PackedStringArray()
+	for damaged: String in alternatives:
+		if _printed_name_repairs[damaged] != "":
+			terms.append(Glossary._escape_regex(damaged))
+	# The fail-only pattern also caches the result for catalogs with no matches.
+	var pattern: String = "(?!)" if terms.is_empty() else "(?<![[:alnum:]_])(?:%s)(?![[:alnum:]_])" % "|".join(terms)
+	_printed_name_pattern = RegEx.create_from_string(pattern)
+
+# Build a view of the recorded IDs and card deltas. The stored ID still locates
+# the historical delta even when the card itself now resolves to a live ID.
+static func display_build(record: Dictionary) -> Dictionary:
+	var deck: Array = []
+	var card_definitions: Dictionary = {}
+	var stored_definitions: Dictionary = record.get("deck_card_definitions", {})
+	for pair: Array in record.get("deck", []):
+		var stored_id: String = str(pair[0])
+		var delta: Dictionary = stored_definitions.get(stored_id, {})
+		var id: String = _display_item_id(stored_id, GameData.cards(), str(delta.get("name", "")), str(delta.get("art_path", "")), "art_path")
+		if id.is_empty() and not stored_id.is_empty():
+			continue
+		deck.append([id, pair[1]])
+		if stored_id == id or not card_definitions.has(id):
+			var definition: Dictionary = card_definition(id, {id: delta})
+			if not definition.is_empty():
+				definition["name"] = display_printed_text(str(definition.get("name", id)))
+				if id != stored_id:
+					definition["id"] = id
+					var live_art: String = str(GameData.cards()[id].get("art_path", ""))
+					if not live_art.is_empty() and definition.get("art_path") == _legacy_neutralizer.sub(live_art, Vocabulary.NEUTRAL_WORD, true):
+						definition["art_path"] = live_art
+			card_definitions[id] = definition
+	return {
+		"deck": deck, "card_definitions": card_definitions,
+		"gear": _display_item_ids(record, "gear", GameData.equipment()),
+		"relics": _display_item_ids(record, "relics", GameData.relics())
+	}
+
+static func _display_item_ids(record: Dictionary, field: String, catalog: Dictionary) -> Array[String]:
+	var ids: Array[String]
+	var stored: Array = record.get(field, [])
+	var names: Variant = record.get(field.trim_suffix("s") + "_names", [])
+	var paths: Variant = record.get(field.trim_suffix("s") + "_icon_paths", [])
+	for index: int in range(stored.size()):
+		var saved_id: String = str(stored[index])
+		var id: String = _display_item_id(saved_id, catalog, _item_evidence(names, index), _item_evidence(paths, index), "icon_path")
+		if not id.is_empty() or saved_id.is_empty():
+			ids.append(id)
+	return ids
+
+static func _item_evidence(values: Variant, index: int) -> String:
+	return str(values[index]) if values is Array and index < values.size() else ""
+
+static func _display_item_id(id: String, catalog: Dictionary, saved_name: String, saved_path: String, path_key: String) -> String:
+	if catalog.has(id) or _neutralized_id_token.search(id) == null:
+		return id
+	var candidates: Array[String]
+	var named: Array[String]
+	var pictured: Array[String]
+	for current_id: String in catalog:
+		if _legacy_neutralizer.sub(current_id, Vocabulary.NEUTRAL_WORD, true) != id:
+			continue
+		candidates.append(current_id)
+		var definition: Dictionary = catalog[current_id]
+		if not saved_name.is_empty() and saved_name == definition.get("name", ""):
+			named.append(current_id)
+		if not saved_path.is_empty() and saved_path == definition.get(path_key, ""):
+			pictured.append(current_id)
+	if candidates.size() == 1:
+		return candidates[0]
+	if named.size() == 1 and (pictured.size() != 1 or named[0] == pictured[0]):
+		return named[0]
+	if pictured.size() == 1 and named.size() != 1:
+		return pictured[0]
+	return ""
 
 static func deck_counts(value: Variant) -> Array:
 	var result: Array = []
@@ -320,7 +435,7 @@ static func add_to_totals(totals: Dictionary, record: Dictionary) -> Dictionary:
 static func result_word(record: Dictionary) -> String:
 	if bool(record.get("demo_clear", false)):
 		return str(Score.seeded_text(str(record.get("run_id", "")), "demo_clear")["title"])
-	return str(record.get("end_title", Score.DEFAULT_TITLES.get(record.get("outcome", ""), "")))
+	return display_printed_text(str(record.get("end_title", Score.DEFAULT_TITLES.get(record.get("outcome", ""), ""))))
 
 static func where_text(record: Dictionary) -> String:
 	if bool(record.get("demo_clear", false)):

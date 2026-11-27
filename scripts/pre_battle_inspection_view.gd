@@ -23,6 +23,7 @@ class LoopMovePlate extends Controls.Plate:
 	var loop_source: Dictionary = {}
 	var loop_term: String = ""
 	func _make_custom_tooltip(text: String) -> Object:
+		if text.strip_edges().is_empty(): return null
 		var panels = load("res://scripts/ui_tooltip_panel.gd")
 		return panels.make_plain_text(text) if loop_term.is_empty() else panels.make_text(text, loop_source, loop_term)
 
@@ -30,6 +31,7 @@ class LoopTraitRow extends HBoxContainer:
 	var loop_source: Dictionary = {}
 	var loop_term: String = ""
 	func _make_custom_tooltip(text: String) -> Object:
+		if text.strip_edges().is_empty(): return null
 		return load("res://scripts/ui_tooltip_panel.gd").make_text(text, loop_source, loop_term)
 
 static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> Control:

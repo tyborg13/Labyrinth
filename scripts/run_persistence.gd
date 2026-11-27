@@ -130,6 +130,10 @@ func _exit_tree() -> void:
 		flush(scene)
 
 static func set_application_drained() -> void:
+	# The application's final save barrier has returned and no retries remain.
+	# Record failures before the Steam autoload submits its clean-quit batch.
+	ProgressionStore._run_writer.report_abandoned_requests()
+	ProgressionStore.SaveFailures.append_pending_events()
 	_application_drained = true
 
 static func application_drained() -> bool:

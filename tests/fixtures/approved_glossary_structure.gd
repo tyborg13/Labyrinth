@@ -69,10 +69,10 @@ const VRB01_PANELS: Dictionary = {
 	"stolen_moment": ["time", "draw"],
 }
 
-# CRD-33 adds a target-specific damage panel alongside the All Enemies keyword.
-const CRD33_PANELS: Dictionary = {
-	"stoke": ["all_enemies", "all_enemies", "surface_fire"],
-	"white_silence": ["surface_ice", "all_enemies", "all_enemies", "stagger"],
+# CRD-34 sentence faces do not print Sweeping Strike.
+const CRD34_PANELS: Dictionary = {
+	"stoke": ["surface_fire"],
+	"white_silence": ["surface_ice", "stagger"],
 }
 
 # Gear-02's fresh starter cards supersede the historical panel stacks.
@@ -102,8 +102,8 @@ static func entries(id: String, historical: Dictionary) -> Array:
 		id = "backhand_nick"
 	if GEAR02_PANELS.has(id):
 		return (GEAR02_PANELS[id] as Array).map(func(icon: String) -> Dictionary: return {"icon": icon, "body_lines": 1})
-	if CRD33_PANELS.has(id):
-		return (CRD33_PANELS[id] as Array).map(func(icon: String) -> Dictionary: return {"icon": icon, "body_lines": 1})
+	if CRD34_PANELS.has(id):
+		return (CRD34_PANELS[id] as Array).map(func(icon: String) -> Dictionary: return {"icon": icon, "body_lines": 1})
 	if VRB01_PANELS.has(id):
 		return (VRB01_PANELS[id] as Array).map(func(icon: String) -> Dictionary: return {"icon": icon, "body_lines": 1})
 	if PLA09_PANELS.has(id):

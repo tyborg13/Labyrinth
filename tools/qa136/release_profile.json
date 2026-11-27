@@ -1,0 +1,159 @@
+{
+	"best_score": 0.0,
+	"card_upgrades_unlocked": false,
+	"chronicle_completed_ids": [
+		"qa136-ambiguous",
+		"qa136-reaver"
+	],
+	"chronicle_records": [
+		{
+			"deck": [
+				[
+					"pale_spark",
+					1.0
+				]
+			],
+			"dragon_ids": [
+				"vyraketh"
+			],
+			"dragons_slain": 0.0,
+			"ended_at": "24 Nov",
+			"feats": [],
+			"gear": [
+				"training_sword"
+			],
+			"killer_text": "Felled by an cinder Hound",
+			"outcome": "defeat",
+			"path": [
+				[
+					"combat",
+					"combat"
+				]
+			],
+			"relics": [
+				"cinder",
+				"liturgy_of_cinder"
+			],
+			"room_index": 2.0,
+			"room_total": 4.0,
+			"run_id": "qa136-ambiguous",
+			"run_seconds": 0.0,
+			"score_total": 136.0,
+			"section_index": 0.0,
+			"section_name": "Cinder Crown",
+			"section_names": [
+				"Cinder Crown"
+			]
+		},
+		{
+			"deck": [
+				[
+					"pale_spark",
+					1.0
+				]
+			],
+			"dragon_ids": [
+				"vyraketh"
+			],
+			"dragons_slain": 0.0,
+			"ended_at": "24 Nov",
+			"feats": [],
+			"gear": [
+				"training_sword"
+			],
+			"killer_text": "Felled by an cinder Reaver's Raking Flame",
+			"outcome": "defeat",
+			"path": [
+				[
+					"combat",
+					"combat"
+				]
+			],
+			"relics": [
+				"cinder",
+				"liturgy_of_cinder"
+			],
+			"room_index": 2.0,
+			"room_total": 4.0,
+			"run_id": "qa136-reaver",
+			"run_seconds": 0.0,
+			"score_total": 136.0,
+			"section_index": 0.0,
+			"section_name": "Cinder Crown",
+			"section_names": [
+				"Cinder Crown"
+			]
+		}
+	],
+	"chronicle_totals": {
+		"best_score": 0.0,
+		"dragons_slain": 0.0,
+		"escapes": 0.0,
+		"runs": 0.0
+	},
+	"completed_run_results": [],
+	"emaciated_awakening_seen": false,
+	"embers": 0.0,
+	"fire_rest_dialogue_seen": false,
+	"grimoire_unlocked": [
+		"enemy:cinder",
+		"omen:tithe_of_ash"
+	],
+	"grimoire_unread": [
+		"enemy:cinder",
+		"omen:tithe_of_ash"
+	],
+	"guided_combat_tutorial": {
+		"completed_steps": [],
+		"status": "active",
+		"version": 2.0
+	},
+	"last_run_result": {
+
+	},
+	"level": 1.0,
+	"moltshard_award_ids": [],
+	"moltshards": 0.0,
+	"pending_fire_rest_dialogue": false,
+	"progression_analytics_outbox": [],
+	"progression_revision": 0.0,
+	"progression_schema": 7.0,
+	"qa136_catalog_ids": [
+		"cinder",
+		"relic:cinder",
+		"cinder",
+		"relic:cinder",
+		"liturgy_of_cinder",
+		"relic:liturgy_of_cinder",
+		"cinder",
+		"enemy:cinder",
+		"cinder",
+		"enemy:cinder",
+		"cinder",
+		"event:cinder",
+		"tithe_of_ash",
+		"omen:tithe_of_ash"
+	],
+	"qa136_catalog_keys": {
+		"cinder": "cinder",
+		"enemy:cinder": "enemy:cinder",
+		"event:cinder": "event:cinder",
+		"liturgy_of_cinder": "liturgy_of_cinder",
+		"omen:tithe_of_ash": "omen:tithe_of_ash",
+		"relic:cinder": "relic:cinder",
+		"relic:liturgy_of_cinder": "relic:liturgy_of_cinder",
+		"tithe_of_ash": "tithe_of_ash"
+	},
+	"recovery_marker": {
+
+	},
+	"rested_at_fire": false,
+	"run_bests": {
+
+	},
+	"run_counter": 1.0,
+	"skill_ids": [],
+	"surface_rules_version": 5.0,
+	"umbra_warning_available_run": 0.0,
+	"umbra_warning_seen": false
+}

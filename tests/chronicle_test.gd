@@ -13,6 +13,13 @@ const Rules = preload("res://scripts/chronicle_rules.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const ChroniclePanel = preload("res://scripts/chronicle_panel.gd")
 const RunPreload = preload("res://scripts/menu_run_preload.gd")
+const RunEngine = preload("res://scripts/run_engine.gd")
+const Grimoire = preload("res://scripts/grimoire_library.gd")
+const ASH_TEST_PROFILE_PATH: String = "user://chronicle_ash_regression.json"
+const ASH_TEST_RUN_PATH: String = "user://chronicle_ash_regression.save"
+const ASH_INSTALL_COUNT: int = 3
+const ASH_TEST_SEED: int = 6
+const ASH_TEST_CARD_ID: String = "ash_qa136_spell"
 const TILE_LAYOUT_SETTLE_FRAMES: int = 4
 const SCROLL_RECORD_COUNT: int = 15
 var failures: Array[String]
@@ -157,6 +164,7 @@ func _run() -> void:
 	back.pressed = true
 	panel._input(back)
 	_check(not panel.visible and button.has_focus(), "Chronicle controller B returns to menu")
+	await _test_legacy_content_save(panel)
 	menu.queue_free()
 	canvas.queue_free()
 	await _settle_tiles()
@@ -166,6 +174,122 @@ func _run() -> void:
 	print("CHRONICLE HOVER PROOF: %d native popups; 5 pointer targets" % _native_hover_popups)
 	print("CHRONICLE TEST RESULT: %s" % ("PASS" if failures.is_empty() else "FAIL (%d failure(s))" % failures.size()))
 	quit(0 if failures.is_empty() else 1)
+
+func _test_legacy_content_save(panel: Control) -> void:
+	Store.set_storage_path(ASH_TEST_PROFILE_PATH)
+	Store.set_run_storage_path(ASH_TEST_RUN_PATH)
+	const InitialGraph = preload("res://scripts/initial_run_graph.gd")
+	root.set_meta(InitialGraph.SEED_OVERRIDE, ASH_TEST_SEED)
+	var scene: Node = preload("res://scenes/run_scene.tscn").instantiate()
+	root.add_child(scene)
+	root.remove_meta(InitialGraph.SEED_OVERRIDE)
+	await process_frame
+	var state: Dictionary = scene.get("_run_state")
+	var profile: Dictionary = Store.load_data()
+	var record: Dictionary = Probe.seeded_profile()[Store.CHRONICLE_RECORDS_KEY][0]
+	record["killer_text"] = "Felled by an Ash Hound"
+	record["relics"] = ["ashen_brand", "liturgy_of_ash"]
+	profile[Store.CHRONICLE_RECORDS_KEY] = [record]
+	profile[Store.GRIMOIRE_UNLOCKED_KEY] = ["enemy:ash_hound", "enemy:ashen_reaver", "omen:tithe_of_ash"]
+	profile[Store.GRIMOIRE_UNREAD_KEY] = profile[Store.GRIMOIRE_UNLOCKED_KEY].duplicate()
+	var current_ids: Dictionary = {}
+	for live: Array in [
+		["enemy", "ash_hound"], ["enemy", "ashen_reaver"], ["event", "ash_confessional"],
+		["relic", "ashen_brand"], ["relic", "ashen_phylactery"], ["relic", "liturgy_of_ash"],
+		["omen", "tithe_of_ash"]
+	]:
+		current_ids[live[1]] = live[1]
+		var qualified: String = "%s:%s" % live
+		current_ids[qualified] = qualified
+	profile["qa136_catalog_ids"] = current_ids
+	state["qa136_catalog_ids"] = current_ids
+	_check(Store.save_data(profile), "Save the current-ID profile before repeated run installs")
+	var original_bytes: PackedByteArray = FileAccess.get_file_as_bytes(ASH_TEST_PROFILE_PATH)
+	for index: int in ASH_INSTALL_COUNT:
+		scene.set("_progression", Store.load_data())
+		scene.call("_load_run_state", state)
+		_check(FileAccess.get_file_as_bytes(ASH_TEST_PROFILE_PATH) == original_bytes, "Current content and Chronicle bytes survive install %d" % (index + 1))
+
+	var retired: Array = ["ashline_tempo", "ashweave_guard", "ashweave_mail", "ashen_buckler", "ash_bolt", "ashfall", "ash"]
+	var expected: Array = ["cinderline_tempo", "cinderweave_guard", "cinderweave_mail", "iron_buckler", "dust_bolt", "cinderfall", "stone"]
+	profile["qa136_legacy_ids"] = retired
+	profile["qa136_profile_text"] = "Ash Hound"
+	profile[Store.LAST_RUN_RESULT_KEY] = {
+		"result_id": "qa136-legacy-score",
+		"lines": [{"label": "ash", "detail": "Ash Hound"}],
+		"killer": {"enemy_type": "ash_hound", "name": "ash"}
+	}
+	profile[Store.GRIMOIRE_UNLOCKED_KEY] = ["enemy:cinder", "omen:tithe_of_ash"]
+	profile[Store.GRIMOIRE_UNREAD_KEY] = profile[Store.GRIMOIRE_UNLOCKED_KEY].duplicate()
+	record["killer_text"] = "Felled by an cinder Hound"
+	record["relics"] = ["cinder", "liturgy_of_cinder"]
+	record["deck"] = [["cinder", 2], ["cinder_wall", 1]]
+	record["deck_card_definitions"] = {"cinder": {"upgrade_count": 1}}
+	_check(Store.save_data(profile), "Save the old and previously damaged IDs")
+	var legacy: Dictionary = state.duplicate(true)
+	legacy[RunEngine.RUN_CONTENT_SCHEMA_KEY] = RunEngine.RUN_CONTENT_SCHEMA - 1
+	legacy["qa136_legacy_ids"] = retired
+	legacy["qa136_legacy_keys"] = {"card:ash_bolt": "moved", "ashfall": "old", "cinderfall": "live"}
+	legacy["qa136_legacy_text"] = "Ash Hound"
+	legacy["progression"] = profile
+	scene.set("_progression", Store.load_data())
+	scene.call("_load_run_state", legacy)
+	var migrated: Dictionary = scene.get("_run_state")
+	var persisted: Dictionary = Store.load_data()
+	_check(persisted.get("qa136_legacy_ids") == expected and migrated.get("qa136_legacy_ids") == expected, "All seven retired IDs migrate in installed profiles and old runs")
+	_check(migrated.get("qa136_legacy_keys") == {"card:dust_bolt": "moved", "cinderfall": "live"}, "Legacy prefixed keys migrate and the canonical key wins a collision")
+	_check(migrated.get("qa136_catalog_ids") == current_ids, "Current bare and namespaced keys and values survive the legacy run neutralizer")
+	_check(migrated.get("qa136_legacy_text") == "cinder Hound" and persisted.get("qa136_profile_text") == "Ash Hound", "Only a legacy run uses the free-text neutralizer")
+	_check(persisted[Store.CHRONICLE_RECORDS_KEY][0]["killer_text"] == "Felled by an cinder Hound", "Old run installation left previously printed history on disk")
+	var result: Dictionary = persisted[Store.LAST_RUN_RESULT_KEY]
+	_check(result["lines"][0]["label"] == "ash" and result["killer"]["name"] == "ash", "Profile migration leaves printed score rows and killer names untouched")
+	var stored_ids: Array = persisted[Store.GRIMOIRE_UNLOCKED_KEY]
+	var known: Array[String] = Grimoire.normalize_entry_ids(stored_ids)
+	var without_unknown: Array = stored_ids.duplicate()
+	without_unknown.erase("enemy:cinder")
+	_check(stored_ids.has("enemy:cinder") and known == Grimoire.normalize_entry_ids(without_unknown) and not known.has("enemy:ash_hound"), "Unknown discovery contributes zero to the displayed count")
+	var unlocked: Array = scene.call("_unlock_grimoire_entries", ["enemy:ash_hound"])
+	_check(unlocked.has("enemy:ash_hound"), "Meeting the foe rediscovered its actual page")
+	for index: int in ASH_INSTALL_COUNT:
+		scene.set("_progression", Store.load_data())
+		scene.call("_load_run_state", scene.get("_run_state"))
+	var rediscovered: Dictionary = Store.load_data()
+	_check(rediscovered[Store.GRIMOIRE_UNLOCKED_KEY].has("enemy:ash_hound"), "Rediscovered page stays unlocked across later run installs")
+	_check(rediscovered[Store.GRIMOIRE_UNLOCKED_KEY].has("enemy:cinder") and rediscovered[Store.GRIMOIRE_UNREAD_KEY].has("enemy:cinder"), "Rediscovery keeps hidden corrupted IDs in both on-disk lists")
+	scene.queue_free()
+	await _settle_tiles()
+
+	var spell: Dictionary = GameData.cards()["pale_spark"].duplicate(true)
+	GameData.cards()[ASH_TEST_CARD_ID] = spell
+	var damaged_bytes: PackedByteArray = FileAccess.get_file_as_bytes(ASH_TEST_PROFILE_PATH)
+	panel.open(rediscovered, false)
+	await _settle_tiles()
+	var subline := panel.find_child("ChronicleSubline", true, false) as RichTextLabel
+	var liturgy: Node = panel.find_child("Relic_liturgy_of_ash", true, false)
+	_check(subline.get_parsed_text().ends_with("Felled by an Ash Hound"), "Chronicle displays the original killer name")
+	_check(liturgy != null and liturgy.get("texture") != null and liturgy.get("tooltip_title") == GameData.relic_def("liturgy_of_ash")["name"], "Unique relic repair displays its existing icon and name")
+	_check(panel.find_child("Relic_cinder", true, false) == null and panel.find_child("Relic_ashen_brand", true, false) == null and panel.find_child("Relic_ashen_phylactery", true, false) == null, "Ambiguous relic is absent without evidence")
+	var spell_tile: Control = panel.find_child("Spell_" + ASH_TEST_CARD_ID, true, false)
+	_check(spell_tile != null and spell_tile.get("count") == 2 and panel.find_child("Spell_cinder_wall", true, false) != null, "Deck resolves damaged IDs and counts while preserving real Cinder IDs")
+	var display: Dictionary = Rules.display_build(rediscovered[Store.CHRONICLE_RECORDS_KEY][0])
+	_check(display["card_definitions"].get(ASH_TEST_CARD_ID, {}).get("upgrade_count") == 1, "The recovered card keeps the recorded delta")
+	GameData.cards()["cinder"] = spell
+	_check(Rules.display_build(rediscovered[Store.CHRONICLE_RECORDS_KEY][0])["deck"][0][0] == "cinder", "An exact catalog ID named cinder takes precedence over a repair")
+	GameData.cards().erase("cinder")
+	var evidence: Dictionary = rediscovered.duplicate(true)
+	var evidence_record: Dictionary = evidence[Store.CHRONICLE_RECORDS_KEY][0]
+	evidence_record["relic_icon_paths"] = [GameData.relic_def("ashen_brand")["icon_path"]]
+	panel.open(evidence, false)
+	await _settle_tiles()
+	_check(panel.find_child("Relic_ashen_brand", true, false) != null, "Stored icon path uniquely identifies one ambiguous relic")
+	evidence_record.erase("relic_icon_paths")
+	evidence_record["relic_names"] = [GameData.relic_def("ashen_phylactery")["name"]]
+	_check(Rules.display_build(evidence_record)["relics"].has("ashen_phylactery"), "Stored printed name uniquely identifies the other ambiguous relic")
+	_check(FileAccess.get_file_as_bytes(ASH_TEST_PROFILE_PATH) == damaged_bytes, "Drawing repaired Chronicle records never rewrites profile bytes")
+	GameData.cards().erase(ASH_TEST_CARD_ID)
+	panel.close()
+	Store.set_storage_path("")
+	Store.set_run_storage_path("")
 
 func _test_preload_teardown() -> void:
 	# Model an explicit run request abandoned while the tree remains live.

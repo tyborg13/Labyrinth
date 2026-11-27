@@ -618,14 +618,22 @@ static func tooltip_entries_for_rows(
 	var entries: Array[Dictionary]
 	var seen: Dictionary = {}
 	var cleanse_statuses: Array = []
+	var has_sweeping_damage: bool = false
+	var has_light_placement: bool = false
 	for row_var: Variant in rows:
 		if typeof(row_var) == TYPE_ARRAY:
 			for token_var: Variant in row_var:
 				if typeof(token_var) == TYPE_DICTIONARY:
 					cleanse_statuses.append_array(token_var.get("cleanse_statuses", []))
+					if token_var.get("icon") == "all_enemies" and token_var.has("damage_target_tooltip") and bool(token_var.get("card_keyword", true)):
+						has_sweeping_damage = true
+					if token_var.get("icon") == "illuminate" and typeof(_tooltip_amount(token_var)) in [TYPE_INT, TYPE_FLOAT] and bool(token_var.get("card_keyword", true)):
+						has_light_placement = true
 	for icon_key_var: Variant in leading_icon_keys:
 		var leading_icon_key: String = str(icon_key_var)
 		if cleanse_statuses.has(leading_icon_key):
+			continue
+		if leading_icon_key == "all_enemies" and has_sweeping_damage:
 			continue
 		_append_tooltip_entry(entries, seen, leading_icon_key, tooltip(leading_icon_key))
 	for row_var: Variant in rows:
@@ -643,6 +651,8 @@ static func tooltip_entries_for_rows(
 			if cleanse_statuses.has(term):
 				continue
 			if str(token.get("kind", "")) == "surface_condition":
+				if token.get("panel_id") == "only_light" and has_light_placement:
+					continue
 				var surface_key: String = str(token.get("icon", "surface"))
 				var keyword_condition: bool = token.has("state_condition") or token.has("scale_bonus") or str(token.get("panel_id", "")) in ["retaliate_illusion_reflect", "illusion_nearby"]
 				_append_tooltip_entry(entries, seen, surface_key, token_tooltip(token, true, false) if keyword_condition else tooltip(surface_key), term, str(token.get("card_title", "")), str(token.get("diagram_tooltip", "")), _tooltip_amount(token))
@@ -650,11 +660,11 @@ static func tooltip_entries_for_rows(
 			if str(token.get("kind", "")) in ["text", "rules_text"]:
 				continue
 			var icon_key: String = str(token.get("icon", ""))
-			if icon_key == "all_enemies" and token.has("damage_target_tooltip"):
-				_append_tooltip_entry(entries, seen, icon_key, tooltip(icon_key), term)
 			# Placement detail stays available to shared intent tokens. Card ground
 			# panels use the glossary, except the authored conversion sentence.
 			var card_tip: String = token_tooltip(token, true, false)
+			if icon_key == "all_enemies" and has_sweeping_damage and card_tip == tooltip(icon_key):
+				continue
 			if token.has("surface") and str(token.get("panel_id", "")) != "ice_to_electrified":
 				var ground_token: Dictionary = token.duplicate()
 				ground_token["tooltip"] = tooltip(icon_key)

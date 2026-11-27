@@ -9617,13 +9617,14 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	var surface_migration_required: bool = int(next_run_state.get(preload("res://scripts/surface_save_migration.gd").VERSION_KEY, 0)) < BoardSurfaceRules.RULES_VERSION
 	var content_migration_required: bool = _run_engine.run_content_migration_required(next_run_state)
 	var combat_units_migration_required: bool = _run_engine.combat_units_migration_required(next_run_state)
-	var migrated_profile: Dictionary = _run_engine.migrate_renamed_content_ids(_progression)
+	var migrated_profile: Dictionary = _run_engine.migrate_profile_content_ids(_progression)
 	if migrated_profile != _progression:
 		_progression = migrated_profile
 		if not bool(next_run_state.get("debug_boss_run", false)) and not ProgressionStore.save_data(_progression):
 			push_error("Failed to persist migrated profile content references.")
 	var migrated_run_state: Dictionary = _run_engine.migrate_renamed_content_ids(next_run_state) if content_migration_required else next_run_state
 	var merged_run_state: Dictionary = preload("res://scripts/loaded_room_state.gd").merge_profile(migrated_run_state, _progression)
+	GrimoireLibrary.retain_unknown_profile_ids(merged_run_state.get("progression", {}), _progression)
 	merged_run_state = _run_engine.reconcile_progression_revision(merged_run_state, _progression)
 	_run_state = preload("res://scripts/loaded_room_state.gd").finish_repair(self, _run_engine.repair_loaded_run_state(merged_run_state))
 	if has_installed_run(): InitialGraph.remember_installed_seed(_run_state["seed"])

@@ -31,8 +31,7 @@ can occur after the day an event happened.
 - Load errors count when Continue fails to install a saved run and the menu
   displays its failure dialog. Profile loading already falls back to a backup
   or defaults without a separate player-facing load-error cover.
-- `TODO_DESIGN_play_v1_save_errors` remains reserved. The central profile and
-  checkpoint failure callbacks are outside the unit's owned files.
+- Save errors count once per profile or run-checkpoint request that finishes without a successful write, retry, or fallback.
 
 The observer accepts selected events at the local recorder's append boundary.
 It queues integer changes in memory. Pending batches and targets persist in

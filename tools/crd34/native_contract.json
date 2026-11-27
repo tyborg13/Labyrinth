@@ -1,0 +1,10 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 4,
+  "required_images": [
+    {"pattern": "stoke.png"},
+    {"pattern": "white_silence.png"},
+    {"pattern": "sleet_squall.png"},
+    {"pattern": "empty_husk.png"}
+  ]
+}

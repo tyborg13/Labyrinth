@@ -701,28 +701,23 @@ static func _legacy_cumulative_units(value: int) -> int:
 		return 0
 	return int((value + int(GameData.LEGACY_FIXED_POINT_SCALE / 2)) / GameData.LEGACY_FIXED_POINT_SCALE)
 
+static func migrate_profile_content_ids(profile: Dictionary) -> Dictionary:
+	# No profile field requires the vocabulary-era free-text rewrite.
+	return _migrate_content_ids(profile, null)
+
 static func migrate_renamed_content_ids(run_state: Dictionary) -> Dictionary:
-	# Serialized runs can hold content ids in loadouts, rewards, combat piles,
-	# merchant stock, analytics context, and nested intent state. Walk the whole
-	# Variant graph so a resumed run cannot retain a retired vocabulary-era id.
-	var neutralizer := RegEx.new()
-	var legacy_prefix: String = _string_from_bytes([97, 115, 104])
-	if neutralizer.compile("(?i)(?<![[:alnum:]])%s[[:alnum:]_-]*" % legacy_prefix) != OK:
-		return run_state.duplicate(true)
+	# A legacy checkpoint can name retired IDs in nested combat piles, rewards,
+	# merchant stock, analytics context, and composite runtime keys.
+	const Vocabulary = preload("res://scripts/renamed_content_vocabulary.gd")
+	return _migrate_content_ids(run_state, Vocabulary.neutralizer())
+
+static func _migrate_content_ids(state: Dictionary, neutralizer: RegEx) -> Dictionary:
+	const Vocabulary = preload("res://scripts/renamed_content_vocabulary.gd")
 	var replacements: Dictionary = _renamed_content_id_map()
-	var composite_ids: Array = []
-	for id_var: Variant in replacements.keys():
-		var content_id: String = str(id_var)
-		if content_id != legacy_prefix:
-			composite_ids.append(content_id)
+	var composite_ids: Array = replacements.keys()
+	composite_ids.erase(Vocabulary.LEGACY_PREFIX)
 	composite_ids.sort_custom(func(left: String, right: String) -> bool: return left.length() > right.length())
-	var migrated: Variant = _replace_renamed_content_ids(
-		run_state,
-		replacements,
-		composite_ids,
-		neutralizer
-	)
-	return migrated as Dictionary if typeof(migrated) == TYPE_DICTIONARY else {}
+	return _replace_renamed_content_ids(state, replacements, composite_ids, neutralizer, Vocabulary.catalog_ids())
 
 static func _renamed_content_id_map() -> Dictionary:
 	return {
@@ -741,42 +736,56 @@ static func _string_from_bytes(values: Array) -> String:
 		bytes.append(int(value))
 	return bytes.get_string_from_ascii()
 
-static func _replace_renamed_content_ids(value: Variant, replacements: Dictionary, composite_ids: Array, neutralizer: RegEx) -> Variant:
+static func _replace_renamed_content_ids(value: Variant, replacements: Dictionary, composite_ids: Array, neutralizer: RegEx, catalog_ids: Dictionary) -> Variant:
 	match typeof(value):
 		TYPE_STRING, TYPE_STRING_NAME:
 			var text: String = str(value)
-			# Current authored omen/discovery IDs (e.g. tithe_of_ash) are not
-			# retired card vocabulary. Preserve exact catalog identities before
-			# the legacy free-text neutralizer walks profile and run snapshots.
-			if GameData.omens().has(text.trim_prefix("omen:")):
-				return text
-			if replacements.has(text):
-				return str(replacements.get(text, text))
-			for content_id_var: Variant in composite_ids:
-				var content_id: String = str(content_id_var)
-				text = text.replace(content_id, str(replacements.get(content_id, content_id)))
-			return neutralizer.sub(text, "cinder", true)
+			var separator: int = text.find(":")
+			var id: String = text.substr(separator + 1)
+			if catalog_ids.has(text) or catalog_ids.has(id):
+				return value
+			if replacements.has(id):
+				return text.left(separator + 1) + str(replacements[id])
+			if neutralizer == null:
+				return value
+			for content_id: String in composite_ids:
+				text = text.replace(content_id, str(replacements[content_id]))
+			return neutralizer.sub(text, preload("res://scripts/renamed_content_vocabulary.gd").NEUTRAL_WORD, true)
 		TYPE_DICTIONARY:
 			var source_dictionary: Dictionary = value as Dictionary
 			var migrated_dictionary: Dictionary = source_dictionary.duplicate(false)
-			for key: Variant in source_dictionary.keys():
-				var migrated_key: Variant = _replace_renamed_content_ids(key, replacements, composite_ids, neutralizer)
-				var migrated_value: Variant = _replace_renamed_content_ids(source_dictionary.get(key), replacements, composite_ids, neutralizer)
+			for key: Variant in source_dictionary:
+				var source_value: Variant = source_dictionary[key]
+				var field: String = str(key) if key is String or key is StringName else ""
+				if field == ProgressionStore.CHRONICLE_RECORDS_KEY or (neutralizer == null and _profile_snapshot_field(field)):
+					# Copy historical data without walking its contents.
+					if source_value is Array or source_value is Dictionary:
+						migrated_dictionary[key] = source_value.duplicate(true)
+					continue
+				var migrated_key: Variant = _replace_renamed_content_ids(key, replacements, composite_ids, neutralizer, catalog_ids)
 				if migrated_key != key:
 					migrated_dictionary.erase(key)
-				migrated_dictionary[migrated_key] = migrated_value
+					if source_dictionary.has(migrated_key):
+						continue
+				var child_neutralizer: RegEx = null if field == "progression" else neutralizer
+				migrated_dictionary[migrated_key] = _replace_renamed_content_ids(source_value, replacements, composite_ids, child_neutralizer, catalog_ids)
 			return migrated_dictionary
 		TYPE_ARRAY:
 			var migrated_array: Array = (value as Array).duplicate(false)
 			for index: int in range(migrated_array.size()):
-				migrated_array[index] = _replace_renamed_content_ids(migrated_array[index], replacements, composite_ids, neutralizer)
+				migrated_array[index] = _replace_renamed_content_ids(migrated_array[index], replacements, composite_ids, neutralizer, catalog_ids)
 			return migrated_array
 		TYPE_PACKED_STRING_ARRAY:
 			var migrated_strings: PackedStringArray = value
 			for index: int in range(migrated_strings.size()):
-				migrated_strings[index] = str(_replace_renamed_content_ids(migrated_strings[index], replacements, composite_ids, neutralizer))
+				migrated_strings[index] = str(_replace_renamed_content_ids(migrated_strings[index], replacements, composite_ids, neutralizer, catalog_ids))
 			return migrated_strings
 	return value
+
+static func _profile_snapshot_field(field: String) -> bool:
+	# Printed score rows, stored trap names and queued analytics are
+	# historical snapshots. Structured killer IDs can still migrate.
+	return field in [ProgressionStore.PROGRESSION_ANALYTICS_OUTBOX_KEY, "lines", "feats", "name"]
 
 static func _default_skill_state() -> Dictionary:
 	return {

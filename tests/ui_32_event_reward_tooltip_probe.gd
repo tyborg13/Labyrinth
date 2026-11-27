@@ -214,8 +214,16 @@ func _check_layout(view: Control, stage: Control, kind: String, reward_id: Strin
 		_expect(host == null, "Plain gain has no keyword stack: " + context)
 	else:
 		_expect(host != null and not columns.is_empty(), "Reward retains keyword help: " + context)
-	if kind in ["item", "card"] and not columns.is_empty():
-		_expect(columns.size() == 1 and columns[0].position.y < bounds.position.y, "Long tooltip set slides up in one column when it fits: " + context)
+	if kind in ["item", "card"] and host != null and host.get_child_count() > 0:
+		# Owner-approved ui-36 (4490e3aae, merged in c835a33c3) wraps when the
+		# stack exceeds the art height. LayoutChecks bounds both columns and their top edge.
+		var stack_height: float = Stack.STACK_SEPARATION * (host.get_child_count() - 1)
+		for tooltip: Control in host.get_children():
+			stack_height += tooltip.get_combined_minimum_size().y
+		stack_height *= (stage.get_node("Rewards") as Control).scale.y
+		var art_height: float = view.ART_RECT.size.y
+		var expected_columns: int = 2 if stack_height > art_height else 1
+		_expect(columns.size() == expected_columns, "Tooltip stack uses %d columns at %.1f px tall in %.1f px of art: %s" % [expected_columns, stack_height, art_height, context])
 	print("UI-36 layout %s: plate=%s, tooltip columns=%s" % [context, bounds, columns])
 
 func _check_light(light: TextureRect, art: TextureRect, context: String) -> void:

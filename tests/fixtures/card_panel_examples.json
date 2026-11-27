@@ -85,7 +85,7 @@
     "panels": [
       {
         "title": "Light",
-        "text": "Hit each visible enemy in Light."
+        "text": "An enemy starting a turn in Light gains Expose 2."
       }
     ]
   },
@@ -94,7 +94,11 @@
     "panels": [
       {
         "title": "Fire",
-        "text": "Hit each visible enemy on Fire."
+        "text": "A unit entering Fire takes 2 damage, and a unit starting on Fire takes 3."
+      },
+      {
+        "title": "Sweeping Strike",
+        "text": "Hit each visible enemy that meets the named condition."
       }
     ]
   },
@@ -112,7 +116,11 @@
     "panels": [
       {
         "title": "Electrified",
-        "text": "Hit each visible enemy on Electrified."
+        "text": "A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles."
+      },
+      {
+        "title": "Sweeping Strike",
+        "text": "Hit each visible enemy that meets the named condition."
       }
     ],
     "definition": {

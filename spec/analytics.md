@@ -168,6 +168,11 @@ full-escape awards as specified in [run_end.md](run_end.md).
 - `run_resumed`
 - `run_ended`
 - `run_scored`
+- `save_failed` records a profile or run-checkpoint request that ends without a
+  successful write or recovery. The payload contains `kind` (`"profile"` or
+  `"run_checkpoint"`) and `reason` (a Godot file error code). Pending retries
+  produce no row. A successful retry or superseding checkpoint retires the
+  failed attempt. Backup cleanup after a successful write produces no row.
 - `combat_started`
 - `combat_resumed`
 - `combat_ended`

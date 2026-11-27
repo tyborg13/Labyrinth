@@ -57,7 +57,7 @@
     "lightning_strikes": "This enemy hits each Marked tile, then leaves Electrified on each Marked tile.",
     "summon_minions": "This enemy adds the named enemy to combat.",
     "raise_terrain": "Raise the named terrain, which blocks movement.",
-    "terrain_burst": "This enemy damages each unit adjacent to terrain this enemy raised.",
+    "terrain_burst": "This enemy damages you if you stand within 2 tiles of an Outcrop this enemy raised.",
     "cinder_marks": "When this attack lands, each unit on a Marked tile takes X damage, and each Marked tile becomes Fire.",
     "detonate_cinders": "This enemy Bursts the Fire on each tile from this enemy's last Cinder Marks.",
     "gale_force": "This enemy damages you and your Illusions on Marked tiles, then Pushes you 1 tile away.",
@@ -453,7 +453,7 @@
       "Both units trigger ground and traps on arrival."
     ],
     "keyword:terrain_burst": [
-      "This enemy damages each unit adjacent to terrain this enemy raised."
+      "This enemy damages you if you stand within 2 tiles of an Outcrop this enemy raised."
     ],
     "keyword:detonate_cinders": [
       "This enemy Bursts the Fire on each tile from this enemy's last Cinder Marks. Each unit is hit once."
@@ -654,25 +654,25 @@
     },
     "only_fire": {
       "title": "Fire",
-      "text": "Hit each visible enemy on Fire.",
+      "text": null,
       "legacy": "Each Enemy on Fire\nHit each visible enemy on Fire.",
       "term": "surface_fire"
     },
     "only_ice": {
       "title": "Ice",
-      "text": "Hit each visible enemy on Ice.",
+      "text": null,
       "legacy": "Each Enemy on Ice\nHit each visible enemy on Ice.",
       "term": "surface_ice"
     },
     "only_light": {
       "title": "Light",
-      "text": "Hit each visible enemy in Light.",
-      "legacy": "Each Enemy in Light\nHit each visible enemy in Light.",
+      "text": "An enemy starting a turn in Light gains Expose 2.",
+      "legacy": "An enemy starting a turn in Light gains Expose 2.",
       "term": "illuminate"
     },
     "only_electrified": {
       "title": "Electrified",
-      "text": "Hit each visible enemy on Electrified.",
+      "text": null,
       "legacy": "Each Enemy on Electrified\nHit each visible enemy on Electrified.",
       "term": "surface_electrified"
     },
