@@ -14,8 +14,8 @@
       "Equipment, magic and items form your deck. Change your loadout outside combat, including at an Ember Hearth."
     ],
     "basic:rewards": [
-      "After combat, take 1 of 3 cards, or skip to heal 3.",
-      "Dragons and Guardians also give relics. A magic card you gain goes straight into your deck. Purge removes a card."
+      "After combat, choose a reward.",
+      "A magic card you gain goes straight into your deck. Purge removes a card."
     ],
     "basic:relics": [
       "Passive effects that last the whole run.",
@@ -175,11 +175,11 @@
       "A Marked tile stays flat if the unit on that tile cannot be moved to an open tile. Outcrops also block Tharokh and Burrow Grubs. Destroy an Outcrop to open a route."
     ],
     "combat:cinder_marks": [
-      "When this attack lands, each unit on a Marked tile takes X damage, and each Marked tile becomes Fire.",
+      "When this attack lands, you and your Illusions on Marked tiles take X damage, and each Marked tile becomes Fire.",
       "Crownfire Bursts each of Vyraketh's Marked Fire tiles, then Vyraketh moves toward you and attacks. The Meteorfall card Marks tiles. At the start of your next turn, each unit on a Marked tile takes damage, and each Marked tile becomes Fire."
     ],
     "combat:hollow_gale": [
-      "Hollow Gale damages each unit within 2 tiles of Vaeloryx, then Pushes each unit hit away.",
+      "Hollow Gale damages you and your Illusions on Marked tiles, then Pushes you 1 tile away from Vaeloryx.",
       "After each Vaeloryx turn, Gust Pushes each unit 1 tile, then turns a quarter clockwise. Vaeloryx retreats before Eye of the Storm. Leave the area or move closer to take less damage."
     ],
     "combat:area_force": [
@@ -187,7 +187,7 @@
       "A Push starts with the farthest enemy. A Pull starts with the nearest enemy. A Collision deals 2 damage per unmoved tile to the moving unit and each blocker hit. Squall Pushes each enemy hit 2 tiles away from you."
     ],
     "combat:swap": [
-      "Trade places with a visible enemy or one of your illusions.",
+      "Trade places with a visible enemy or one of your visible Illusions.",
       "Swap requires Range and line of sight. Choose an enemy that occupies 1 tile. Both units trigger ground and traps on arrival. You collect loot on the arrival tile. Anchored allows Swap. Swap causes no Collision."
     ],
     "combat:stances": [
@@ -202,7 +202,7 @@
       "Each layer extends Iskaldra's Shatterstorm by 1 tile, and Shatterstorm breaks the remaining layers. Crystal Mantle cards give you layers that last until broken or combat ends."
     ],
     "combat:boss_eclipse": [
-      "Last Eclipse hits you and your Illusions on Marked tiles, then starts Eclipse for 2 turns.",
+      "Last Eclipse starts Eclipse for your next turn, then hits you and your Illusions on Marked tiles.",
       "Night Coil puts out the nearest brazier. Walk or Blink onto a dark brazier's tile to relight that brazier. Light blocks Eclipse's darkness."
     ],
     "keyword:surface": [
@@ -216,7 +216,7 @@
       "A unit entering Ice or starting a turn on Ice gains Expose 2."
     ],
     "keyword:surface_electrified": [
-      "A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.",
+      "A Lightning card's hit on an Electrified tile also hits each visible enemy on connected Electrified tiles.",
       "Electrified tiles also relay Chain. Frost Circuit turns connected Ice tiles into Electrified. Discharge Bursts connected Electrified tiles."
     ],
     "keyword:surface_rubble": [
@@ -237,7 +237,7 @@
       "Burrowed enemies cannot be targeted or moved. Area attacks hit Burrowed enemies. A Burrow Grub emerges on the Marked tile or the nearest open tile."
     ],
     "keyword:charge": [
-      "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.",
+      "At 3 Charge, this enemy's next attack is Arc Lash.",
       "This enemy gains Charge each use. Arc Lash Chains between units."
     ],
     "keyword:wind": [
@@ -275,7 +275,7 @@
       "The card shows whether connected tiles change too."
     ],
     "keyword:illusion_swap": [
-      "Trade places with one of your illusions.",
+      "Trade places with one of your visible Illusions.",
       "Swap with one of your visible Illusions, anywhere unless the card shows a Range. Both units trigger ground and traps on arrival."
     ],
     "keyword:health": [

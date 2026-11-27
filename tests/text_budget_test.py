@@ -126,6 +126,7 @@ class TextBudgetTest(unittest.TestCase):
         short_copy.update(TXT20_COPY["glossary_definitions"])
         short_copy.update(read("tests/fixtures/pla01_exception_strip.json")["glossary"])
         short_copy.update(marked=TXT27_MARKED_DEFINITION, traps=TRAP_DEFINITION)
+        short_copy["rewards"] = "After combat, choose a reward."  # txt-42 r3, owner approved 2026-11-27
         self.assertEqual(set(self.glossary), set(live))
         self.assertEqual(len(live), 125)
         for key, source in live.items():

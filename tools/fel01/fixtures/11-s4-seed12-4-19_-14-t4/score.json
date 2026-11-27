@@ -1,0 +1,235 @@
+{
+  "covered_tiles": 8,
+  "covered_units": 2,
+  "fight": "4-19_-14",
+  "focus": {
+    "count": 2,
+    "fraction": 0.953125,
+    "tile": [
+      3,
+      5
+    ]
+  },
+  "kind": "normal",
+  "objective": "kill_all",
+  "room_kind": "combat",
+  "section": 4,
+  "seed": 12,
+  "stacked": 4,
+  "tiles": [
+    {
+      "contents": [
+        "Frostglass Lancer [enemy_1]"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.19140625,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        2,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "Dust Acolyte [enemy_5]",
+        "surface electrified"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        1,
+        6
+      ]
+    },
+    {
+      "contents": [
+        "surface ice"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.51171875,
+          "id": "unit:player",
+          "tile": [
+            3,
+            6
+          ]
+        },
+        {
+          "fraction": 0.30078125,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        2,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.1875,
+          "id": "unit:player",
+          "tile": [
+            3,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        2,
+        6
+      ]
+    },
+    {
+      "contents": [
+        "Tunnel Crawler [enemy_4]",
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.953125,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        3,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "loot loot_item_0_2_7",
+        "surface ice"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.1796875,
+          "id": "door:4,8",
+          "tile": [
+            4,
+            8
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        2,
+        7
+      ]
+    },
+    {
+      "contents": [
+        "player [player]",
+        "surface ice"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        3,
+        6
+      ]
+    },
+    {
+      "contents": [
+        "trap trap_4_5"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        4,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.59375,
+          "id": "door:4,8",
+          "tile": [
+            4,
+            8
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        7
+      ]
+    }
+  ],
+  "turn": 4,
+  "units": [
+    {
+      "fraction": 1.0,
+      "tile": [
+        3,
+        5
+      ],
+      "unit": "Tunnel Crawler [enemy_4]"
+    },
+    {
+      "fraction": 0.297912713472486,
+      "tile": [
+        3,
+        6
+      ],
+      "unit": "player [player]"
+    }
+  ],
+  "old_stacked": 4,
+  "old_score": 16,
+  "new_score": 18,
+  "campaign": {
+    "id": "fel01-round0-diagnostic-9999",
+    "seed_directory": "fel01-census-seed12"
+  },
+  "composition": {
+    "boss_id": "",
+    "enemies_on_board": 4,
+    "visible_pillars": 1
+  }
+}

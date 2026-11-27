@@ -5,6 +5,7 @@ extends RefCounted
 const Layers = preload("res://scripts/board_layer_slices.gd")
 const Context = preload("res://scripts/targeted_tile_context.gd")
 const HudRetention = preload("res://scripts/board_hud_retention.gd")
+const LabelInk = preload("res://scripts/board_label_ink.gd")
 const SPRITE_RGB: float = 0.62
 const HUD_ALPHA: float = 0.5
 const TRANSITION_SECONDS: float = 0.12
@@ -240,7 +241,8 @@ func route(source: Control, method: String, args: Array, unit: Dictionary, hud: 
 		canvas.focus_mode = Control.FOCUS_NONE
 		source.add_child(canvas)
 		source.set_meta("rd03_has_children", true)
-		record = {"canvas": canvas, "unit": unit, "hud": hud}
+		record = {"canvas": canvas, "unit": unit, "hud": hud, "label_offset": _label_offset(method)}
+		if method == "_draw_unit_hud_details": canvas.set_meta("fel14_split_intent", true)
 		canvases[id] = record
 	# Keep the ordinal canvas and its aim/outline ownership. The production
 	# ordinal painter is empty, so after initialization it can retain its paint.
@@ -263,7 +265,11 @@ func route(source: Control, method: String, args: Array, unit: Dictionary, hud: 
 	return true
 
 const HERO_HUD_Z: int = 3
-const TOP_CANVAS_Z: int = HERO_HUD_Z + 1
+static func _label_offset(method: String) -> int:
+	match method:
+		"_draw_slice_intent_chip", "_draw_slice_intent_halo": return LabelInk.INTENT_BADGE_OFFSET
+		"_draw_enemy_intent_layout": return LabelInk.EXPANDED_INTENT_OFFSET
+	return 0
 
 func route_top(source: Control, method: String, args: Array) -> bool:
 	if source.has_meta("rd03_canvas"): return false
@@ -279,7 +285,7 @@ func route_top(source: Control, method: String, args: Array) -> bool:
 		canvas.set("_render_instrumentation_owner", root_owner if is_instance_valid(root_owner) else source)
 		canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		canvas.focus_mode = Control.FOCUS_NONE
-		canvas.z_index = TOP_CANVAS_Z
+		canvas.z_index = LabelInk.CALLOUT_Z
 		canvas.connect("intent_callout_drawn", func(layout: Dictionary) -> void: source.emit_signal("intent_callout_drawn", layout))
 		source.add_child(canvas)
 		source.set_meta("rd03_has_children", true)
@@ -387,19 +393,27 @@ func _present(record: Dictionary) -> void:
 		canvas.set_meta("rd03_tween", tween)
 	if record.hud:
 		# Crowded fallback still paints every enemy HUD beneath the hero HUD.
-		if unit.get("role") == "player": canvas.z_index = HERO_HUD_Z
-		else: canvas.z_index = 2 if source.call("_unit_footprint_tiles", unit).has(focus_tile) else 1
+		var depth: int = HERO_HUD_Z if unit.get("role") == "player" else (
+			2 if source.call("_unit_footprint_tiles", unit).has(focus_tile) else 1
+		)
+		canvas.z_index = depth + int(record["label_offset"])
 
 func route_operation(source: Control, method: String, args: Array, direct: Variant = null) -> bool:
 	if source.has_meta("rd03_canvas"): return false
-	# Intent callouts are the topmost board HUD. Per-unit HUD canvases are
-	# children of this layer, so the callouts get their own child above them.
+	# Callouts clear expanded intents while combat feedback has its own higher ink.
 	if method == "_draw_slice_callouts": return route_top(source, method, args)
 	if method == "_draw_unit_hud_details":
+		var expanded: Dictionary = {}
+		for entry: Dictionary in source._hud_layout_entries_cache:
+			var layout: Dictionary = entry.get("layout", {})
+			if not layout.get("line_rects", []).is_empty(): expanded[entry["actor_key"]] = layout
 		for unit: Dictionary in args[0]:
 			var one: Array[Dictionary] = preload("res://scripts/typed_arrays.gd").dictionaries([unit])
-			if route(source, method, [one], unit, true): continue
-			if direct == null: source.call(method, one)
+			if route(source, method, [one], unit, true):
+				var key: String = str(unit.get("key", ""))
+				if expanded.has(key) and source._umbra_actor_clip_for_unit(unit).is_empty():
+					route(source, "_draw_enemy_intent_layout", [expanded[key], args[1]], unit, true)
+			elif direct == null: source.call(method, one)
 			else: direct.append([method, [one]])
 		return true
 	if method in ["_draw_health_bar_entry", "_draw_health_damage_preview", "_draw_health_bar_text"]:

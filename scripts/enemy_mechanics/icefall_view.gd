@@ -11,6 +11,7 @@ const Combat = preload("res://scripts/combat_engine.gd")
 const Marks = preload("res://scripts/enemy_mechanics/marked_strike.gd")
 const Warband = preload("res://scripts/warband_combat_rules.gd")
 const Data = preload("res://scripts/game_data.gd")
+const BadgeGroups = preload("res://scripts/mark_badge_groups.gd")
 
 const TINT := Color("9cc8e6")
 const FALL_SECONDS: float = 0.18
@@ -60,29 +61,38 @@ static func mark_tooltip(amount: int, standing: bool) -> String:
 static func draw_badges(view: Control) -> void:
 	var icon: Texture2D = Icons.icon_texture("icefall")
 	var font: Font = view.get_theme_default_font()
-	var held: Dictionary = marks(view)
-	for tile: Vector2i in held:
-		if not view._board_tile_is_visible_to_player(tile): continue
-		var amount: int = landing_damage(view.combat_state, held[tile])
-		var size: float = clampf(view._tile_width() * 0.22, 24.0, 40.0)
-		var radius: float = size * 0.62
-		var center: Vector2 = view._tile_center(tile) + Vector2(-view._tile_width() * 0.16, view._tile_height() * 0.22)
-		view.draw_circle(center + Vector2(0, 2), radius + 2, Color(0, 0, 0, 0.40))
-		view.draw_circle(center, radius, view.COLLISION_MARKER_FILL)
-		view.draw_arc(center, radius - 1, 0, TAU, 32, TINT, 2, true)
-		var rect := Rect2(center - Vector2.ONE * size * 0.5, Vector2.ONE * size)
-		if icon != null: view.draw_texture_rect(icon, rect, false)
-		var tooltip: String = mark_tooltip(amount, tile == view.combat_state.get("player", {}).get("pos"))
-		if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(rect, tooltip, tile)
-		else: view._register_tooltip(rect, tooltip)
-		if font == null: continue
-		var font_size: int = int(round(clampf(size * 0.50, 14.0, 20.0)))
-		var text: String = str(amount)
-		var text_width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-		var baseline := Vector2(center.x + radius * 0.60, center.y + radius * 0.95)
-		view._draw_outlined_string(font, baseline, text, text_width + 4, font_size, TINT.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2)
-		if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(text_width + 4, font_size + 4)), tooltip, tile)
-		else: view._register_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(text_width + 4, font_size + 4)), tooltip)
+	var state: Dictionary = view.combat_state
+	var player_tile: Vector2i = state.get("player", {}).get("pos", Vector2i(-1, -1))
+	for enemy: Dictionary in state.get("enemies", []):
+		var held: Array = enemy.get("icefall_tiles", [])
+		if held.is_empty() or int(enemy.get("hp", 0)) <= 0: continue
+		var amount: int = landing_damage(state, enemy)
+		var numbers_by_tile: Dictionary = {}
+		for tile: Vector2i in held: numbers_by_tile[tile] = amount
+		for group: Dictionary in BadgeGroups.groups(view, numbers_by_tile):
+			_draw_badge(view, group["anchor"], amount, player_tile in group["tiles"], icon, font)
+
+static func _draw_badge(view: Control, tile: Vector2i, amount: int, standing: bool, icon: Texture2D, font: Font) -> void:
+	view._drew_mark_group_badge = true
+	var size: float = clampf(view._tile_width() * 0.22, 24.0, 40.0)
+	var radius: float = size * 0.62
+	var center: Vector2 = view._tile_center(tile) + Vector2(-view._tile_width() * 0.16, view._tile_height() * 0.22)
+	view.draw_circle(center + Vector2(0, 2), radius + 2, Color(0, 0, 0, 0.40))
+	view.draw_circle(center, radius, view.COLLISION_MARKER_FILL)
+	view.draw_arc(center, radius - 1, 0, TAU, 32, TINT, 2, true)
+	var rect := Rect2(center - Vector2.ONE * size * 0.5, Vector2.ONE * size)
+	if icon != null: view.draw_texture_rect(icon, rect, false)
+	var tooltip: String = mark_tooltip(amount, standing)
+	if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(rect, tooltip, tile)
+	else: view._register_tooltip(rect, tooltip)
+	if font == null: return
+	var font_size: int = int(round(clampf(size * 0.50, 14.0, 20.0)))
+	var text: String = str(amount)
+	var text_width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var baseline := Vector2(center.x + radius * 0.60, center.y + radius * 0.95)
+	view._draw_tile_damage_numeral(font, baseline, text, text_width + 4, font_size, TINT.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2)
+	if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(text_width + 4, font_size + 4)), tooltip, tile)
+	else: view._register_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(text_width + 4, font_size + 4)), tooltip)
 
 static func draw_pillar(view: Control, terrain: Dictionary, obstructions: Array) -> bool:
 	if str(terrain.get("kind", "")) != "ice_pillar": return false

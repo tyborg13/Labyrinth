@@ -6,11 +6,17 @@ extends Node2D
 ## also keeps overlapping effects of different elements in submission order.
 const STYLE_PATH: String = "res://data/vfx_pixel_style.json"
 const QUANTIZE: Shader = preload("res://shaders/pixel_fx_quantize.gdshader")
+const TRAIL_QUANTIZE: Shader = preload("res://shaders/pixel_fx_trail_quantize.gdshader")
+const TRAIL_COVERAGE: Shader = preload("res://shaders/pixel_fx_trail_coverage.gdshader")
 const Lines = preload("res://scripts/pixel_fx_lines.gd")
+const ClawMarks = preload("res://scripts/enemy_claw_marks.gd")
 const BAYER: PackedInt32Array = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
 const LUMA := Vector3(0.299, 0.587, 0.114)
 static var _style: Dictionary = {}
 static var _ramps: Dictionary = {}
+static var _trail_thresholds: PackedFloat32Array
+static var _trail_ramps: Dictionary
+static var _trail_cells_material: ShaderMaterial
 # In-memory probe override; never changes the protected data or player settings.
 static var review_enabled_override: Variant = null
 
@@ -23,6 +29,8 @@ var _last_key: Variant = null
 var _pixel_transform := Transform2D.IDENTITY
 var _grid: int = 1
 var _resolution := Vector2i.ONE
+var _quantizer: Shader = QUANTIZE
+var _cell_drawing: Drawing
 
 class Drawing extends Node2D:
 	var commands: Array[Dictionary]
@@ -32,9 +40,47 @@ class Drawing extends Node2D:
 	var cell_transform := Transform2D.IDENTITY
 	var command_transform := Transform2D.IDENTITY
 	var element: String = "neutral"
+	var trail_alpha_floor: float
+	var trail_bayer: PackedFloat32Array
+	var _claw_margin: Dictionary
+	var direct_cells: bool
+	var trail_draw: Callable
+	var trail_batches: Array[Dictionary]
+	var trail_ramp: PackedColorArray
+	var trail_shape: Dictionary
+	var _profile_key: Dictionary
+	var _profile_transform: Transform2D
+	var _profile: Dictionary
+	var measure_trail: bool
+	var raster_usec: int
+
+	func trail_profile(batch: Dictionary) -> void:
+		var previous_usec: int = Time.get_ticks_usec() if measure_trail else 0
+		if batch != _profile_key or cell_transform != _profile_transform:
+			_profile = Lines.trail_profile(batch, cell_transform, trail_alpha_floor, trail_bayer, trail_shape)
+			_profile_key = batch
+			_profile_transform = cell_transform
+		if measure_trail: raster_usec += Time.get_ticks_usec() - previous_usec
+		var smear: Array[Array] = _profile["smear"]
+		if not smear[0].is_empty() or not smear[1].is_empty():
+			var envelope: float = batch["alpha"]
+			var far := Color(trail_ramp[2], envelope * float(trail_shape["smear_far_coverage"]))
+			var near := Color(trail_ramp[2], envelope * float(trail_shape["smear_near_coverage"]))
+			for rect: Rect2i in smear[1]:
+				draw_rect(Rect2(rect), far)
+			for rect: Rect2i in smear[0]:
+				draw_rect(Rect2(rect), near)
+		var bands: Array[Array] = _profile["bands"]
+		for band: int in bands.size():
+			var color: Color = trail_ramp[band + 2]
+			for rect: Rect2i in bands[band]:
+				draw_rect(Rect2(rect), color)
 
 	func _draw() -> void:
 		drawn_frame = Engine.get_process_frames()
+		if direct_cells:
+			if trail_draw.is_valid(): trail_draw.call(self, trail_batches)
+			return
 		if line_canvas != null:
 			line_canvas.strokes.clear()
 		for command: Dictionary in commands:
@@ -52,6 +98,74 @@ class Drawing extends Node2D:
 			return false
 		line_canvas.stroke(points, cell_transform * command_transform, core, halo, element)
 		return true
+
+	func begin_trail() -> void:
+		if not _claw_margin.is_empty(): _claw_margin.clear()
+
+	func trail_stroke(batch: Dictionary) -> void:
+		var to_cells: Transform2D = cell_transform * command_transform
+		var spine: Dictionary = Lines.trail_spine(batch["points"], batch["ink"], to_cells,
+			trail_alpha_floor, trail_bayer)
+		var points: Array[Vector2i] = spine["cells"]
+		var colors: PackedColorArray = spine["colors"]
+		var cells: Dictionary
+		for i: int in points.size():
+			cells[points[i]] = colors[i]
+		_draw_trail_cells(cells, to_cells)
+
+	func trail_claws(batch: Dictionary) -> void:
+		var to_cells: Transform2D = cell_transform * command_transform
+		for lane: Dictionary in ClawMarks.cells(batch, to_cells, trail_alpha_floor, trail_bayer):
+			for cell: Vector2i in lane:
+				for neighbor: Vector2i in ClawMarks.NEIGHBORS:
+					_claw_margin[cell + neighbor] = true
+			_draw_trail_cells(lane, to_cells)
+
+	func _draw_trail_cells(cells: Dictionary, to_cells: Transform2D) -> void:
+		if cells.is_empty(): return
+		draw_set_transform_matrix(command_transform * to_cells.affine_inverse())
+		for cell: Vector2i in cells:
+			draw_rect(Rect2(Vector2(cell), Vector2.ONE), cells[cell])
+		draw_set_transform_matrix(command_transform)
+
+	func trail_spark(point: Vector2, radius: float, ink: Color) -> void:
+		var to_cells: Transform2D = cell_transform if direct_cells else cell_transform * command_transform
+		var center: Vector2 = to_cells * point
+		var cell := Vector2i(center.floor())
+		if not Lines.trail_cell_visible(ink.a, cell, trail_alpha_floor, trail_bayer): return
+		var radius_cells: float = to_cells.basis_xform(Vector2(radius, 0.0)).length()
+		var origin := Vector2i((center - Vector2(0.5, 0.5)).floor())
+		var rect := Rect2i(origin, Vector2i(2, 2)) if radius_cells >= 2.0 else Rect2i(cell, Vector2i.ONE)
+		var rects: Array[Rect2i] = [rect]
+		if _stamp_covers_claw_gap(rects): return
+		if not direct_cells: draw_set_transform_matrix(command_transform * to_cells.affine_inverse())
+		draw_rect(Rect2(rect), Color(ink, 1.0))
+		if not direct_cells: draw_set_transform_matrix(command_transform)
+
+	func trail_glint(point: Vector2, age: float) -> void:
+		var to_cells: Transform2D = cell_transform if direct_cells else cell_transform * command_transform
+		var center := Vector2i((to_cells * point).floor())
+		var count: int = Lines.trail_star_cell_count(age)
+		var rects: Array[Rect2i]
+		if not _claw_margin.is_empty():
+			for i: int in count:
+				var cell: Vector3i = Lines.TRAIL_STAR_CELLS[i]
+				rects.append(Rect2i(center + Vector2i(cell.x, cell.y), Vector2i.ONE))
+			if _stamp_covers_claw_gap(rects): return
+		if not direct_cells: draw_set_transform_matrix(command_transform * to_cells.affine_inverse())
+		for i: int in count:
+			var cell: Vector3i = Lines.TRAIL_STAR_CELLS[i]
+			draw_rect(Rect2(Vector2(center + Vector2i(cell.x, cell.y)), Vector2.ONE), trail_ramp[cell.z])
+		if not direct_cells: draw_set_transform_matrix(command_transform)
+
+	func _stamp_covers_claw_gap(rects: Array[Rect2i]) -> bool:
+		if _claw_margin.is_empty(): return false
+		# Skip overlapping stamps as a unit to keep the gap and the stamp shape.
+		for rect: Rect2i in rects:
+			for y: int in range(rect.position.y, rect.end.y):
+				for x: int in range(rect.position.x, rect.end.x):
+					if _claw_margin.has(Vector2i(x, y)): return true
+		return false
 
 static func line(canvas: CanvasItem, points: PackedVector2Array, core: Color, halo: Color) -> bool:
 	return canvas != null and canvas.has_method("_pixel_line") and bool(canvas.call("_pixel_line", points, core, halo))
@@ -97,6 +211,25 @@ static func choose_sheet_size(tile_px: float, render_height: int, sheet_tile_wid
 static func viewport_pixels(viewport: Viewport) -> Vector2:
 	return viewport.get_visible_rect().size * viewport.get_stretch_transform().get_scale()
 
+static func trail_ramp_id(element: String) -> String:
+	var mapping: Dictionary = style()["trail_ramps"]
+	return str(mapping.get(element, "neutral"))
+
+static func trail_palette(ramp_id: String) -> PackedColorArray:
+	if not _trail_ramps.has(ramp_id):
+		var ramp: PackedColorArray = ramp_for(ramp_id)
+		# The shared shader chooses among five uniform slots. Clamp its
+		# choices to the three authored trail shades, even at fractional alpha.
+		_trail_ramps[ramp_id] = PackedColorArray([ramp[2], ramp[2], ramp[2], ramp[3], ramp[4]])
+	return _trail_ramps[ramp_id]
+
+static func trail_thresholds() -> PackedFloat32Array:
+	if _trail_thresholds.is_empty():
+		var bias: float = PackedFloat32Array([float(style()["alpha_bias"])])[0]
+		for value: int in BAYER:
+			_trail_thresholds.append(float(value) / 16.0 + bias)
+	return _trail_thresholds
+
 static func surface_ramp_id(kind: String) -> String:
 	return str(style()["surface_ramps"].get(kind, kind))
 
@@ -141,24 +274,117 @@ static func route(canvas: CanvasItem, element: String, draw_call: Callable, args
 	return true
 
 func begin(source: CanvasItem) -> void:
+	_used = 0
+	_raw_used = 0
+	_last_key = null
+	_update_grid(source)
+
+func _update_grid(source: CanvasItem) -> void:
 	if _source == null:
 		# A viewport stretch can change physical pixels without resizing the
 		# logical board Control (for example 1080 -> 2160 on the same aspect).
 		if not source.get_viewport().size_changed.is_connected(source.queue_redraw):
 			source.get_viewport().size_changed.connect(source.queue_redraw)
 	_source = source
-	_used = 0
-	_raw_used = 0
-	_last_key = null
 	var viewport: Viewport = source.get_viewport()
 	var stretch: Transform2D = viewport.get_stretch_transform()
-	var pixels: Vector2 = viewport_pixels(viewport)
-	_grid = grid_px(roundi(pixels.y))
-	_resolution = Vector2i(ceili(pixels.x / _grid), ceili(pixels.y / _grid))
-	_pixel_transform = stretch * source.get_global_transform_with_canvas()
-	# Cancels board pan/zoom and fractional position on the composite, while the
-	# original drawing receives that exact transform inside the low-res canvas.
-	transform = _pixel_transform.affine_inverse() * Transform2D(0.0, Vector2.ONE * _grid, 0.0, Vector2.ZERO)
+	var pixels: Vector2 = viewport.get_visible_rect().size * stretch.get_scale()
+	var grid: int = grid_px(roundi(pixels.y))
+	var pixel_transform: Transform2D = stretch * source.get_global_transform_with_canvas()
+	if _grid != grid or _pixel_transform != pixel_transform:
+		transform = pixel_transform.affine_inverse() * Transform2D(0.0, Vector2.ONE * grid, 0.0, Vector2.ZERO)
+	_grid = grid
+	_resolution = Vector2i(ceili(pixels.x / grid), ceili(pixels.y / grid))
+	_pixel_transform = pixel_transform
+
+## Trail painters keep one disabled target ready across attacks. Spell painters
+## still allocate and release targets according to their existing lifecycle.
+func reserve_trail_run(cell_profiles: bool) -> void:
+	_quantizer = TRAIL_QUANTIZE
+	var run: Dictionary = _make_run(false)
+	(run["composite"] as Sprite2D).hide()
+	_runs.append(run)
+	if cell_profiles:
+		if _trail_cells_material == null:
+			_trail_cells_material = ShaderMaterial.new()
+			_trail_cells_material.shader = TRAIL_COVERAGE
+		_cell_drawing = Drawing.new()
+		_cell_drawing.name = "TrailCells"
+		_cell_drawing.direct_cells = true
+		_cell_drawing.trail_alpha_floor = float(style()["alpha_floor"])
+		_cell_drawing.trail_bayer = trail_thresholds()
+		_cell_drawing.trail_shape = style()["trail_shape"]
+		_cell_drawing.material = _trail_cells_material
+		_cell_drawing.hide()
+		add_child(_cell_drawing)
+
+## The profiled trails already consist of opaque ramp cells. Submit those spans
+## directly on the shared screen grid to avoid a second quantization pass.
+func submit_cell_trail(source: CanvasItem, ramp_id: String, draw_call: Callable, batches: Array[Dictionary]) -> bool:
+	if _used != 0: clear_trail_run()
+	_update_grid(source)
+	var to_cells: Transform2D = Transform2D(0.0, Vector2.ONE / _grid, 0.0, Vector2.ZERO) * _pixel_transform
+	var drawing: Drawing = _cell_drawing
+	if drawing.visible and drawing.element == ramp_id and drawing.cell_transform == to_cells and drawing.trail_batches == batches:
+		return false
+	drawing.element = ramp_id
+	drawing.cell_transform = to_cells
+	drawing.trail_draw = draw_call
+	drawing.trail_batches = batches
+	drawing.trail_ramp = trail_palette(ramp_id)
+	drawing.submitted_frame = Engine.get_process_frames()
+	drawing.show()
+	drawing.queue_redraw()
+	return true
+
+func clear_cell_trail() -> void:
+	if _cell_drawing == null or not _cell_drawing.visible: return
+	_cell_drawing.hide()
+	_cell_drawing.trail_draw = Callable()
+	var empty: Array[Dictionary]
+	_cell_drawing.trail_batches = empty
+	_cell_drawing._profile_key = {}
+	_cell_drawing._profile.clear()
+
+func warm_trail_run(source: CanvasItem) -> void:
+	for ramp: String in style()["trail_ramps"].values():
+		trail_palette(ramp)
+	begin(source)
+	var warmup_rect := Rect2(Vector2.ZERO, Vector2.ONE * _grid)
+	submit(trail_ramp_id("none"), _draw_trail_warmup, [warmup_rect], Transform2D.IDENTITY, warmup_rect)
+	finish()
+	if _cell_drawing != null:
+		_cell_drawing.trail_draw = _draw_cell_warmup
+		_cell_drawing.show()
+		_cell_drawing.queue_redraw()
+
+static func _draw_cell_warmup(canvas: Node2D, _batches: Array[Dictionary]) -> void:
+	# Bayer cell (1, 0) has a threshold of 0.5, so this draw stays invisible.
+	canvas.draw_rect(Rect2(Vector2.RIGHT, Vector2.ONE), Color(1.0, 1.0, 1.0, 0.25))
+
+static func _draw_trail_warmup(canvas: Node2D, rect: Rect2) -> void:
+	# Submit a primitive below the quantizer floor to exercise both canvas passes.
+	canvas.draw_rect(rect, Color(1.0, 1.0, 1.0, float(style()["alpha_floor"]) * 0.5))
+
+func clear_trail_run() -> void:
+	if _used == 0: return
+	_used = 0
+	var run: Dictionary = _runs[0]
+	(run["composite"] as Sprite2D).hide()
+	(run["viewport"] as SubViewport).render_target_update_mode = SubViewport.UPDATE_DISABLED
+	(run["drawing"] as Drawing).commands.clear()
+
+func trail_snapshot() -> Dictionary:
+	if _cell_drawing != null and _cell_drawing.visible:
+		return {"element": _cell_drawing.element, "grid": _grid, "commands": 1, "direct_cells": true,
+			"palette": _cell_drawing.trail_ramp, "submitted_frame": _cell_drawing.submitted_frame,
+			"drawn_frame": _cell_drawing.drawn_frame}
+	if _used == 0: return {}
+	var result: Array[Dictionary] = snapshot()
+	var composite: Sprite2D = _runs[0]["composite"]
+	var material_value: ShaderMaterial = composite.material
+	result[0]["palette"] = material_value.get_shader_parameter("ramp")
+	return result[0]
 
 func submit(element: String, draw_call: Callable, args: Array, drawing_transform: Transform2D, bounds: Rect2 = Rect2()) -> void:
 	var key: String = element
@@ -175,9 +401,13 @@ func submit(element: String, draw_call: Callable, args: Array, drawing_transform
 		composite.visible = true
 		move_child(composite, get_child_count() - 1)
 		var shader_material: ShaderMaterial = composite.material as ShaderMaterial
-		shader_material.shader = QUANTIZE
+		shader_material.shader = _quantizer
 		drawing.element = element
-		shader_material.set_shader_parameter("ramp", ramp_for(element))
+		if _quantizer == TRAIL_QUANTIZE:
+			drawing.trail_ramp = trail_palette(element)
+			shader_material.set_shader_parameter("ramp", drawing.trail_ramp)
+		else:
+			shader_material.set_shader_parameter("ramp", ramp_for(element))
 		shader_material.set_shader_parameter("alpha_floor", float(style()["alpha_floor"]))
 		shader_material.set_shader_parameter("alpha_bias", float(style()["alpha_bias"]))
 		run["bounds"] = Rect2()
@@ -220,8 +450,9 @@ func finish() -> void:
 		var viewport: SubViewport = run["viewport"]
 		var composite: Sprite2D = run["composite"]
 		var bounds: Rect2 = run["bounds"]
-		var first: Vector2 = (bounds.position / _grid).floor() - Vector2.ONE
-		var last: Vector2 = (bounds.end / _grid).ceil() + Vector2.ONE
+		var pad: Vector2 = Vector2.ONE * ClawMarks.BOUNDS_PAD_CELLS if _quantizer == TRAIL_QUANTIZE else Vector2.ONE
+		var first: Vector2 = (bounds.position / _grid).floor() - pad
+		var last: Vector2 = (bounds.end / _grid).ceil() + pad
 		var clipped := Rect2(first, last - first).intersection(Rect2(Vector2.ZERO, Vector2(_resolution)))
 		composite.visible = clipped.has_area()
 		viewport.size = Vector2i(clipped.size).max(Vector2i.ONE)
@@ -230,7 +461,8 @@ func finish() -> void:
 		(composite.material as ShaderMaterial).set_shader_parameter("cell_origin", clipped.position)
 		var drawing: Drawing = run["drawing"]
 		drawing.cell_transform = Transform2D(0.0, Vector2.ONE / _grid, 0.0, Vector2.ZERO) * _pixel_transform
-		drawing.line_canvas.configure(Rect2i(clipped), ramp_for(drawing.element), float(style()["alpha_floor"]), float(style()["alpha_bias"]))
+		if drawing.line_canvas != null:
+			drawing.line_canvas.configure(Rect2i(clipped), ramp_for(drawing.element), float(style()["alpha_floor"]), float(style()["alpha_bias"]))
 		run["cell_rect"] = Rect2i(clipped)
 	# Release inactive render targets, including when a spell clears or moves to
 	# another tile. Empty tiles never allocate viewports or process every frame.
@@ -252,8 +484,11 @@ func snapshot() -> Array[Dictionary]:
 			"submitted_frame": drawing.submitted_frame, "drawn_frame": drawing.drawn_frame})
 	return result
 
-func _make_run() -> Dictionary:
+func _make_run(with_lines: bool = true) -> Dictionary:
 	var viewport := SubViewport.new()
+	if not with_lines:
+		viewport.size = Vector2i(2, 2)
+		viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	viewport.name = "ProceduralPixels"
 	viewport.disable_3d = true
 	viewport.transparent_bg = true
@@ -270,8 +505,12 @@ func _make_run() -> Dictionary:
 	composite.texture = viewport.get_texture()
 	composite.material = ShaderMaterial.new()
 	add_child(composite)
-	var lines := Lines.new()
-	lines.name = "LineCells"
-	composite.add_child(lines)
-	drawing.line_canvas = lines
+	if with_lines:
+		var lines := Lines.new()
+		lines.name = "LineCells"
+		composite.add_child(lines)
+		drawing.line_canvas = lines
+	else:
+		drawing.trail_alpha_floor = float(style()["alpha_floor"])
+		drawing.trail_bayer = trail_thresholds()
 	return {"viewport": viewport, "drawing": drawing, "composite": composite}

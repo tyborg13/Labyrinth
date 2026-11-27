@@ -208,7 +208,7 @@ static func _hud_operations(board: Control) -> void:
 			var rect: Rect2 = board.call("_health_bar_content_rect", unit, health)
 			board.call("_slice_op", "_draw_health_damage_preview", [unit, rect, preview], not bool(board.presentation.get("reduced_motion", false)))
 			board.call("_slice_op", "_draw_health_bar_text", [unit, rect, preview, font])
-	board.call("_slice_op", "_draw_unit_hud_details", [units])
+	board.call("_slice_op", "_draw_unit_hud_details", [units, font])
 	board.call("_slice_op", "_draw_slice_hud_chips", [])
 	var measured: Array[Dictionary] = Badges.layouts(board, board.presentation.get("threats_at_rest", {}).get("badges", []))
 	board.call("_slice_op", "_draw_slice_intent_orders", [measured])

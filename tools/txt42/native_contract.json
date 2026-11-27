@@ -1,0 +1,15 @@
+{
+  "min_images": 9,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "rewards_1920x1080.png", "regions": [{"rect": [600, 275, 760, 215], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "electrified_1920x1080.png", "regions": [{"rect": [600, 275, 760, 215], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "last_eclipse_1920x1080.png", "regions": [{"rect": [600, 275, 760, 215], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "hollow_gale_1920x1080.png", "regions": [{"rect": [600, 275, 760, 215], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "charge_1920x1080.png", "regions": [{"rect": [600, 275, 760, 215], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "normal_reward_1920x1080.png", "regions": [{"rect": [520, 275, 880, 550], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "last_eclipse_intent_1920x1080.png", "regions": [{"rect": [500, 220, 920, 570], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "splits_hover_1920x1080.png", "regions": [{"rect": [500, 300, 850, 480], "min_luma_range": 25, "min_luma_stdev": 3}]},
+    {"pattern": "curators_patience_1920x1080.png", "regions": [{"rect": [680, 310, 560, 430], "min_luma_range": 25, "min_luma_stdev": 3}]}
+  ]
+}

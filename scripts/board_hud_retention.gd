@@ -41,6 +41,9 @@ static func piece_inputs(source: Control, method: String, args: Array, unit: Dic
 			return [chip_inputs(args[0]), badge_tooltip(source, args[0])]
 		"_draw_unit_hud_details":
 			return _details(source, unit)
+		"_draw_enemy_intent_layout":
+			var layout: Dictionary = args[0]
+			return [layout, args[1], _intent_tooltip(source, str(unit.get("key", "")), layout), source._keyword_icon_textures]
 	return null
 
 static func texture_inputs(texture: Texture2D) -> Array:
@@ -105,10 +108,7 @@ static func _details(source: Control, unit: Dictionary) -> Variant:
 		if entry.get("actor_key") != key: continue
 		if entry["kind"] == "npc": return null
 		var layout: Dictionary = entry.get("layout", {})
-		var title: String = layout.get("intent_name", "")
-		var live_tooltip: String = ""
-		if title in ["Fade", "Lob Slag", "Erupt", "Icefall"] and not Tooltip.intent_term(title, layout.get("loop_source", {})).is_empty():
-			live_tooltip = source.enemy_intent_tooltip(key)
+		var live_tooltip: String = _intent_tooltip(source, key, layout)
 		if entry["kind"] == "boss": return [layout, live_tooltip, source._keyword_icon_textures]
 		var statuses: Dictionary = source._status_plate_layout.resolve(source, unit, entry["health_rect"])
 		var clocks: Array = []
@@ -122,6 +122,12 @@ static func _details(source: Control, unit: Dictionary) -> Variant:
 			unit.get("type"), unit.get("charge", 0), unit.get("is_leader", false),
 			Kindle.badge_scale(shown, key), shown.get("reduced_motion", false), live_tooltip, source._keyword_icon_textures]
 	return []
+
+static func _intent_tooltip(source: Control, key: String, layout: Dictionary) -> String:
+	var title: String = layout.get("intent_name", "")
+	if title in ["Fade", "Lob Slag", "Erupt", "Icefall"] and not Tooltip.intent_term(title, layout.get("loop_source", {})).is_empty():
+		return source.enemy_intent_tooltip(key)
+	return ""
 
 static func direct_inputs(source: Control, operations: Array) -> Variant:
 	# Retain only empty direct groups. Terrain and special HUD painters use

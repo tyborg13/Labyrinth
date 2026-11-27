@@ -148,7 +148,8 @@ func _capture_exit(instance: Node, fixture: Dictionary) -> void:
 	var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
 	var target_tiles: Array[Vector2i] = CombatObjectiveRules.exit_target_tiles(objective)
 	var door_tiles: Array[Vector2i] = CombatObjectiveRules.exit_door_tiles(objective)
-	_assert_live_hud(instance, "REACH THE EXIT", "marked threshold")
+	var detail: String = "Reach the marked tile" if target_tiles.size() == 1 else "Reach any of %d marked tiles" % target_tiles.size()
+	_assert_live_hud(instance, "REACH THE EXIT", detail)
 	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
 	var presentation: Dictionary = board.get("presentation") as Dictionary if board != null else {}
 	if target_tiles.is_empty() or presentation.get("objective_exit_target_tiles", []) != target_tiles:

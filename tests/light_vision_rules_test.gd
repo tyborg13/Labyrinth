@@ -322,7 +322,7 @@ func _check_last_eclipse(engine: EngineRules, state: Dictionary) -> void:
 		"Leaving the fixed marks avoids Last Eclipse damage, even after gaining Light and Vision")
 	var copy: String = "This enemy starts Eclipse for your next X turns, then hits you and your Illusions on Marked tiles."
 	var token: Dictionary = Icons.tokens_for_action(attack)[-1]
-	_expect(str(token.get("tooltip", "")) == copy.replace(" X ", " 2 ") and Icons.description("umbra_eclipse") == copy,
+	_expect(str(token.get("tooltip", "")) == copy.replace("X turns", "turn") and Icons.description("umbra_eclipse") == copy,
 		"Last Eclipse tooltip and glossary describe fixed marks")
 
 func _check_hero_aura(engine: EngineRules, state: Dictionary) -> void:

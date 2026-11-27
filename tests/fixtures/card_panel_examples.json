@@ -116,7 +116,7 @@
     "panels": [
       {
         "title": "Electrified",
-        "text": "A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles."
+        "text": "A Lightning card's hit on an Electrified tile also hits each visible enemy on connected Electrified tiles."
       },
       {
         "title": "Sweeping Strike",

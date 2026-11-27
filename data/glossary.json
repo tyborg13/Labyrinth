@@ -39,7 +39,7 @@
     "id": "charge",
     "name": "Charge",
     "icon": "charge",
-    "definition": "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.",
+    "definition": "At 3 Charge, this enemy's next attack is Arc Lash.",
     "aliases": [
       "gain_charge",
       "reset_charge",
@@ -107,7 +107,7 @@
     "id": "surface_electrified",
     "name": "Electrified",
     "icon": "surface_electrified",
-    "definition": "A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.",
+    "definition": "A Lightning card's hit on an Electrified tile also hits each visible enemy on connected Electrified tiles.",
     "aliases": []
   },
   {
@@ -315,7 +315,7 @@
     "id": "swap",
     "name": "Swap",
     "icon": "swap",
-    "definition": "Trade places with a visible enemy or one of your illusions.",
+    "definition": "Trade places with a visible enemy or one of your visible Illusions.",
     "aliases": []
   },
   {
@@ -366,7 +366,7 @@
     "id": "illusion_swap",
     "name": "Swap Illusion",
     "icon": "illusion_swap",
-    "definition": "Trade places with one of your illusions.",
+    "definition": "Trade places with one of your visible Illusions.",
     "aliases": []
   },
   {
@@ -466,7 +466,7 @@
     "id": "cinder_marks",
     "name": "Cinder Marks",
     "icon": "cinder_marks",
-    "definition": "When this attack lands, each unit on a Marked tile takes X damage, and each Marked tile becomes Fire.",
+    "definition": "When this attack lands, you and your Illusions on Marked tiles take X damage, and each Marked tile becomes Fire.",
     "aliases": [
       "meteor_marks",
       "Kindle Ground"
@@ -556,7 +556,7 @@
     "id": "rewards",
     "name": "Rewards",
     "icon": "rewards",
-    "definition": "After combat, take 1 of 3 cards, or skip to heal 3.",
+    "definition": "After combat, choose a reward.",
     "aliases": []
   },
   {
@@ -598,7 +598,7 @@
     "id": "targeting",
     "name": "Targeting",
     "icon": "targeting",
-    "definition": "Targets must be visible and within Range. Ranged attacks also need line of sight.",
+    "definition": "Attack targets must be visible and within Range. Ranged attacks also need line of sight.",
     "aliases": []
   },
   {
@@ -773,7 +773,7 @@
     "id": "skill_curators_patience",
     "name": "Curator's Patience",
     "icon": "skill_curators_patience",
-    "definition": "After choosing a relic, save one unchosen relic for your next relic offer.",
+    "definition": "After choosing a relic, save one unchosen relic for your next Relic room.",
     "aliases": []
   },
   {

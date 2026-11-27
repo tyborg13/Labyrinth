@@ -1,0 +1,309 @@
+{
+  "covered_tiles": 10,
+  "covered_units": 4,
+  "fight": "2-9_-7",
+  "focus": {
+    "count": 2,
+    "fraction": 0.63671875,
+    "tile": [
+      5,
+      2
+    ]
+  },
+  "kind": "normal",
+  "objective": "kill_all",
+  "room_kind": "combat",
+  "section": 2,
+  "seed": 1,
+  "stacked": 1,
+  "tiles": [
+    {
+      "contents": [
+        "terrain terrain_1_2"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.39453125,
+          "id": "unit:enemy_1",
+          "tile": [
+            2,
+            3
+          ]
+        },
+        {
+          "fraction": 0.19140625,
+          "id": "pillar:3,4",
+          "tile": [
+            3,
+            4
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        1,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "terrain terrain_1_3"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.171875,
+          "id": "unit:enemy_1",
+          "tile": [
+            2,
+            3
+          ]
+        },
+        {
+          "fraction": 0.30078125,
+          "id": "pillar:3,4",
+          "tile": [
+            3,
+            4
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        1,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "Arc Thrall [enemy_2]"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.953125,
+          "id": "pillar:4,2",
+          "tile": [
+            4,
+            2
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        1
+      ]
+    },
+    {
+      "contents": [
+        "Cinder Ooze [enemy_1]"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.953125,
+          "id": "pillar:3,4",
+          "tile": [
+            3,
+            4
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        2,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "pillar"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.1875,
+          "id": "unit:player",
+          "tile": [
+            5,
+            2
+          ]
+        },
+        {
+          "fraction": 0.19140625,
+          "id": "pillar:6,4",
+          "tile": [
+            6,
+            4
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        4,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "pillar"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.3046875,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "player [player]",
+        "surface electrified"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.63671875,
+          "id": "unit:enemy_3",
+          "tile": [
+            6,
+            3
+          ]
+        },
+        {
+          "fraction": 0.3046875,
+          "id": "pillar:6,4",
+          "tile": [
+            6,
+            4
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        5,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "trap trap_4_5"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        4,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "terrain terrain_5_4"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:6,4",
+          "tile": [
+            6,
+            4
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        5,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "Arc Thrall [enemy_3]"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:6,4",
+          "tile": [
+            6,
+            4
+          ]
+        },
+        {
+          "fraction": 0.296875,
+          "id": "terrain:7,4",
+          "tile": [
+            7,
+            4
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        6,
+        3
+      ]
+    }
+  ],
+  "turn": 2,
+  "units": [
+    {
+      "fraction": 0.58894472361809,
+      "tile": [
+        3,
+        1
+      ],
+      "unit": "Arc Thrall [enemy_2]"
+    },
+    {
+      "fraction": 0.814733369983507,
+      "tile": [
+        2,
+        3
+      ],
+      "unit": "Cinder Ooze [enemy_1]"
+    },
+    {
+      "fraction": 0.283681214421252,
+      "tile": [
+        5,
+        2
+      ],
+      "unit": "player [player]"
+    },
+    {
+      "fraction": 0.328909952606635,
+      "tile": [
+        6,
+        3
+      ],
+      "unit": "Arc Thrall [enemy_3]"
+    }
+  ],
+  "old_stacked": 1,
+  "old_score": 19,
+  "new_score": 23,
+  "campaign": {
+    "id": "fel01-round0-diagnostic-9999",
+    "seed_directory": "fel01-census-001-seed1"
+  },
+  "composition": {
+    "boss_id": "",
+    "enemies_on_board": 3,
+    "visible_pillars": 4
+  }
+}

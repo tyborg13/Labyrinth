@@ -16,6 +16,9 @@ const CALLOUT_TARGET_GAP: float = 22.0
 const REWARD_CALLOUT_GAP: float = 12.0
 const SPOTLIGHT_GROW: float = 3.0
 const SPOTLIGHT_CORNER: float = 16.0
+const SPOTLIGHT_ACCENT := Color("f0bd63")
+const SPOTLIGHT_CORE_WIDTH: float = 2.5
+const SPOTLIGHT_HALO_WIDTH: float = 3.0
 const MAX_SPOTLIGHTS: int = 24
 const BLOCKED_DURATION_MSEC: int = 900
 const MAX_PRESENTATION_DELTA_SECONDS: float = 0.1
@@ -27,6 +30,8 @@ var _phase_id: String = ""
 var _definition: Dictionary = {}
 var _spotlight_rects: Array = []
 var _evidence_rects: Array = []
+var _board_silhouette: Array[PackedVector2Array]
+var _board_spotlight_holes: Array[PackedVector2Array]
 var _avoid_rects: Array = []
 var _reward_banner_rect: Rect2 = Rect2()
 var _reward_skip_rect: Rect2 = Rect2()
@@ -47,6 +52,7 @@ var _completion_requested: bool = false
 var _callout: PanelContainer
 var _icon_frame: PanelContainer
 var _icon: TextureRect
+var _progress_row: HBoxContainer
 var _progress_label: Label
 var _progress_segments: Array = []
 var _kicker: Label
@@ -103,13 +109,14 @@ func configure(
 	_icon.texture = ActionIcons.icon_texture(icon_key) if not icon_key.is_empty() else null
 	_kicker.text = str(_definition.get("kicker", "GUIDED RUN"))
 	_title.text = str(_definition.get("title", "Your Next Action"))
+	_progress_row.visible = _definition.has("lesson")
 	_progress_label.text = "GUIDED RUN • %d/%d" % [
 		int(_definition.get("lesson", 1)),
 		int(_definition.get("lesson_total", 1)),
 	]
 	_continue_button.visible = bool(_definition.get("requires_continue", false))
 	_continue_button.text = str(_definition.get("continue_text", "Continue"))
-	_skip_button.visible = _phase_id != "complete"
+	_skip_button.visible = _phase_id != "complete" and not bool(_definition.get("hide_skip", false))
 	# The final acknowledgement sits over an existing full-screen pre-battle
 	# modal. Own that input plane explicitly so its Begin button cannot lose the
 	# pointer to the modal beneath it. Gameplay phases remain click-through.
@@ -152,11 +159,24 @@ func set_evidence_rects(evidence_rects: Array) -> void:
 	_layout_callout()
 	queue_redraw()
 
+func set_board_silhouette(silhouette: Array[PackedVector2Array]) -> void:
+	if silhouette == _board_silhouette:
+		return
+	_board_silhouette = silhouette
+	_board_spotlight_holes.clear()
+	for part: PackedVector2Array in silhouette:
+		for grown: PackedVector2Array in Geometry2D.offset_polygon(part, SPOTLIGHT_GROW, Geometry2D.JOIN_ROUND):
+			if not Geometry2D.is_polygon_clockwise(grown):
+				_board_spotlight_holes.append(grown)
+	queue_redraw()
+
 func clear_prompt() -> void:
 	_phase_id = ""
 	_definition.clear()
 	_spotlight_rects.clear()
 	_evidence_rects.clear()
+	_board_silhouette.clear()
+	_board_spotlight_holes.clear()
 	_avoid_rects.clear()
 	_reward_banner_rect = Rect2()
 	_reward_skip_rect = Rect2()
@@ -175,6 +195,7 @@ func clear_prompt() -> void:
 	set_meta("prompt_id", "")
 	set_meta("spotlight_rects", [])
 	set_meta("spotlight_hole_count", 0)
+	set_meta("board_spotlight_holes", [])
 	set_meta("spotlight_frame_count", 0)
 	set_meta("spotlight_frame_rects", [])
 	set_meta("spotlight_glow_count", 0)
@@ -228,6 +249,9 @@ func _on_prompt_drawn() -> void:
 
 func _pulse_msec() -> int:
 	return floori(float(_pulse_epoch_usec + roundi(_presentation_seconds * 1000000.0)) / 1000.0)
+
+func spotlight_pulse() -> float:
+	return 1.0 if _reduced_motion else 0.78 + 0.22 * sin(float(_pulse_msec()) * PULSE_RADIANS_PER_SECOND / 1000.0)
 
 func _on_blocked_feedback_drawn() -> void:
 	if not is_visible_in_tree() or not _feedback.visible or _blocked_has_drawn: return
@@ -292,14 +316,20 @@ func _draw() -> void:
 			local_evidence.append(local_rect)
 	var holes: Array = local_spotlights.duplicate()
 	holes.append_array(local_evidence)
-	_draw_dimmer_with_holes(holes)
-	var frame_spotlights: Array = local_spotlights.duplicate()
-	set_meta("spotlight_hole_count", holes.size())
+	var board_holes: Array[PackedVector2Array]
+	if not _board_spotlight_holes.is_empty():
+		var to_local: Transform2D = get_global_transform_with_canvas().affine_inverse()
+		for hole: PackedVector2Array in _board_spotlight_holes:
+			board_holes.append(to_local * hole)
+	_draw_dimmer_with_holes(holes, board_holes)
+	var frame_spotlights: Array = local_spotlights if bool(_definition.get("spotlight_frame", true)) else []
+	set_meta("spotlight_hole_count", holes.size() + board_holes.size())
+	set_meta("board_spotlight_holes", _board_spotlight_holes)
 	set_meta("spotlight_frame_count", frame_spotlights.size())
 	set_meta("spotlight_frame_rects", _global_spotlight_rects(frame_spotlights))
-	var pulse: float = 1.0 if _reduced_motion else 0.78 + 0.22 * sin(float(_pulse_msec()) * PULSE_RADIANS_PER_SECOND / 1000.0)
+	var pulse: float = spotlight_pulse()
 	var blocked: bool = _feedback.visible
-	var accent: Color = Color("e7775c") if blocked else Color("f0bd63")
+	var accent: Color = Color("e7775c") if blocked else SPOTLIGHT_ACCENT
 	var attention_pulse: bool = bool(_definition.get("attention_pulse", false))
 	# Keep tutorial emphasis outside the target. A filled wash changes the
 	# board/card art underneath it and can read like a screen-wide color filter.
@@ -317,12 +347,22 @@ func _global_spotlight_rects(local_rects: Array) -> Array:
 		result.append(Rect2(rect.position + global_position, rect.size))
 	return result
 
-func _draw_dimmer_with_holes(holes: Array) -> void:
-	if holes.is_empty():
-		draw_rect(Rect2(Vector2.ZERO, size), Color(0.025, 0.018, 0.025, 0.76))
+func _draw_dimmer_with_holes(holes: Array, board_holes: Array[PackedVector2Array]) -> void:
+	var dim_color := Color(0.025, 0.018, 0.025, 0.76)
+	if holes.is_empty() and board_holes.is_empty():
+		draw_rect(Rect2(Vector2.ZERO, size), dim_color)
 		return
 	var xs: Array = [0.0, size.x]
 	var ys: Array = [0.0, size.y]
+	var board_bounds: Array[Rect2]
+	for board_hole: PackedVector2Array in board_holes:
+		var bounds := Rect2(board_hole[0], Vector2.ZERO)
+		for point: Vector2 in board_hole:
+			bounds = bounds.expand(point)
+		board_bounds.append(bounds)
+		# Split through the silhouette so no cell can fully enclose it.
+		# Subtracting it from a cell then yields only simple polygons.
+		xs.append(clampf(bounds.get_center().x, 0.0, size.x))
 	for hole: Rect2 in holes:
 		xs.append(clampf(hole.position.x, 0.0, size.x))
 		xs.append(clampf(hole.end.x, 0.0, size.x))
@@ -343,14 +383,43 @@ func _draw_dimmer_with_holes(holes: Array) -> void:
 				if hole.has_point(cell.get_center()):
 					inside_hole = true
 					break
-			if not inside_hole:
-				draw_rect(cell, Color(0.025, 0.018, 0.025, 0.76))
+			if inside_hole:
+				continue
+			if board_holes.is_empty():
+				draw_rect(cell, dim_color)
+				continue
+			for fragment: PackedVector2Array in _dimmer_cell_fragments(cell, board_holes, board_bounds):
+				draw_colored_polygon(fragment, dim_color)
+
+func _dimmer_cell_fragments(
+	cell: Rect2, board_holes: Array[PackedVector2Array], board_bounds: Array[Rect2]
+) -> Array[PackedVector2Array]:
+	var fragments: Array[PackedVector2Array]
+	fragments.append(PackedVector2Array([
+		cell.position, Vector2(cell.end.x, cell.position.y), cell.end, Vector2(cell.position.x, cell.end.y),
+	]))
+	for index: int in board_holes.size():
+		if not cell.intersects(board_bounds[index]):
+			continue
+		var clipped: Array[PackedVector2Array]
+		for fragment: PackedVector2Array in fragments:
+			clipped.append_array(Geometry2D.clip_polygons(fragment, board_holes[index]))
+		fragments = clipped
+	return fragments
+
+static func spotlight_halo(accent: Color, pulse: float) -> Color:
+	return Color(accent, 0.10 + 0.13 * pulse)
+
+static func spotlight_core(accent: Color) -> Color:
+	return Color(accent, 0.94)
+
+static func spotlight_halo_distance(pulse: float, reduced_motion: bool) -> float:
+	return 2.0 if reduced_motion else 2.0 + 3.0 * pulse
 
 func _draw_spotlight_frame(rect: Rect2, accent: Color, pulse: float) -> void:
-	var halo_alpha: float = 0.10 + 0.13 * pulse
-	var halo_distance: float = 2.0 if _reduced_motion else 2.0 + 3.0 * pulse
-	draw_rect(rect.grow(halo_distance), Color(accent.r, accent.g, accent.b, halo_alpha), false, 3.0)
-	draw_rect(rect, Color(accent.r, accent.g, accent.b, 0.94), false, 2.5)
+	var halo_distance: float = spotlight_halo_distance(pulse, _reduced_motion)
+	draw_rect(rect.grow(halo_distance), spotlight_halo(accent, pulse), false, SPOTLIGHT_HALO_WIDTH)
+	draw_rect(rect, spotlight_core(accent), false, SPOTLIGHT_CORE_WIDTH)
 	var corner: float = minf(SPOTLIGHT_CORNER, minf(rect.size.x, rect.size.y) * 0.30)
 	for corner_data: Dictionary in [
 		{"point": rect.position, "x": Vector2(corner, 0.0), "y": Vector2(0.0, corner)},
@@ -388,17 +457,17 @@ func _build() -> void:
 	column.add_theme_constant_override("separation", 7)
 	margin.add_child(column)
 
-	var progress_row := HBoxContainer.new()
-	progress_row.add_theme_constant_override("separation", 8)
-	column.add_child(progress_row)
+	_progress_row = HBoxContainer.new()
+	_progress_row.add_theme_constant_override("separation", 8)
+	column.add_child(_progress_row)
 	_progress_label = Label.new()
 	_progress_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	UiTypography.apply_label_role(_progress_label, UiTypography.ROLE_CAPTION)
 	_progress_label.add_theme_color_override("font_color", Color("d6bb8a"))
-	progress_row.add_child(_progress_label)
+	_progress_row.add_child(_progress_label)
 	var segments := HBoxContainer.new()
 	segments.add_theme_constant_override("separation", 3)
-	progress_row.add_child(segments)
+	_progress_row.add_child(segments)
 	for _index: int in range(10):
 		var segment := ColorRect.new()
 		segment.custom_minimum_size = Vector2(18.0, 4.0)

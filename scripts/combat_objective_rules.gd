@@ -37,7 +37,7 @@ const DEFINITIONS := {
 	REACH_EXIT: {
 		"name": "Reach the Exit",
 		"short_name": "Reach Exit",
-		"description": "Reach a marked door to escape.",
+		"description": "Reach a marked tile to escape.",
 		"icon_path": ICON_ROOT + "reach_the_exit.png"
 	}
 }
@@ -281,14 +281,17 @@ static func hud_title_for_objective(objective: Dictionary) -> String:
 			return "Defeat %s" % name.get_slice(",", 0)
 	return title_for_objective(objective)
 
-static func description_for_objective(objective: Dictionary) -> String:
+static func description_for_objective(objective: Dictionary, include_battlefield_rules: bool = true) -> String:
 	var type: String = str(objective.get("type",KILL_ALL))
 	if str(objective.get("special_type", "")) == LastLightRooms.TYPE: return LastLightRooms.description()
 	if str(objective.get("special_type", "")) == "umbral_snare":
+		if not include_battlefield_rules: return description(type)
 		return description(type) + "\n" + str(SnareRooms.Pressure.definition({"objective": objective})["text"])
 	if str(objective.get("special_type", "")) == "ember_hoarder" and type == KILL_LEADER: return str(Specials.definition("ember_hoarder")["objective_description"])
 	if str(objective.get("special_type", "")) == "warband":
-		return "Defeat the captain to make each follower flee." + "\n" + preload("res://scripts/warband_combat_rules.gd").order_line(objective)
+		var sentence: String = "Defeat the captain to make each follower flee."
+		if include_battlefield_rules: sentence += "\n" + preload("res://scripts/warband_combat_rules.gd").order_line(objective)
+		return sentence
 	if type == KILL_LEADER:
 		if objective.has("objective_description"):
 			return str(objective["objective_description"])

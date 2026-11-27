@@ -1642,9 +1642,14 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action,"frost_armor","amount",int(action.get("amount",0)),"neutral",description("frost_armor")))
 		"umbra_eclipse":
 			_append_damage_token(tokens, "ranged", action, options)
-			var duration: int = maxi(1, int(action.get("duration", 2)))
-			var eclipse_copy: String = description("umbra_eclipse", duration)
-			tokens.append(_token_for_action_field(action, "eclipse", "duration", duration, "neutral", eclipse_copy))
+			# The resolver clamps the cast counter to 1 and the turn-start tick
+			# decrements it before the player acts. Count only upcoming turns.
+			var player_turns: int = maxi(1, int(action.get("duration", 2))) - 1
+			if player_turns > 0:
+				var eclipse_copy: String = description("umbra_eclipse", player_turns)
+				tokens.append(_token_for_action_field(action, "eclipse", "duration", player_turns, "neutral", eclipse_copy))
+			else:
+				tokens.append(token_for("eclipse", null, "neutral", label("eclipse")))
 		"retaliate":
 			_append_retaliate_tokens(tokens, action, options)
 		"quicken":

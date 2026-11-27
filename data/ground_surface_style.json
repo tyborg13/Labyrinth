@@ -109,7 +109,7 @@
     ]
    ]
   },
-  "decals_per_tile": 3,
+  "decals_per_tile": 2,
   "min_spacing_cells": 10,
   "cycle_fps": 8,
   "cycle_span": 1,

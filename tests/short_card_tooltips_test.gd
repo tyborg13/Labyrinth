@@ -104,6 +104,8 @@ func _run() -> void:
 	superseding.merge(copy20["glossary_definitions"], true)
 	superseding.merge(pla01["glossary"], true)
 	superseding["traps"] = "Traps hit when entered or attacked."
+	# txt-42: Warbands, Guardians and dragons differ, so the tooltip says "most combats".
+	superseding["rewards"] = "After combat, choose a reward."
 	_expect((_expectations["owners"] as Dictionary).size() == (copy["entries"] as Array).size(), "Every changed term has an independently specified owning topic")
 	for change: Dictionary in copy["entries"]:
 		var id: String = str(change["id"])

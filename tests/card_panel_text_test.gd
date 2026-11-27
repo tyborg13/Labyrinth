@@ -17,6 +17,7 @@ const PLA06_COPY: String = "res://tests/fixtures/pla06_ice_copy.json"
 const PLA04_RETIRED_ROWS: Array = ["keg_detonate", "terrain_burst_any", "terrain_burst_own", "shatter_illusion"]
 const OUTPUT_DIR: String = "res://proof/tt-02"
 const WORD_COUNT_SCOPE: String = "title_and_body"
+const ELECTRIFIED_RULE: String = "A Lightning card's hit on an Electrified tile also hits each visible enemy on connected Electrified tiles."
 const ASSEMBLY_FIXTURE: Dictionary = {"same_term_values": [2, 4], "different_target_value": 3, "petrify_range": 3, "modifier_amount": 1}
 const COUNT_FIXTURE: Dictionary = {"counts": [0, 1, 2], "other_placeholder_value": 2}
 var _failures: Array[String]
@@ -95,6 +96,9 @@ static func stack_errors(entries: Array[Dictionary], card: Dictionary) -> Array[
 		var radius: RegExMatch = light_number.search(body)
 		var is_light_rule: bool = term == "illuminate" and body == Glossary.fill_amount(light_template, radius.get_string(1) if radius != null else null)
 		var word_budget: int = 20 if is_light_rule else 16
+		# txt-42's exact definition needs one more word to specify visibility.
+		if term == "surface_electrified" and body == ELECTRIFIED_RULE:
+			word_budget = 17
 		if term == "next_attack" and body.contains("for each tile you moved this turn"):
 			word_budget = 22 # The approved Headlong sentence is also used by its fallback row.
 		if body.contains("\n") or marks != 1 or body.split(" ", false).size() > word_budget:

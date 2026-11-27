@@ -1,0 +1,251 @@
+{
+  "covered_tiles": 9,
+  "covered_units": 2,
+  "fight": "1-7_-3",
+  "focus": {
+    "count": 2,
+    "fraction": 0.59375,
+    "tile": [
+      3,
+      7
+    ]
+  },
+  "kind": "normal",
+  "objective": "kill_all",
+  "room_kind": "combat",
+  "section": 1,
+  "seed": 1,
+  "stacked": 3,
+  "tiles": [
+    {
+      "contents": [
+        "terrain terrain_3_2"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.953125,
+          "id": "pillar:4,3",
+          "tile": [
+            4,
+            3
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "terrain terrain_3_3"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:4,3",
+          "tile": [
+            4,
+            3
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "terrain terrain_3_4"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.296875,
+          "id": "terrain:4,5",
+          "tile": [
+            4,
+            5
+          ]
+        },
+        {
+          "fraction": 0.3046875,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "Tunnel Crawler [enemy_3]",
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.1875,
+          "id": "unit:player",
+          "tile": [
+            3,
+            6
+          ]
+        },
+        {
+          "fraction": 0.578125,
+          "id": "unit:enemy_1",
+          "tile": [
+            3,
+            7
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        2,
+        6
+      ]
+    },
+    {
+      "contents": [
+        "terrain terrain_3_5"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.953125,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "terrain terrain_2_7"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.1796875,
+          "id": "door:4,8",
+          "tile": [
+            4,
+            8
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        2,
+        7
+      ]
+    },
+    {
+      "contents": [
+        "player [player]",
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        3,
+        6
+      ]
+    },
+    {
+      "contents": [
+        "terrain terrain_4_5"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        4,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "Dust Acolyte [enemy_1]",
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.59375,
+          "id": "door:4,8",
+          "tile": [
+            4,
+            8
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        3,
+        7
+      ]
+    }
+  ],
+  "turn": 3,
+  "units": [
+    {
+      "fraction": 0.575463371579876,
+      "tile": [
+        2,
+        6
+      ],
+      "unit": "Tunnel Crawler [enemy_3]"
+    },
+    {
+      "fraction": 0.386148007590133,
+      "tile": [
+        3,
+        6
+      ],
+      "unit": "player [player]"
+    }
+  ],
+  "old_stacked": 3,
+  "old_score": 16,
+  "new_score": 18,
+  "campaign": {
+    "id": "fel01-round0-diagnostic-9999",
+    "seed_directory": "fel01-census-001-seed1"
+  },
+  "composition": {
+    "boss_id": "",
+    "enemies_on_board": 3,
+    "visible_pillars": 2
+  }
+}

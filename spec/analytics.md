@@ -445,6 +445,9 @@ Version 2 milestones include the authored first-combat sequence: the two-play
 counter acknowledgement, Bone Dart setup, Quick Stab kill, observed kill refund,
 and Brace spending that refunded play. Their normal `card_played` records remain
 the source of truth for damage and `death_bonus_card_plays_gained`.
+The optional Umbra acknowledgement uses `phase_id` `umbra` and `milestone_id`
+`umbra_read` in `guided_tutorial_step_completed`. It adds one to
+`completed_step_count` when Continue commits it on a completed profile.
 
 The guided setup stages Pale Spark, Quick Stab and Brace from the real starting
 loadout, then builds its draw pile from that loadout's remaining copies. For new

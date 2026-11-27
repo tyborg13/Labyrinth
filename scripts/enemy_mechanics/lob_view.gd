@@ -8,6 +8,7 @@ const Bursts = preload("res://scripts/tile_burst_fx.gd")
 const Sfx = preload("res://scripts/attack_sfx_library.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
 const DangerTiles = preload("res://scripts/threat_tiles.gd")
+const BadgeGroups = preload("res://scripts/mark_badge_groups.gd")
 const Data = preload("res://scripts/game_data.gd")
 const ARC_SECONDS: float = 0.45
 const SPLASH_SECONDS: float = 0.25
@@ -200,13 +201,20 @@ static func draw_badges(view: Control, isolated_enemy: Dictionary = {}) -> void:
 		state = state.duplicate(false)
 		state["enemies"] = [isolated_enemy]
 		held = _marks(state)
+	var numbers_by_enemy: Dictionary = {}
 	for tile: Vector2i in held:
-		if not view._board_tile_is_visible_to_player(tile): continue
 		var enemy: Dictionary = held[tile]["enemy"]
 		if not isolated_enemy.is_empty() and enemy.get("id") != isolated_enemy.get("id"): continue
-		draw_mark_badge(view, tile, icon, mark_tooltip(state, enemy), held[tile]["damage"])
+		var id: int = int(enemy["id"])
+		if not numbers_by_enemy.has(id): numbers_by_enemy[id] = {}
+		numbers_by_enemy[id][tile] = held[tile]["damage"]
+	for numbers_by_tile: Dictionary in numbers_by_enemy.values():
+		for anchor: Vector2i in BadgeGroups.anchors(view, numbers_by_tile):
+			var enemy: Dictionary = held[anchor]["enemy"]
+			draw_mark_badge(view, anchor, icon, mark_tooltip(state, enemy), held[anchor]["damage"])
 
 static func draw_mark_badge(view: Control, tile: Vector2i, icon: Texture2D, tooltip: String, damage: Variant = null) -> void:
+	view._drew_mark_group_badge = true
 	var font: Font = view.get_theme_default_font()
 	var size: float = clampf(view._tile_width() * 0.22, 24.0, 40.0)
 	var radius: float = size * 0.62
@@ -224,7 +232,7 @@ static func draw_mark_badge(view: Control, tile: Vector2i, icon: Texture2D, tool
 	var text: String = str(damage)
 	var width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 	var baseline := Vector2(center.x + radius * 0.60, center.y + radius * 0.95)
-	view._draw_outlined_string(font, baseline, text, width + 4, font_size, view.COLLISION_MARKER_RING.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2)
+	view._draw_tile_damage_numeral(font, baseline, text, width + 4, font_size, view.COLLISION_MARKER_RING.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2)
 	if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(width + 4, font_size + 4)), tooltip, tile)
 	else: view._register_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(width + 4, font_size + 4)), tooltip)
 

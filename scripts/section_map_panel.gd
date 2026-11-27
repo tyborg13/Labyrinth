@@ -41,6 +41,7 @@ var run_state: Dictionary = {}
 var viewed_section: int = 0
 var selected_coord: Vector2i = Graph.INVALID
 var node_buttons: Dictionary = {}
+var _show_exit_destinations: Dictionary = {}
 # Optional scene-owned action gate. Geometry and navigation remain map-owned.
 var room_action_filter: Callable
 var _skin := UiSkin.new()
@@ -401,15 +402,21 @@ func _full_field(control: Control) -> void:
 func set_run_state(source: Dictionary) -> void:
 	var combat: Dictionary = source.get("combat_state", {})
 	var objective: Dictionary = combat.get("objective", {})
+	var open_exits: Dictionary = {}
+	if str(source.get("mode", "")) == "combat" and str(objective.get("type", "")) == Objectives.REACH_EXIT:
+		for exit_spec: Variant in objective.get("exits", []):
+			if exit_spec is Dictionary and not bool(exit_spec.get("sealed", false)) and exit_spec.get("coord") is Vector2i:
+				open_exits[exit_spec["coord"]] = true
 	var revision: int = int(source.get("section_map_layout_revision", Graph.section(source, 0).get("lane_count", 0)))
 	var next_signature: int = hash([source.get("rooms", {}), source.get("map_sections", []), source.get("current_room"), source.get("mode"), source.get("seed"), revision,
-		objective.get("type", ""), objective.get("objective_description", ""), objective.get("leader_type", ""), combat.get("room_coord")])
+		objective.get("type", ""), objective.get("objective_description", ""), objective.get("leader_type", ""), combat.get("room_coord"), open_exits])
 	if next_signature == _signature:
 		return
 	_cancel_activation()
 	var previous_current: Vector2i = run_state.get("current_room", Graph.INVALID)
 	_signature = next_signature
-	run_state = {"rooms": source.get("rooms", {}), "map_sections": source.get("map_sections", []), "current_room": source.get("current_room", Vector2i.ZERO), "mode": source.get("mode", "room"), "section_map_version": source.get("section_map_version", 0), "seed": source.get("seed", 0), "section_map_layout_revision": revision, "reach_exit": str(objective.get("type", "")) == Objectives.REACH_EXIT}
+	_show_exit_destinations = open_exits
+	run_state = {"rooms": source.get("rooms", {}), "map_sections": source.get("map_sections", []), "current_room": source.get("current_room", Vector2i.ZERO), "mode": source.get("mode", "room"), "section_map_version": source.get("section_map_version", 0), "seed": source.get("seed", 0), "section_map_layout_revision": revision}
 	_current_objective = objective if combat.get("room_coord") == run_state["current_room"] else {}
 	_first_completed_encounter = {}
 	if revision < Objectives.STANDARD_KILL_ALL_REVISION:
@@ -521,7 +528,7 @@ func can_activate_room(coord: Vector2i) -> bool:
 	var mode: String = str(run_state.get("mode", ""))
 	if scout_targeting:
 		return mode in ["room", "combat", "pre_battle"] and not Graph.scout_targets(run_state, coord).is_empty()
-	return available_destinations().has(coord) and (mode == "room" or (mode == "combat" and bool(run_state.get("reach_exit", false))))
+	return available_destinations().has(coord) and (mode == "room" or _show_exit_destinations.has(coord))
 
 # Read native controls at the time of use, so scroll, ancestor transforms,
 # resize and UI scale cannot leave a tutorial rectangle in board coordinates.

@@ -378,7 +378,7 @@
   "curators_patience": {
     "name": "Curator's Patience",
     "icon": "skill_curators_patience",
-    "description": "After choosing a relic, save one unchosen relic for your next relic offer.",
+    "description": "After choosing a relic, save one unchosen relic for your next Relic room.",
     "branch": "tactics",
     "tier": "junction",
     "position": [

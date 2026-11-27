@@ -1,0 +1,12 @@
+{
+  "viewport": [1920, 1080],
+  "ui_scale": 1.0,
+  "frames_per_second": 60,
+  "frames_per_strip": 25,
+  "sheet_size": [4800, 3740],
+  "matched_strips": {
+    "01-s0-seed15-0-0_2-t2-melee-01": ["Quick Stab", "sweep"],
+    "01-s0-seed15-0-0_2-t2-melee-03": ["Crushing Step", "sweep"],
+    "02-s0-seed17-0--1_1-t2-melee-01": ["Lunge", "claw_marks"]
+  }
+}

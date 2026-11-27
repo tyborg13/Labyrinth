@@ -1,0 +1,380 @@
+{
+  "covered_tiles": 15,
+  "covered_units": 2,
+  "fight": "0-1_3",
+  "focus": {
+    "count": 3,
+    "fraction": 0.31640625,
+    "tile": [
+      3,
+      3
+    ]
+  },
+  "kind": "normal",
+  "objective": "kill_all",
+  "room_kind": "combat",
+  "section": 0,
+  "seed": 12,
+  "stacked": 3,
+  "tiles": [
+    {
+      "contents": [
+        "surface ice"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.19140625,
+          "id": "pillar:3,4",
+          "tile": [
+            3,
+            4
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        1,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "surface ice"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.30078125,
+          "id": "pillar:3,4",
+          "tile": [
+            3,
+            4
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        1,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "terrain terrain_2_2"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.51171875,
+          "id": "unit:player",
+          "tile": [
+            3,
+            3
+          ]
+        },
+        {
+          "fraction": 0.3046875,
+          "id": "pillar:3,4",
+          "tile": [
+            3,
+            4
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        2,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "terrain terrain_3_1"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.953125,
+          "id": "pillar:4,2",
+          "tile": [
+            4,
+            2
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        1
+      ]
+    },
+    {
+      "contents": [
+        "Cinder Droplet [enemy_5]",
+        "Icefall telegraph"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.953125,
+          "id": "pillar:3,4",
+          "tile": [
+            3,
+            4
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        2,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.1875,
+          "id": "unit:player",
+          "tile": [
+            3,
+            3
+          ]
+        },
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:4,2",
+          "tile": [
+            4,
+            2
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "terrain terrain_4_1"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:4,2",
+          "tile": [
+            4,
+            2
+          ]
+        },
+        {
+          "fraction": 0.51953125,
+          "id": "unit:enemy_1",
+          "tile": [
+            5,
+            2
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        4,
+        1
+      ]
+    },
+    {
+      "contents": [
+        "player [player]",
+        "surface fire",
+        "Icefall telegraph"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:3,4",
+          "tile": [
+            3,
+            4
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        3,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "pillar"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.19140625,
+          "id": "pillar:6,4",
+          "tile": [
+            6,
+            4
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        4,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "pillar"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.3046875,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "Tunnel Crawler [enemy_4]",
+        "Icefall telegraph"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.30078125,
+          "id": "pillar:6,4",
+          "tile": [
+            6,
+            4
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        4,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "Hoarfrost Seer [enemy_1]"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.3046875,
+          "id": "pillar:6,4",
+          "tile": [
+            6,
+            4
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        5,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "terrain terrain_3_5"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.953125,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "trap trap_3_6"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        6
+      ]
+    },
+    {
+      "contents": [
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:4,6",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        4,
+        5
+      ]
+    }
+  ],
+  "turn": 7,
+  "units": [
+    {
+      "fraction": 1.0,
+      "tile": [
+        2,
+        3
+      ],
+      "unit": "Cinder Droplet [enemy_5]"
+    },
+    {
+      "fraction": 0.316888045540797,
+      "tile": [
+        3,
+        3
+      ],
+      "unit": "player [player]"
+    }
+  ],
+  "old_stacked": 3,
+  "old_score": 22,
+  "new_score": 24,
+  "campaign": {
+    "id": "fel01-round0-diagnostic-9999",
+    "seed_directory": "fel01-census-seed12"
+  },
+  "composition": {
+    "boss_id": "",
+    "enemies_on_board": 3,
+    "visible_pillars": 4
+  }
+}

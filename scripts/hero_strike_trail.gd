@@ -49,7 +49,7 @@ func prepare(board: Control, effect: Dictionary, progress: float) -> Array[Dicti
 			samples.append({"progress": sample["progress"], "tip": body.position + (sample["tip"] as Vector2) * body.size / 255.0,
 				"inner": body.position + (sample["inner"] as Vector2) * body.size / 255.0})
 	var seed: int = int(effect.get("seed", _effect_seed(effect)))
-	return Trail.geometry(samples, kind, progress, Trail.CONTACT, window, str(effect.get("element", "none")), scale, seed, settings["length"], previous_progress)
+	return Trail.pixel_geometry(samples, kind, progress, Trail.CONTACT, window, str(effect.get("element", "none")), scale, seed, settings["length"], previous_progress)
 
 static func _effect_seed(effect: Dictionary) -> int:
 	# Sampling metadata must not change the existing deterministic sparks.

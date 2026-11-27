@@ -9,6 +9,8 @@ var light_build_count: int = 0
 var _entries: Dictionary = {}
 var _encoded: Dictionary = {}
 var _marks: Dictionary = {}
+var _mark_sources: Dictionary = {}
+var _visible_intents: Dictionary = {}
 var _lights: Dictionary = {}
 var _marks_ready: bool = false
 var _lights_ready: bool = false
@@ -19,26 +21,46 @@ func invalidate() -> void:
 	_entries.clear()
 	_encoded.clear()
 	_marks_ready = false
+	_mark_sources.clear()
+	_visible_intents.clear()
 	_lights_ready = false
 	_observed_lights.clear()
 
 func entries_for_tile(view: Control, tile: Vector2i) -> Array[Dictionary]:
 	var empty: Array[Dictionary]
 	if tile.x < 0 or not view._board_tile_is_visible_to_player(tile): return empty
-	if _entries.has(tile): return TypedArrays.dictionaries(_entries[tile])
 	if not _marks_ready:
 		_marks = Tooltip.mark_entries(view)
+		for marks: Array in _marks.values():
+			for mark: Dictionary in marks:
+				for key: String in mark["sources"]:
+					if not key.is_empty(): _mark_sources[key] = true
 		_marks_ready = true
 		mark_build_count += 1
+	refresh_intent_labels(view)
+	if _entries.has(tile): return TypedArrays.dictionaries(_entries[tile])
 	if not _lights_ready: refresh_lights(view)
-	var result: Array[Dictionary] = Tooltip.build_entries(view, tile, _marks, _lights)
+	var result: Array[Dictionary] = Tooltip.build_entries(view, tile, _marks, _lights, _visible_intents)
 	_entries[tile] = result
 	entry_build_count += 1
 	return result
 
 func encoded_for_tile(view: Control, tile: Vector2i) -> String:
+	refresh_intent_labels(view)
 	if not _encoded.has(tile): _encoded[tile] = Tooltip.encode(entries_for_tile(view, tile))
 	return str(_encoded[tile])
+
+func has_enemy_marks() -> bool:
+	return not _mark_sources.is_empty()
+
+func refresh_intent_labels(view: Control) -> void:
+	if not has_enemy_marks(): return
+	var next: Dictionary = Tooltip.visible_intent_sources(view, _mark_sources)
+	if next == _visible_intents: return
+	_visible_intents = next
+	revision += 1
+	_entries.clear()
+	_encoded.clear()
 
 func refresh_lights(view: Control) -> void:
 	var next: Dictionary = Tooltip.light_entries(view)

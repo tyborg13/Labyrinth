@@ -8,6 +8,7 @@ const ArtTreatment = preload("res://scripts/combat_art_treatment.gd")
 const Rules = preload("res://scripts/enemy_mechanics/burrow.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
+const BadgeGroups = preload("res://scripts/mark_badge_groups.gd")
 const EARTH: Color = Color("b98b45")
 const BURROW_ICON: String = "burrow"
 const ERUPT_ICON: String = "erupt"
@@ -81,27 +82,32 @@ static func draw_mark(view: Control, tile: Vector2i, draw_marks: Variant = null)
 		TileGlow.draw_wash(view, view._tile_polygon(tile), EARTH, 0.20)
 
 static func draw_badges(view: Control) -> void:
+	# Each burrowed enemy announces its own landing.
+	var player_tile: Vector2i = view.combat_state.get("player", {}).get("pos", Vector2i(-1, -1))
 	for mark: Dictionary in marks(view.combat_state):
-		var tile: Vector2i = mark["tile"]
-		if not view._board_tile_is_visible_to_player(tile): continue
-		var icon_size: float = clampf(view._tile_width() * 0.22, 24.0, 40.0)
-		var radius: float = icon_size * 0.62
-		var center: Vector2 = view._tile_center(tile) + Vector2(-view._tile_width() * 0.16, view._tile_height() * 0.22)
-		view.draw_circle(center + Vector2(0, 2), radius + 2, Color(0, 0, 0, 0.40))
-		view.draw_circle(center, radius, view.COLLISION_MARKER_FILL)
-		view.draw_arc(center, radius - 1.0, 0, TAU, 32, EARTH, 2.0, true)
-		var rect := Rect2(center - Vector2.ONE * icon_size * 0.5, Vector2.ONE * icon_size)
-		var texture: Texture2D = Icons.icon_texture(ERUPT_ICON)
-		if texture != null: view.draw_texture_rect(texture, rect, false)
 		var amount: int = int(mark["damage"])
-		var tooltip: String = Icons.tooltip("erupt") + "\n%d damage.%s" % [amount,
-			"\nYou are standing on it." if tile == view.combat_state.get("player", {}).get("pos") else ""]
-		if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(rect, tooltip, tile)
-		else: view._register_tooltip(rect, tooltip)
-		var font: Font = view.get_theme_default_font()
-		if font != null:
-			var size: int = int(round(clampf(icon_size * 0.50, 14.0, 20.0)))
-			view._draw_outlined_string(font, center + Vector2(radius * 0.60, radius * 0.95), str(amount), icon_size, size, EARTH, Color("060201"), 2.0)
+		for group: Dictionary in BadgeGroups.groups(view, {mark["tile"]: amount}):
+			_draw_badge(view, group["anchor"], amount, player_tile in group["tiles"])
+
+static func _draw_badge(view: Control, tile: Vector2i, amount: int, standing: bool) -> void:
+	view._drew_mark_group_badge = true
+	var icon_size: float = clampf(view._tile_width() * 0.22, 24.0, 40.0)
+	var radius: float = icon_size * 0.62
+	var center: Vector2 = view._tile_center(tile) + Vector2(-view._tile_width() * 0.16, view._tile_height() * 0.22)
+	view.draw_circle(center + Vector2(0, 2), radius + 2, Color(0, 0, 0, 0.40))
+	view.draw_circle(center, radius, view.COLLISION_MARKER_FILL)
+	view.draw_arc(center, radius - 1.0, 0, TAU, 32, EARTH, 2.0, true)
+	var rect := Rect2(center - Vector2.ONE * icon_size * 0.5, Vector2.ONE * icon_size)
+	var texture: Texture2D = Icons.icon_texture(ERUPT_ICON)
+	if texture != null: view.draw_texture_rect(texture, rect, false)
+	var tooltip: String = Icons.tooltip("erupt") + "\n%d damage.%s" % [amount,
+		"\nYou are standing on it." if standing else ""]
+	if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(rect, tooltip, tile)
+	else: view._register_tooltip(rect, tooltip)
+	var font: Font = view.get_theme_default_font()
+	if font != null:
+		var size: int = int(round(clampf(icon_size * 0.50, 14.0, 20.0)))
+		view._draw_tile_damage_numeral(font, center + Vector2(radius * 0.60, radius * 0.95), str(amount), icon_size, size, EARTH, Color("060201"), 2.0)
 
 static func erupt_damage(enemy: Dictionary) -> int:
 	for action: Dictionary in (enemy.get("intent", {}) as Dictionary).get("actions", []):

@@ -52,6 +52,8 @@ static func _authored_summary(intent: Dictionary, own_rows: Array) -> String:
 				text = text.replace("%s %d" % [old_label, int(token["tooltip_amount"])], cap)
 			elif icon == "detonate_cinders":
 				text = text.replace("Each Cinder Mark: Burst", "Each Cinder Mark on Fire: Burst")
+			elif icon == "eclipse":
+				text = text.replace("Eclipse X", ActionIcons.plain_text_for_tokens([token]))
 	return text
 
 static func _append_summary_row(parts: PackedStringArray, row: Array) -> void:

@@ -54,7 +54,7 @@ func _run() -> void:
 	var copy: Dictionary = {
 		"fire": "A unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.",
 		"ice": "A unit entering Ice or starting a turn on Ice gains Expose 2.",
-		"electrified": "A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.\nElectrified tiles also relay Chain.",
+		"electrified": "A Lightning card's hit on an Electrified tile also hits each visible enemy on connected Electrified tiles.\nElectrified tiles also relay Chain.",
 	}
 	for kind: String in ["fire", "ice", "electrified"]:
 		for trapped: bool in [false, true]:

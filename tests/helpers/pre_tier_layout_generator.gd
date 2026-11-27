@@ -14,4 +14,8 @@ func legacy_layout_digest() -> String:
 		# comparing every other byte with the historical placement golden.
 		if objective.get("description") != "Defeat each enemy.": return ""
 		objective["description"] = "Defeat every enemy."
+	elif objective["type"] == "reach_exit":
+		# fel-08 changes just this sentence (owner approved board-popups, 2026-11-27).
+		if objective.get("description") != "Reach a marked tile to escape.": return ""
+		objective["description"] = "Reach a marked door to escape."
 	return var_to_bytes(layout).hex_encode().sha256_text()

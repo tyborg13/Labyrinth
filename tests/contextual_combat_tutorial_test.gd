@@ -36,7 +36,7 @@ func _test_curriculum_catalog() -> void:
 	var phases: Array[String] = ContextualCombatTutorial.phase_ids()
 	var milestones: Array[String] = ContextualCombatTutorial.milestone_ids()
 	_assert(phases.size() == 24, "Authored curriculum should expose all twenty-four motor, rule, and decision phases")
-	_assert(milestones.size() == 15, "Authored curriculum should persist exactly fifteen committed milestones")
+	_assert(milestones.size() == 16 and milestones.back() == ContextualCombatTutorial.MILESTONE_UMBRA, "The fifteen guided milestones should precede the optional Umbra acknowledgement")
 	_assert(phases.front() == ContextualCombatTutorial.PHASE_SELECT_PLAYER, "Curriculum should begin by selecting the player")
 	_assert(phases.back() == ContextualCombatTutorial.PHASE_COMPLETE, "Curriculum should end with an explicit completion phase")
 	for phase_id: String in phases:
@@ -148,7 +148,7 @@ func _test_milestones_and_revision_semantics() -> void:
 	_assert(ContextualCombatTutorial.is_active(progression), "Committed milestones alone should leave the final acknowledgement available")
 	progression = ContextualCombatTutorial.complete_tutorial(progression)
 	_assert(ContextualCombatTutorial.is_completed(progression), "Explicit final acknowledgement should complete onboarding")
-	_assert(ContextualCombatTutorial.completed_steps(progression).size() == ContextualCombatTutorial.milestone_ids().size(), "Completion should seal every milestone")
+	_assert(ContextualCombatTutorial.completed_steps(progression) == _strings(ContextualCombatTutorial.MILESTONE_ORDER), "Completion should seal every guided milestone")
 	_assert(int(progression.get("progression_revision", -1)) == 16, "Fifteen milestone commits plus completion should produce sixteen revisions")
 
 func _test_terminal_states_and_replay() -> void:
@@ -201,7 +201,7 @@ func _test_merge_semantics() -> void:
 	var completed_profile: Dictionary = ContextualCombatTutorial.complete_tutorial(profile)
 	merged = ContextualCombatTutorial.merged_state(embedded, completed_profile)
 	_assert(str(merged.get("status", "")) == ContextualCombatTutorial.STATUS_COMPLETED, "Completion should win over a stale active copy")
-	_assert((merged.get("completed_steps", []) as Array).size() == ContextualCombatTutorial.milestone_ids().size(), "Completed reconciliation should include the entire curriculum")
+	_assert(merged.get("completed_steps", []) == _strings(ContextualCombatTutorial.MILESTONE_ORDER), "Completed reconciliation should include the entire curriculum")
 
 func _test_compatibility_suppression() -> void:
 	var progression: Dictionary = ProgressionStore.default_data()
@@ -209,7 +209,7 @@ func _test_compatibility_suppression() -> void:
 		_assert(not ContextualCombatTutorial.prompt_definition(prompt_id).is_empty(), "Compatibility prompt %s should map to representative guide content" % prompt_id)
 		progression = ContextualCombatTutorial.resolve_progression(progression, prompt_id)
 	_assert(ContextualCombatTutorial.is_completed(progression), "Resolving every compatibility prompt should fully suppress onboarding in unrelated probes")
-	_assert(ContextualCombatTutorial.states_from_progression(progression).size() == ContextualCombatTutorial.milestone_ids().size(), "Compatibility state maps should report every resolved milestone")
+	_assert(ContextualCombatTutorial.states_from_progression(progression).size() == ContextualCombatTutorial.prompt_ids().size(), "Compatibility state maps should report every resolved milestone")
 
 	var skipped: Dictionary = ContextualCombatTutorial.resolve_progression(ProgressionStore.default_data(), ContextualCombatTutorial.MILESTONE_MOVE, true)
 	_assert(str(ContextualCombatTutorial.state_from_progression(skipped).get("status", "")) == ContextualCombatTutorial.STATUS_DISMISSED, "Compatibility skip should dismiss the complete guide, not one transient phase")

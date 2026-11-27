@@ -107,6 +107,8 @@ func _capture_pages(book: Control, ids: Array) -> void:
 			var summary: RichTextLabel = moves.get_child(index * 2 + 1).get_child(1).get_child(1)
 			_expect(summary.get_content_height() <= summary.size.y, page_id + " move summary fits")
 			var authored: String = intents[index].get("known_summary", "")
+			if intents[index]["id"] == "last_eclipse":
+				authored = authored.replace("Eclipse X", "Eclipse 1")
 			if not authored.is_empty():
 				_check_authored_row(summary, authored)
 		if enemy_id == "cinder_ooze":

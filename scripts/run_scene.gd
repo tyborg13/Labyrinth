@@ -1605,6 +1605,7 @@ var _contextual_combat_prompt_host: Control
 var _contextual_combat_prompt: Control
 var _active_contextual_combat_prompt_id: String = ""
 var _guided_tutorial_phase_id: String = ""
+var _umbra_tutorial_checked_turn: Array = []
 var _guided_tutorial_pass_pending: bool = false
 var _guided_tutorial_started_logged: bool = false
 var _guided_tutorial_intent_enemy_tile: Vector2i = INVALID_TARGET_TILE
@@ -2190,6 +2191,7 @@ func _refresh_guided_tutorial_live_geometry() -> void:
 	# HandFanContainer animates position, rotation, and scale without resizing
 	# the card Controls. Sample those live transforms while a card is the exact
 	# tutorial target so the border stays attached throughout hover/focus motion.
+	# The Umbra hole also follows board framing and navigation.
 	if _guided_tutorial_phase_id in [
 		ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL,
 		ContextualCombatTutorial.PHASE_CANCEL_CARD,
@@ -2198,6 +2200,7 @@ func _refresh_guided_tutorial_live_geometry() -> void:
 		ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD,
 		ContextualCombatTutorial.PHASE_CONFIRM_INTENT,
 		ContextualCombatTutorial.PHASE_CHOOSE_PATH,
+		ContextualCombatTutorial.PHASE_UMBRA,
 	]:
 		_layout_contextual_combat_prompt_overlay()
 
@@ -7636,6 +7639,7 @@ func _setup_contextual_combat_tutorial() -> void:
 	_contextual_combat_prompt_host.add_child(_contextual_combat_prompt)
 	_contextual_combat_prompt.connect("completed", Callable(self, "_on_contextual_combat_prompt_completed"))
 	_contextual_combat_prompt.connect("skipped", Callable(self, "_on_contextual_combat_prompt_skipped"))
+	_contextual_combat_prompt.visibility_changed.connect(_sync_umbra_tutorial_outline)
 	_layout_contextual_combat_prompt_overlay()
 	call_deferred("_layout_contextual_combat_prompt_overlay")
 
@@ -7651,6 +7655,13 @@ func _layout_contextual_combat_prompt_overlay_content() -> void:
 		return
 	if _contextual_combat_prompt.has_method("set_evidence_rects"):
 		_contextual_combat_prompt.call("set_evidence_rects", _guided_tutorial_evidence_rects())
+	var prompt := _contextual_combat_prompt as ContextualCombatPrompt
+	if prompt != null:
+		var silhouette: Array[PackedVector2Array]
+		var board := board_view as CombatBoardView
+		if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_UMBRA and board != null:
+			silhouette = board.floor_silhouette_in_viewport()
+		prompt.set_board_silhouette(silhouette)
 	var reward_banner_rect := Rect2()
 	var reward_skip_rect := Rect2()
 	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CHOOSE_REWARD and _relic_choice_bar != null:
@@ -7825,13 +7836,28 @@ func _refresh_contextual_combat_tutorial() -> void:
 		_guided_tutorial_avoid_rects(),
 		_reduced_motion_enabled()
 	)
+	_sync_umbra_tutorial_outline()
 	if log_overlay != null:
 		log_overlay.visible = false
 	_layout_contextual_combat_prompt_overlay()
 	call_deferred("_layout_contextual_combat_prompt_overlay")
 	_refresh_controller_prompts()
 
+func _sync_umbra_tutorial_outline() -> void:
+	var board := board_view as CombatBoardView
+	var prompt := _contextual_combat_prompt as ContextualCombatPrompt
+	if not is_instance_valid(board) or not is_instance_valid(prompt):
+		return
+	var pulse := Callable()
+	if prompt.is_visible_in_tree() and prompt.active_prompt_id() == ContextualCombatTutorial.PHASE_UMBRA:
+		pulse = prompt.spotlight_pulse
+	board.set_umbra_tutorial_outline(pulse)
+
 func _guided_tutorial_reconcile_phase() -> void:
+	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_UMBRA:
+		if _guided_tutorial_phase_displayable(_guided_tutorial_phase_id):
+			return
+		_guided_tutorial_phase_id = ""
 	if not _guided_tutorial_is_active():
 		_guided_tutorial_clear_intent_evidence()
 		_guided_tutorial_phase_id = ""
@@ -7957,6 +7983,8 @@ func _guided_tutorial_log_started_once() -> void:
 	)
 
 func _guided_tutorial_phase_displayable(phase_id: String) -> bool:
+	if phase_id == ContextualCombatTutorial.PHASE_UMBRA:
+		return str(_run_state.get("mode", "")) == "combat" and not _combat_state.is_empty() and _combat_engine.is_player_turn(_combat_state)
 	if phase_id.is_empty() or not _guided_tutorial_is_active():
 		return false
 	var mode: String = str(_run_state.get("mode", "room"))
@@ -8089,6 +8117,14 @@ func _guided_tutorial_spotlight_rects(phase_id: String) -> Array:
 				_guided_tutorial_append_tile_rect(rects, GuidedCombatScenario.target_tile(_combat_state))
 		ContextualCombatTutorial.PHASE_TURN_CLOCK:
 			_guided_tutorial_append_control_rect(rects, _turn_order_panel, 6.0)
+		ContextualCombatTutorial.PHASE_UMBRA:
+			# Keep the HUD label lit and use it to position the callout.
+			_guided_tutorial_append_control_rect(rects, umbra_subtitle)
+			if not rects.is_empty():
+				# The expanding HUD label is wider than the text that names the Umbra.
+				var label_rect: Rect2 = rects[0]
+				label_rect.size.x = minf(label_rect.size.x, umbra_subtitle.get_minimum_size().x)
+				rects[0] = label_rect
 		ContextualCombatTutorial.PHASE_PASS_TURN:
 			_guided_tutorial_append_control_rect(rects, _pass_preview_overlay, 6.0)
 		ContextualCombatTutorial.PHASE_CORE_COMPLETE:
@@ -8287,6 +8323,8 @@ func _guided_tutorial_hard_gate_active() -> bool:
 func _guided_tutorial_action_restricted() -> bool:
 	# Restrictions survive modal presentation suspension. Otherwise a pause-menu
 	# shortcut could bypass the forced action simply because the guide is hidden.
+	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_UMBRA:
+		return _guided_tutorial_phase_displayable(_guided_tutorial_phase_id)
 	return _guided_tutorial_is_active() and not _guided_tutorial_phase_id.is_empty()
 
 func _guided_tutorial_allowed_board_tiles() -> Array[Vector2i]:
@@ -8357,6 +8395,10 @@ func _on_contextual_combat_prompt_completed(prompt_id: String) -> void:
 	if prompt_id != _guided_tutorial_phase_id:
 		return
 	match prompt_id:
+		ContextualCombatTutorial.PHASE_UMBRA:
+			if _guided_tutorial_requires_continue():
+				_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_UMBRA)
+				_guided_tutorial_set_phase("")
 		ContextualCombatTutorial.PHASE_FLOOR_LOOT:
 			_combat_state[GuidedCombatScenario.STATE_KEY].erase(ContextualCombatTutorial.FLOOR_LOOT_PENDING_KEY)
 			_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_FLOOR_LOOT)
@@ -8397,7 +8439,11 @@ func _resolve_contextual_combat_prompt(prompt_id: String, skipped: bool) -> void
 		_guided_tutorial_complete_milestone(prompt_id)
 
 func _guided_tutorial_complete_milestone(milestone_id: String) -> void:
-	if not _guided_tutorial_is_active() or not ContextualCombatTutorial.milestone_ids().has(milestone_id):
+	var umbra_acknowledgement: bool = milestone_id == ContextualCombatTutorial.MILESTONE_UMBRA
+	if umbra_acknowledgement:
+		if _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_UMBRA:
+			return
+	elif not _guided_tutorial_is_active():
 		return
 	var next_progression: Dictionary = ContextualCombatTutorial.complete_milestone(_progression, milestone_id)
 	if next_progression == _progression:
@@ -8419,7 +8465,7 @@ func _guided_tutorial_complete_milestone(milestone_id: String) -> void:
 			"tutorial_version": ContextualCombatTutorial.VERSION,
 			"milestone_id": milestone_id,
 			"phase_id": _guided_tutorial_phase_id,
-			"completed_step_count": ContextualCombatTutorial.completed_steps(_progression).size(),
+			"completed_step_count": ContextualCombatTutorial.guided_milestone_count(_progression) + int(umbra_acknowledgement),
 		}
 	)
 	if not _run_state.is_empty():
@@ -8466,7 +8512,7 @@ func _guided_tutorial_dismiss() -> void:
 		{
 			"tutorial_version": ContextualCombatTutorial.VERSION,
 			"phase_id": _guided_tutorial_phase_id,
-			"completed_step_count": ContextualCombatTutorial.completed_steps(_progression).size(),
+			"completed_step_count": ContextualCombatTutorial.guided_milestone_count(_progression),
 		}
 	)
 	if not _run_state.is_empty():
@@ -9546,6 +9592,9 @@ func _boot_initial_run(stage_graph: bool) -> Dictionary:
 	return _start_run(stage_graph)
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_umbra_tutorial_checked_turn.clear()
+	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_UMBRA:
+		_guided_tutorial_phase_id = ""
 	if is_instance_valid(_acquisition_bursts): _acquisition_bursts.clear()
 	_tile_burst_adapter_contact.clear()
 	_icefall_cutout_strike.clear()
@@ -9995,12 +10044,50 @@ func _refresh_ui_finish() -> void:
 	log_label.text = _log_text()
 	_refresh_log_overlay_visibility()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_log", performance_phase_started)
+	_maybe_queue_umbra_tutorial()
 	_refresh_contextual_combat_tutorial()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_tutorial_total", performance_phase_started)
 	_maybe_auto_trigger_room_dialogue()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_auto_dialogue", performance_phase_started)
 	_update_performance_telemetry_context()
 	_record_runtime_performance_phase("refresh_ui_telemetry_context", performance_phase_started)
+
+func _maybe_queue_umbra_tutorial() -> void:
+	if (
+		_animation_lock or _has_pending_combat_checkpoints()
+		or str(_run_state.get("mode", "")) != "combat" or _combat_state.is_empty()
+		or not _combat_engine.is_player_turn(_combat_state)
+		or _is_debug_boss_run() or _run_state.has("inspection_fixture")
+	):
+		return
+	# Combat entry, resumed checkpoints and the enemy-round handoff all publish
+	# here. Ordinary refreshes in the same turn must leave the decision alone.
+	var turn: Array = [_combat_state.get("analytics", {}).get("combat_id", ""), _combat_state.get("turn", 1)]
+	if turn == _umbra_tutorial_checked_turn:
+		return
+	_umbra_tutorial_checked_turn = turn
+	var tutorial: Dictionary = ContextualCombatTutorial.state_from_progression(_progression)
+	var player_tile: Vector2i = _combat_state.get("player", {}).get("pos", INVALID_TARGET_TILE)
+	if (
+		tutorial["status"] != ContextualCombatTutorial.STATUS_COMPLETED
+		or tutorial["completed_steps"].has(ContextualCombatTutorial.MILESTONE_UMBRA)
+		or _combat_engine.effective_umbra_stage(_combat_state) == CombatEngineScript.UMBRA_STAGE_CLEAR
+		or int(_combat_state.get("player_turn_time_spent", 0)) > 0
+		or _combat_engine.player_movement_remaining(_combat_state) < _combat_engine.player_movement_capacity(_combat_state)
+		or _combat_state.get(ManeuverRules.ACTIVATION_START_KEY, {}).get("tile", player_tile) != player_tile
+		or _combat_engine.combat_outcome(_combat_state) != ""
+	):
+		return
+	var visible_tiles: Dictionary = _combat_engine.umbra_visible_tile_lookup(_combat_state)
+	for enemy: Dictionary in _combat_state.get("enemies", []):
+		if int(enemy.get("hp", 0)) <= 0 or _combat_engine.is_enemy_visible_to_player(_combat_state, enemy, visible_tiles):
+			continue
+		# Another rule (for example Veil) can hide an enemy on a visible tile.
+		if _enemy_footprint_tiles(enemy).any(func(tile: Vector2i) -> bool: return visible_tiles.has(tile)):
+			continue
+		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_UMBRA, false)
+		call_deferred("_refresh_contextual_combat_tutorial")
+		return
 
 func _refresh_animation_lock_ui() -> void:
 	# Animation entry only changes combat interactivity/presentation. Avoid rebuilding
@@ -13710,16 +13797,9 @@ func _refresh_umbra_subtitle() -> void:
 		umbra_subtitle.text = ""
 		umbra_subtitle.tooltip_text = ""
 		return
-	var radius: int = _combat_engine.effective_umbra_radius(_combat_state)
 	var stage_name: String = _combat_engine.umbra_stage_display_name(stage_id)
-	var vision_text: String = "Personal vision: unlimited."
-	if radius < CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
-		vision_text = "@pattern(diamond:%d:hero) Personal vision covers these tiles." % radius
 	umbra_subtitle.text = "%s Umbra" % stage_name
-	umbra_subtitle.tooltip_text = "%s Umbra\n%s\nTiles outside your sight or a Light source are obscured. Hidden enemies cannot be targeted and show no intents.\nVision shows hidden enemies." % [
-		stage_name,
-		vision_text
-	]
+	umbra_subtitle.tooltip_text = "%s\n%s" % [umbra_subtitle.text, ContextualCombatTutorial.UMBRA_RULE]
 	umbra_subtitle.visible = true
 
 func _displayed_ember_count() -> int:
@@ -14975,7 +15055,13 @@ func _play_post_combat_victory(board_state: Dictionary, reward_state: Dictionary
 	if board_state.is_empty() or _post_combat_victory_overlay == null:
 		return
 	board_view.set_tooltips_enabled(false)
-	_render_board_state(board_state, {})
+	# The live victory intro paints before the committed reward is installed.
+	var escape_state: Dictionary = _run_state if reward_state.is_empty() else reward_state
+	var exit_presentation: Dictionary = {}
+	var selected_door: Vector2i = _selected_escape_door_for_board(escape_state)
+	if selected_door != INVALID_TARGET_TILE:
+		exit_presentation["selected_escape_door"] = selected_door
+	_render_board_state(board_state, exit_presentation)
 	_set_action_banner("")
 	_victory_cleared_hud = PostCombatRewardSequence.clear_combat_hud(_fight_hud_controls(), bottom_stack, _reduced_motion_enabled())
 	# Let the musical resolution ring through reward selection. Input follows
@@ -17339,6 +17425,9 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}, han
 	# Make that framing intent explicit: no-hand rooms center their complete board
 	# instead of inheriting the combat hand-clearance composition.
 	var run_mode: String = str(_run_state.get("mode", "room"))
+	var selected_escape_door: Vector2i = _selected_escape_door_for_board(_run_state)
+	if run_mode == "combat" and is_instance_valid(_post_combat_victory_overlay) and _post_combat_victory_overlay.visible:
+		selected_escape_door = _selected_escape_door_for_board(_committed_run_state_override)
 	presentation["board_framing_mode"] = "combat" if run_mode in ["combat", "defeat"] or post_combat_board_visible else "room"
 	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	var boss_unit: Dictionary = _boss_unit_for_health_overlay(display_state)
@@ -17366,7 +17455,7 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}, han
 		presentation.erase("objective_leader_tile")
 		var objective: Dictionary = display_state.get("objective", {}) as Dictionary
 		if str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT:
-			presentation["objective_exit_target_tiles"] = CombatObjectiveRules.exit_target_tiles(objective)
+			presentation["objective_exit_target_tiles"] = _objective_exit_target_tiles_for_board(objective, selected_escape_door)
 			presentation["pulse_exit_tiles"] = true
 		elif str(objective.get("type", "")) == CombatObjectiveRules.KILL_LEADER:
 			var leader_tile: Vector2i = _objective_leader_tile(visibility_state, objective)
@@ -17492,6 +17581,10 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}, han
 	var stage_chrome: Dictionary = _stage_chrome_presentation()
 	for chrome_key: Variant in stage_chrome:
 		presentation[chrome_key] = stage_chrome[chrome_key]
+	if run_mode == "combat" and (selected_escape_door != INVALID_TARGET_TILE or (
+		not is_same(display_state, _combat_state) and preload("res://scripts/snare_room_rules.gd").active(display_state)
+	)):
+		_apply_exit_door_presentation(presentation, display_state.get("objective", {}), selected_escape_door)
 	# Copy only the chest descriptor: the shared chrome cache remains static.
 	if presentation.has("scene_props"):
 		var props: Array = (presentation["scene_props"] as Array).duplicate(true)
@@ -17550,12 +17643,12 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}, han
 	if run_mode == "room":
 		exit_labels = _exit_labels_for_board()
 		exit_icons = _exit_icon_ids_for_board()
-	elif handoff.has("objective_exits") and is_same(display_state, _combat_state):
+	elif selected_escape_door == INVALID_TARGET_TILE and handoff.has("objective_exits") and is_same(display_state, _combat_state):
 		exit_labels = handoff["objective_exits"]
 		exit_icons = handoff["objective_icons"]
 	else:
-		exit_labels = _objective_exit_labels_for_board(display_state)
-		exit_icons = _objective_exit_icon_ids_for_board(display_state)
+		exit_labels = _objective_exit_labels_for_board(display_state, selected_escape_door)
+		exit_icons = _objective_exit_icon_ids_for_board(display_state, selected_escape_door)
 	board_view.set_combat_state(
 		display_state,
 		move_tiles,
@@ -17615,11 +17708,10 @@ func _stage_chrome_presentation() -> Dictionary:
 	]
 	if cache_key == _stage_chrome_cache_key:
 		return _stage_chrome_cache
-	var result: Dictionary = {
-		"active_door_tiles": _active_door_tiles_for_board(),
-		"locked_door_tiles": _locked_door_tiles_for_board(),
-		"equipped_equipment": _equipped_equipment_for_board(),
-	}
+	var result: Dictionary = {"equipped_equipment": _equipped_equipment_for_board()}
+	var selected_escape_door: Vector2i = _selected_escape_door_for_board(_run_state)
+	var exit_state: Dictionary = _pending_escape_board_state() if selected_escape_door != INVALID_TARGET_TILE else _combat_state
+	_apply_exit_door_presentation(result, exit_state.get("objective", {}), selected_escape_door)
 	var current_room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
 	match str(current_room.get("type", "")):
 		"campfire":
@@ -26337,11 +26429,11 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			func(unit: Dictionary) -> bool: return not hidden_arrivals.has(unit["key"]))
 	var visible_enemy_ids: Array = rendered_presentation.get("visible_enemy_ids", []) as Array
 	rendered_presentation["enemy_intent_compasses"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)
-	rendered_presentation["active_door_tiles"] = _active_door_tiles_for_board()
-	rendered_presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
 	var objective: Dictionary = display_state.get("objective", {}) as Dictionary
+	var selected_escape_door: Vector2i = rendered_presentation.get("selected_escape_door", _selected_escape_door_for_board(_run_state))
+	_apply_exit_door_presentation(rendered_presentation, objective, selected_escape_door)
 	if str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT:
-		rendered_presentation["objective_exit_target_tiles"] = CombatObjectiveRules.exit_target_tiles(objective)
+		rendered_presentation["objective_exit_target_tiles"] = _objective_exit_target_tiles_for_board(objective, selected_escape_door)
 		rendered_presentation["pulse_exit_tiles"] = true
 	elif str(objective.get("type", "")) == CombatObjectiveRules.KILL_LEADER:
 		var leader_tile: Vector2i = _objective_leader_tile(display_state, objective)
@@ -26392,8 +26484,8 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		(display_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)),
 		"",
 		"",
-		_objective_exit_labels_for_board(display_state),
-		_objective_exit_icon_ids_for_board(display_state),
+		_objective_exit_labels_for_board(display_state, selected_escape_door),
+		_objective_exit_icon_ids_for_board(display_state, selected_escape_door),
 		rendered_presentation,
 		state_stable_since_last_submission and not _animation_step_requires_submission_validation
 	)
@@ -27224,9 +27316,12 @@ func _board_hud_obstacles(boss: Dictionary) -> Array[Rect2]:
 			var band_width: float = maxf(action_banner.size.x, ACTION_BANNER_RESERVE_WIDTH)
 			var band := Rect2(Vector2(action_banner.global_position.x + (action_banner.size.x - band_width) * 0.5, _boss_health_overlay.get_global_rect().end.y + 4.0), Vector2(band_width, ACTION_BANNER_HEIGHT))
 			rects.append(band.grow(4.0))
-		if hand_scroll != null and hand_scroll.is_visible_in_tree():
+		# Before the cards are laid out the hand has no visual top (INF); an
+		# infinite reservation would turn every HUD placement score into NaN.
+		var hand_top: float = _hand_visual_top()
+		if hand_scroll != null and hand_scroll.is_visible_in_tree() and is_finite(hand_top):
 			var hand_rect: Rect2 = hand_scroll.get_global_rect()
-			hand_rect.position.y = _hand_visual_top() - 12.0
+			hand_rect.position.y = hand_top - 12.0
 			hand_rect.size.y = get_viewport_rect().end.y - hand_rect.position.y
 			rects.append(hand_rect)
 	return rects
@@ -28237,7 +28332,7 @@ func _on_relic_pressed(relic_id: String, source_rect: Rect2 = Rect2()) -> void:
 			var deferred_relic: Dictionary = GameData.relic_def(deferred_id)
 			options.append({
 				"text": "Save %s" % str(deferred_relic.get("name", deferred_id)),
-				"detail": "This relic will replace one choice in your next relic offer.",
+				"detail": "This relic will appear in your next Relic room.",
 				"callback": _claim_relic_with_deferred.bind(relic_id, deferred_id, source_rect)
 			})
 		_open_skill_choice_dialog(
@@ -34196,63 +34291,89 @@ func _exit_icon_ids_for_board() -> Dictionary:
 		icon_ids[option.get("door_tile", Vector2i(-1, -1))] = RoomIcons.icon_id_for_room(room)
 	return icon_ids
 
-func _objective_exit_labels_for_board(display_state: Dictionary) -> Dictionary:
-	var labels: Dictionary = {}
-	var objective: Dictionary = display_state.get("objective", {}) as Dictionary
+func _selected_escape_door_for_board(run_state: Dictionary) -> Vector2i:
+	if str(run_state.get("mode", "room")) not in ["reward", RunEngineScript.MODE_ESCAPE]:
+		return INVALID_TARGET_TILE
+	var door: Variant = run_state.get("pending_escape", {}).get("door_tile")
+	return door if door is Vector2i else INVALID_TARGET_TILE
+
+func _marked_objective_exits_for_board(objective: Dictionary, selected_door: Vector2i) -> Array[Dictionary]:
+	var exits: Array[Dictionary]
 	if str(objective.get("type", "")) != CombatObjectiveRules.REACH_EXIT:
-		return labels
+		return exits
 	for exit_var: Variant in objective.get("exits", []):
 		if typeof(exit_var) != TYPE_DICTIONARY:
 			continue
 		var exit_spec: Dictionary = exit_var
+		if bool(exit_spec.get("sealed", false)):
+			continue
+		if selected_door == INVALID_TARGET_TILE or exit_spec.get("door_tile") == selected_door:
+			exits.append(exit_spec)
+	return exits
+
+func _objective_exit_target_tiles_for_board(objective: Dictionary, selected_door: Vector2i) -> Array[Vector2i]:
+	if selected_door == INVALID_TARGET_TILE:
+		return CombatObjectiveRules.exit_target_tiles(objective)
+	return CombatObjectiveRules.exit_target_tiles({"exits": _marked_objective_exits_for_board(objective, selected_door)})
+
+func _objective_exit_labels_for_board(display_state: Dictionary, selected_door: Vector2i = INVALID_TARGET_TILE) -> Dictionary:
+	var labels: Dictionary = {}
+	for exit_spec: Dictionary in _marked_objective_exits_for_board(display_state.get("objective", {}), selected_door):
 		var dir: Vector2i = exit_spec.get("direction", Vector2i.ZERO)
 		var marker: String = "N" if dir == Vector2i(0, -1) else "E" if dir == Vector2i(1, 0) else "S" if dir == Vector2i(0, 1) else "W"
 		labels[exit_spec.get("door_tile", Vector2i(-1, -1))] = marker
 	return labels
 
-func _objective_exit_icon_ids_for_board(display_state: Dictionary) -> Dictionary:
+func _objective_exit_icon_ids_for_board(display_state: Dictionary, selected_door: Vector2i = INVALID_TARGET_TILE) -> Dictionary:
 	var icon_ids: Dictionary = {}
-	var objective: Dictionary = display_state.get("objective", {}) as Dictionary
-	if str(objective.get("type", "")) != CombatObjectiveRules.REACH_EXIT:
-		return icon_ids
-	for exit_var: Variant in objective.get("exits", []):
-		if typeof(exit_var) != TYPE_DICTIONARY:
-			continue
-		var exit_spec: Dictionary = exit_var
+	for exit_spec: Dictionary in _marked_objective_exits_for_board(display_state.get("objective", {}), selected_door):
 		var destination: Vector2i = exit_spec.get("coord", Vector2i.ZERO)
 		var room: Dictionary = _run_engine.room_metadata(_run_state, destination)
 		icon_ids[exit_spec.get("door_tile", Vector2i(-1, -1))] = RoomIcons.icon_id_for_room(room)
 	return icon_ids
 
-func _active_door_tiles_for_board() -> Dictionary:
+func _apply_exit_door_presentation(presentation: Dictionary, objective: Dictionary, selected_door: Vector2i) -> void:
+	if selected_door != INVALID_TARGET_TILE:
+		presentation["selected_escape_door"] = selected_door
+	var active: Dictionary = _active_door_tiles_for_board(objective, selected_door)
+	presentation["active_door_tiles"] = active
+	presentation["locked_door_tiles"] = _locked_door_tiles_for_board(objective, selected_door, active)
+
+func _active_door_tiles_for_board(objective: Dictionary, selected_door: Vector2i) -> Dictionary:
+	if selected_door != INVALID_TARGET_TILE:
+		return {selected_door: true}
 	var active: Dictionary = {}
-	var pending_escape: Dictionary = _run_state.get("pending_escape", {}) as Dictionary
-	if str(_run_state.get("mode", "room")) in ["reward", RunEngineScript.MODE_ESCAPE] and not pending_escape.is_empty():
-		var selected_door_var: Variant = pending_escape.get("door_tile", null)
-		if typeof(selected_door_var) == TYPE_VECTOR2I:
-			active[selected_door_var as Vector2i] = true
-		return active
 	for option: Dictionary in _run_engine.exit_options(_run_state):
 		var door_tile: Vector2i = option.get("door_tile", INVALID_TARGET_TILE)
 		if door_tile.x < 0:
 			continue
 		active[door_tile] = true
-	var objective: Dictionary = _combat_state.get("objective", {}) as Dictionary
-	if str(_run_state.get("mode", "room")) == "combat" and str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT:
-		for door_tile: Vector2i in CombatObjectiveRules.exit_door_tiles(objective):
-			active[door_tile] = true
+	if str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT:
+		var in_combat: bool = _run_state.get("mode") == "combat"
+		for exit_var: Variant in objective.get("exits", []):
+			if not exit_var is Dictionary:
+				continue
+			var door: Variant = exit_var.get("door_tile")
+			if not door is Vector2i or door == INVALID_TARGET_TILE:
+				continue
+			if bool(exit_var.get("sealed", false)):
+				active.erase(door)
+			elif in_combat:
+				active[door] = true
 	return active
 
-func _locked_door_tiles_for_board() -> Dictionary:
+func _locked_door_tiles_for_board(objective: Dictionary, selected_door: Vector2i, active: Dictionary) -> Dictionary:
 	var locked: Dictionary = {}
-	var pending_escape: Dictionary = _run_state.get("pending_escape", {}) as Dictionary
-	if str(_run_state.get("mode", "room")) in ["reward", RunEngineScript.MODE_ESCAPE] and not pending_escape.is_empty():
-		var board_state: Dictionary = pending_escape.get("board_state", {}) as Dictionary
-		var objective: Dictionary = board_state.get("objective", {}) as Dictionary
-		var selected_door: Vector2i = pending_escape.get("door_tile", INVALID_TARGET_TILE)
-		for door_tile: Vector2i in CombatObjectiveRules.exit_door_tiles(objective):
-			if door_tile != selected_door:
-				locked[door_tile] = true
+	if str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT:
+		for exit_var: Variant in objective.get("exits", []):
+			if not exit_var is Dictionary:
+				continue
+			var door: Variant = exit_var.get("door_tile")
+			if door is Vector2i and door != INVALID_TARGET_TILE and door != selected_door and (
+				selected_door != INVALID_TARGET_TILE or bool(exit_var.get("sealed", false))
+			):
+				locked[door] = true
+	if selected_door != INVALID_TARGET_TILE:
 		return locked
 	var current_coord: Vector2i = _run_state.get("current_room", Vector2i.ZERO)
 	var current_room: Dictionary = _run_engine.room_metadata(_run_state, current_coord)
@@ -34267,7 +34388,7 @@ func _locked_door_tiles_for_board() -> Dictionary:
 		var door_tile: Vector2i = RoomGeneratorScript.door_tile_for_direction(connection.get("door_dir", Vector2i.ZERO))
 		if door_tile.x < 0:
 			continue
-		if _active_door_tiles_for_board().has(door_tile):
+		if active.has(door_tile):
 			continue
 		locked[door_tile] = true
 	return locked

@@ -1,22 +1,14 @@
 extends RefCounted
-## Warm additive light, sampled in effect progress. No clocks or mutable RNG.
-## Board-space points; every width, reach and drift uses attacker source pixels.
+## Pixel trail cores, sampled in effect progress. No clocks or mutable RNG.
+## Board-space samples become screen-cell profiles in the pixel painter.
 const TAIL: float = 0.14
 const FADE: float = 0.08
-const SWEEP_CORE_ALPHA: float = 1.0
-const SWEEP_GLOW_ALPHA: float = 0.26
-const SWEEP_TAIL_RIM_BLEND: float = 0.45
-const TIP_RIBBON_WIDTH: float = 2.4
-const RIBBON_GLOW_ALPHA: float = 0.28
-const CONTACT_GLINT_RADIUS: float = 14.0
-const CONTACT_GLINT_GLOW_ALPHA: float = 0.26
-# Spark life and rake ribbons retain their existing treatment.
 const SPARK_LIFETIME: float = 0.10
-const RAKE_RIBBON_GLOW_ALPHA: float = 0.18
 const CONTACT: float = 0.42
 const SAMPLE_STEP: float = 1.0 / 240.0
 const ARC_RADIUS: float = 44.0
 const ARC_BODY_HEIGHT: float = 80.0
+const Pixel = preload("res://scripts/pixel_fx_layer.gd")
 const ClawMarks = preload("res://scripts/enemy_claw_marks.gd")
 const PALETTES: Dictionary = {
 	"none": [Color8(255, 244, 220), Color8(255, 178, 92), Color8(150, 60, 20)],
@@ -110,7 +102,28 @@ static func _noise(seed: int, index: int, lane: int) -> float:
 	value = ((value ^ (value >> 13)) * 1274126177) & 0x7fffffff
 	return float(value & 65535) / 65535.0
 
+## Source geometry for rig registration. The on-board painter uses
+## pixel_geometry and never submits the unsnapped hilt-to-tip envelope.
 static func geometry(samples: Array[Dictionary], kind: String, progress: float,
+		contact: float, window: Vector2, element: String, scale: float, seed: int,
+		streak_length: float = 48.0, previous_progress: float = -1.0, glint_anchor: Variant = null, contact_tail: float = -1.0) -> Array[Dictionary]:
+	var batches: Array[Dictionary] = pixel_geometry(samples, kind, progress, contact, window, element, scale, seed,
+		streak_length, previous_progress, glint_anchor, contact_tail)
+	if batches.is_empty() or batches[0]["shape"] != "crescent": return batches
+	var tips: PackedVector2Array = batches[0]["points"]
+	var hilt: PackedVector2Array = batches[0]["hilt"]
+	var vertices := PackedVector2Array()
+	var indices := PackedInt32Array()
+	for i: int in tips.size():
+		vertices.append(tips[i])
+		vertices.append(tips[i] + hilt[i])
+		if i > 0:
+			var a: int = 2 * (i - 1)
+			indices.append_array(PackedInt32Array([a, a + 1, a + 3, a, a + 3, a + 2]))
+	batches.insert(1, {"shape": "source_envelope", "vertices": vertices, "indices": indices})
+	return batches
+
+static func pixel_geometry(samples: Array[Dictionary], kind: String, progress: float,
 		contact: float, window: Vector2, element: String, scale: float, seed: int,
 		streak_length: float = 48.0, previous_progress: float = -1.0, glint_anchor: Variant = null, contact_tail: float = -1.0) -> Array[Dictionary]:
 	var batches: Array[Dictionary]
@@ -131,47 +144,40 @@ static func geometry(samples: Array[Dictionary], kind: String, progress: float,
 		visible = _distance_samples(visible)
 	if visible.size() < 2:
 		return batches
-	var colors: Array = palette(element)
-	# All glow geometry precedes the sharp core, with interpolated clear edges.
-	for glow: bool in [true, false]:
-		var pass_batches: Array[Dictionary]
-		match kind:
-			"sweep", "arc":
-				pass_batches.append(_sweep(visible, colors, alpha, scale, glow))
-			"streak":
-				var tip: Vector2 = visible[-1]["tip"]
-				var axis: Vector2 = (tip - (visible[-1]["inner"] as Vector2)).normalized()
-				var normal := Vector2(-axis.y, axis.x)
-				for lane: int in range(3):
-					var points := PackedVector2Array()
-					var offset: float = 0.0 if lane == 0 else 4.0 if lane == 1 else -4.0
-					for index: int in range(19):
-						points.append(tip - axis * streak_length * scale * float(index) / 18.0 * (1.0 if lane == 0 else 0.7) + normal * offset * scale)
-					points.reverse()
-					pass_batches.append(_streak(points, colors, (alpha if contact_tail>0.0 else _streak_envelope(progress, window, contact)) * (1.0 if lane == 0 else 0.6), (4.4 if lane == 0 else 1.6) * scale, glow))
-			"rake":
-				for lane: int in range(-1, 2):
-					var points := PackedVector2Array()
-					for sample: Dictionary in visible:
-						var axis: Vector2 = ((sample["tip"] as Vector2) - (sample["inner"] as Vector2)).normalized()
-						points.append((sample["tip"] as Vector2) + Vector2(-axis.y, axis.x) * float(lane) * 4.0 * scale)
-					pass_batches.append(_ribbon(points, colors, alpha, 1.6 * scale, glow))
-			"claw_marks":
-				var point: Dictionary = sample_at(samples, contact)
-				pass_batches.append(ClawMarks.geometry(point["tip"], (point["tip"] as Vector2) - (point["inner"] as Vector2), colors, alpha, scale, glow, progress))
-		if kind not in ["rake", "claw_marks"]:
-			var edge := PackedVector2Array()
+	var ramp: PackedColorArray = Pixel.ramp_for(Pixel.trail_ramp_id(element))
+	match kind:
+		"sweep", "arc":
+			var points := PackedVector2Array()
+			var hilt := PackedVector2Array()
 			for sample: Dictionary in visible:
-				edge.append(sample["tip"])
-			pass_batches.append(_ribbon(edge, colors, alpha, TIP_RIBBON_WIDTH * scale, glow, RIBBON_GLOW_ALPHA))
-		for spark: Dictionary in sparks(samples, progress, window, scale, seed):
-			pass_batches.append(_diamond(spark["point"], spark["radius"] * (2.8 if glow else 1.0), colors[1], spark["alpha"] * (0.16 if glow else 0.8)))
-		if progress >= contact and (progress < contact + 0.10 or crossed_contact):
-			var point: Vector2 = sample_at(samples, contact)["tip"] if glint_anchor == null else glint_anchor
-			var life: float = 1.0 if crossed_contact else 1.0 - (progress - contact) / 0.10
-			# One four-point contact glint; vertices feather to clear at the tips.
-			pass_batches.append(_diamond(point, CONTACT_GLINT_RADIUS * scale * (0.6 + 0.6 * life) * (1.45 if glow else 1.0), colors[0], life * (CONTACT_GLINT_GLOW_ALPHA if glow else 1.0), 1.2 * scale))
-		batches.append(_combine(pass_batches))
+				var tip: Vector2 = sample["tip"]
+				points.append(tip)
+				hilt.append((sample["inner"] as Vector2) - tip)
+			batches.append({"shape": "crescent", "points": points, "hilt": hilt, "alpha": alpha})
+		"streak":
+			var tip: Vector2 = visible[-1]["tip"]
+			var axis: Vector2 = (tip - (visible[-1]["inner"] as Vector2)).normalized()
+			var coverage: float = alpha if contact_tail > 0.0 else _streak_envelope(progress, window, contact)
+			batches.append({"shape": "streak", "points": PackedVector2Array([tip - axis * streak_length * scale, tip]),
+				"alpha": coverage})
+		"rake":
+			for lane: int in range(-1, 2):
+				var points := PackedVector2Array()
+				for sample: Dictionary in visible:
+					var axis: Vector2 = ((sample["tip"] as Vector2) - (sample["inner"] as Vector2)).normalized()
+					points.append((sample["tip"] as Vector2) + Vector2(-axis.y, axis.x) * float(lane) * 4.0 * scale)
+				batches.append(_stroke(points, ramp, alpha, 1.6 * scale))
+		"claw_marks":
+			var point: Dictionary = sample_at(samples, contact)
+			var marks: Dictionary = ClawMarks.geometry(point["tip"], (point["tip"] as Vector2) - (point["inner"] as Vector2), ramp, alpha, scale, progress)
+			if not marks.is_empty(): batches.append(marks)
+	for spark: Dictionary in sparks(samples, progress, window, scale, seed):
+		batches.append({"shape": "spark", "point": spark["point"], "radius": spark["radius"],
+			"ink": Color(ramp[-2], float(spark["alpha"]) * 0.8)})
+	if progress >= contact and (progress < contact + 0.10 or crossed_contact):
+		var point: Vector2 = sample_at(samples, contact)["tip"] if glint_anchor == null else glint_anchor
+		var age: float = 0.0 if crossed_contact else (progress - contact) / 0.10
+		batches.append({"shape": "glint", "point": point, "age": age})
 	return batches
 
 static func _distance_samples(samples: Array[Dictionary]) -> Array[Dictionary]:
@@ -192,58 +198,57 @@ static func _distance_samples(samples: Array[Dictionary]) -> Array[Dictionary]:
 			"inner":(a["inner"] as Vector2).lerp(b["inner"],t)})
 	return result
 
-static func _combine(batches: Array[Dictionary]) -> Dictionary:
-	# One submission per light pass even when sparks and streak lanes add
-	# geometry. Preserve primitive order and per-vertex color interpolation.
-	var vertices := PackedVector2Array()
-	var colors := PackedColorArray()
-	var indices := PackedInt32Array()
+static func bounds(batches: Array[Dictionary]) -> Rect2:
+	var result := Rect2()
 	for batch: Dictionary in batches:
-		var offset: int = vertices.size()
-		vertices.append_array(batch["vertices"])
-		colors.append_array(batch["colors"])
-		for index: int in batch["indices"]:
-			indices.append(index + offset)
-	return {"indices": indices, "vertices": vertices, "colors": colors}
+		for point: Vector2 in batch.get("vertices", batch.get("points", PackedVector2Array())):
+			result = result.expand(point) if result.has_area() else Rect2(point, Vector2.ONE)
+		if batch.has("point"):
+			var point: Vector2 = batch["point"]
+			var radius: float = float(batch.get("radius", 0.0))
+			# The trail viewport's cell padding covers the glint's fixed arms.
+			var box := Rect2(point - Vector2.ONE * radius, Vector2.ONE * maxf(1.0, 2.0 * radius))
+			result = result.merge(box) if result.has_area() else box
+	return result
 
-static func draw(canvas: CanvasItem, batches: Array[Dictionary]) -> void:
+static func draw(canvas: Node2D, batches: Array[Dictionary]) -> void:
+	canvas.begin_trail()
 	for batch: Dictionary in batches:
-		RenderingServer.canvas_item_add_triangle_array(canvas.get_canvas_item(), batch["indices"], batch["vertices"], batch["colors"])
+		match batch["shape"]:
+			"crescent", "streak":
+				canvas.trail_profile(batch)
+			"stroke":
+				RenderingServer.canvas_item_add_triangle_array(canvas.get_canvas_item(), batch["indices"], batch["vertices"], batch["colors"])
+				canvas.trail_stroke(batch)
+			"claws":
+				canvas.trail_claws(batch)
+			"spark":
+				canvas.trail_spark(batch["point"], batch["radius"], batch["ink"])
+			"glint":
+				canvas.trail_glint(batch["point"], batch["age"])
 
-static func _sweep(samples: Array[Dictionary], palette_colors: Array, alpha: float, scale: float, glow: bool) -> Dictionary:
+static func _stroke(points: PackedVector2Array, ramp: PackedColorArray, alpha: float, width: float) -> Dictionary:
 	var vertices := PackedVector2Array()
 	var colors := PackedColorArray()
-	var rows := PackedFloat32Array([-0.08, 0.0, 0.12, 0.55, 1.0])
-	for index: int in range(samples.size()):
-		var u: float = float(index) / float(samples.size() - 1)
-		var tip: Vector2 = samples[index]["tip"]
-		var inner: Vector2 = tip.lerp(samples[index]["inner"], pow(u, 0.85))
-		var axis: Vector2 = (inner - tip).normalized()
-		for row: int in range(rows.size()):
-			var f: float = rows[row]
-			vertices.append(tip.lerp(inner, f) + axis * (f - 0.5) * (5.0 * scale if glow else 0.0))
-			var color: Color = (palette_colors[0] as Color).lerp(palette_colors[1], minf(1.0, maxf(0.0, f) / 0.12)).lerp(palette_colors[2], maxf(0.0, f))
-			color = color.lerp(palette_colors[2], (1.0 - u) * SWEEP_TAIL_RIM_BLEND)
-			color.a = alpha * pow(u, 1.3) * pow(1.0 - maxf(0.0, f), 1.4) * (SWEEP_GLOW_ALPHA if glow else SWEEP_CORE_ALPHA)
-			if row == 0 or row == rows.size() - 1:
-				color.a = 0.0
-			colors.append(color)
-	return _strip(vertices, colors, rows.size())
-
-static func _ribbon(points: PackedVector2Array, palette_colors: Array, alpha: float, width: float, glow: bool, glow_alpha: float = RAKE_RIBBON_GLOW_ALPHA) -> Dictionary:
-	var vertices := PackedVector2Array()
-	var colors := PackedColorArray()
+	var ink := PackedColorArray()
 	for index: int in range(points.size()):
 		var u: float = float(index) / float(points.size() - 1)
 		var tangent: Vector2 = (points[mini(index + 1, points.size() - 1)] - points[maxi(index - 1, 0)]).normalized()
 		var normal := Vector2(-tangent.y, tangent.x)
-		var half_width: float = width * (0.4 + 0.6 * u) * (2.8 if glow else 0.5)
-		var color: Color = (palette_colors[2] as Color).lerp(palette_colors[1], u).lerp(palette_colors[0], u * u)
-		color.a = alpha * pow(u, 1.8) * (glow_alpha if glow else 0.95)
-		var clear := Color(color, 0.0)
+		var half_width: float = width * 0.5 * (0.4 + 0.6 * u)
+		var color: Color = ramp[2].lerp(ramp[3], u).lerp(ramp[4], u * u)
+		color.a = alpha * pow(u, 1.8) * 0.95
+		var edge := Color(color, 0.0)
 		vertices.append_array(PackedVector2Array([points[index] + normal * half_width, points[index], points[index] - normal * half_width]))
-		colors.append_array(PackedColorArray([clear, color, clear]))
-	return _strip(vertices, colors, 3)
+		colors.append_array(PackedColorArray([edge, color, edge]))
+		ink.append(color)
+	var indices := PackedInt32Array()
+	for index: int in range(points.size() - 1):
+		for row: int in range(2):
+			var a: int = index * 3 + row
+			var b: int = a + 3
+			indices.append_array(PackedInt32Array([a, a + 1, b + 1, a, b + 1, b]))
+	return {"shape": "stroke", "points": points, "ink": ink, "vertices": vertices, "colors": colors, "indices": indices}
 
 static func _streak_envelope(progress: float, window: Vector2, contact: float = CONTACT) -> float:
 	# The thrust must already read at full strength during the drive, before
@@ -251,47 +256,3 @@ static func _streak_envelope(progress: float, window: Vector2, contact: float = 
 	if progress <= contact:
 		return smoothstep(window.x, minf(0.40, contact), progress)
 	return envelope(progress, window, contact)
-
-static func _streak(points: PackedVector2Array, palette_colors: Array, alpha: float, width: float, glow: bool) -> Dictionary:
-	# Axial speed lines have their own profile. The tip-path ribbon and the
-	# approved sword/heavy sweep keep their existing width and alpha taper.
-	var vertices := PackedVector2Array()
-	var colors := PackedColorArray()
-	for index: int in range(points.size()):
-		var u: float = float(index) / float(points.size() - 1)
-		var tangent: Vector2 = (points[mini(index + 1, points.size() - 1)] - points[maxi(index - 1, 0)]).normalized()
-		var normal := Vector2(-tangent.y, tangent.x)
-		var half_width: float = width * 0.5 * (3.0 if glow else 1.0)
-		var color: Color = (palette_colors[1] as Color).lerp(palette_colors[0], u)
-		color.a = alpha * minf(1.0, u / 0.30) * (0.35 if glow else 1.0)
-		vertices.append(points[index] + normal * half_width)
-		if glow:
-			vertices.append(points[index])
-			colors.append_array(PackedColorArray([Color(color, 0.0), color, Color(color, 0.0)]))
-		else:
-			colors.append_array(PackedColorArray([color, color]))
-		vertices.append(points[index] - normal * half_width)
-	return _strip(vertices, colors, 3 if glow else 2)
-
-static func _strip(vertices: PackedVector2Array, colors: PackedColorArray, rows: int) -> Dictionary:
-	var indices := PackedInt32Array()
-	for index: int in range(vertices.size() / rows - 1):
-		for row: int in range(rows - 1):
-			var a: int = index * rows + row
-			var b: int = a + rows
-			indices.append_array(PackedInt32Array([a, a + 1, b + 1, a, b + 1, b]))
-	return {"indices": indices, "vertices": vertices, "colors": colors}
-
-static func _diamond(point: Vector2, radius: float, color: Color, alpha: float, waist: float = -1.0) -> Dictionary:
-	color.a = alpha
-	var clear := Color(color, 0.0)
-	var vertices := PackedVector2Array([point])
-	var colors := PackedColorArray([color])
-	var indices := PackedInt32Array()
-	for index: int in range(8):
-		var length: float = radius if index % 2 == 0 or waist < 0 else waist
-		vertices.append(point + Vector2.from_angle(float(index) * PI / 4.0) * length)
-		colors.append(clear if index % 2 == 0 else color)
-	for index: int in range(8):
-		indices.append_array(PackedInt32Array([0, index + 1, (index + 1) % 8 + 1]))
-	return {"indices": indices, "vertices": vertices, "colors": colors}

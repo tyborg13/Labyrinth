@@ -1,0 +1,12 @@
+{
+  "min_images": 6,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "01-s1-seed1-1-8_0-t13-rest.png", "width": 1920, "height": 1080, "min_count": 1},
+    {"pattern": "01-s1-seed1-1-8_0-t13-hover.png", "width": 1920, "height": 1080, "min_count": 1},
+    {"pattern": "04-s0-seed1-0-4_0-t9-rest.png", "width": 1920, "height": 1080, "min_count": 1},
+    {"pattern": "04-s0-seed1-0-4_0-t9-hover.png", "width": 1920, "height": 1080, "min_count": 1},
+    {"pattern": "10-s2-seed8-2-10_-2-t16-rest.png", "width": 1920, "height": 1080, "min_count": 1},
+    {"pattern": "10-s2-seed8-2-10_-2-t16-hover.png", "width": 1920, "height": 1080, "min_count": 1}
+  ]
+}

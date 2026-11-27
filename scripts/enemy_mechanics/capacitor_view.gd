@@ -69,8 +69,7 @@ static func draw_telegraphs(board: Control) -> void:
 			var finish: Vector2 = Contact.chest(board, hit["to"])
 			Contact.draw_arc_link(board, start, finish, float(board.presentation.get("en03_time_seconds", float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0)), bool(board.presentation.get("reduced_motion", false)), COLOR)
 			var font: Font = preload("res://scripts/ui_typography.gd").display_font()
-			board.draw_string_outline(font, finish, str(hit["damage"]), HORIZONTAL_ALIGNMENT_CENTER, -1, board.INTENT_POPUP_ROW_FONT_SIZE, 3, EMPTY_COLOR)
-			board.draw_string(font, finish, str(hit["damage"]), HORIZONTAL_ALIGNMENT_CENTER, -1, board.INTENT_POPUP_ROW_FONT_SIZE, COLOR)
+			board._draw_tile_damage_numeral(font, finish, str(hit["damage"]), -1, board.INTENT_POPUP_ROW_FONT_SIZE, COLOR, EMPTY_COLOR, 3.0, true)
 
 # The wide approved chain/base silhouette must fit the fixed 255 canvas. This
 # derived draw factor restores the brief's exact 120% hero body height.

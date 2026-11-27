@@ -11,7 +11,26 @@
   "electrified": "lightning",
   "rubble": "earth"
  },
+ "trail_ramps": {
+  "none": "strike",
+  "fire": "fire",
+  "ice": "ice",
+  "lightning": "lightning",
+  "air": "air",
+  "earth": "earth"
+ },
+ "trail_shape": {
+  "sweep_peak_cells": 5,
+  "sweep_end_cells": 1,
+  "streak_head_cells": 2,
+  "streak_tail_cells": 1,
+  "smear_reach": 0.6,
+  "smear_near_cells": 2,
+  "smear_near_coverage": 0.5,
+  "smear_far_coverage": 0.25
+ },
  "ramps": {
+  "strike": ["#4a1e0c", "#9a4616", "#e0862a", "#ffc65a", "#fff3d6"],
   "fire": [
    "#3a1208",
    "#8a2a10",

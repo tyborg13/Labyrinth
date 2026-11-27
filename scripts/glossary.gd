@@ -94,6 +94,7 @@ static func fill_amount(text: String, amount: Variant) -> String:
 	if number.is_empty():
 		return text
 	if number == "1":
+		text = text.replace("your next X turns", "your next turn")
 		for unit: String in ["tile", "card", "turn"]:
 			text = text.replace("X %ss" % unit, "X %s" % unit)
 	var articles: Array[RegExMatch] = _amount_article.search_all(text)

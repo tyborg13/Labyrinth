@@ -3,14 +3,14 @@
     "reflect": "A single-target ranged hit on this enemy from 2 or more tiles away hits the attacker instead.",
     "flying": "Flying units ignore traps, ground and Collision damage.",
     "marked": "Marked tiles are hit on this enemy's next turn.",
-    "charge": "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.",
+    "charge": "At 3 Charge, this enemy's next attack is Arc Lash.",
     "wind": "On each Gust beat, each unit is Pushed downwind.",
     "splits": "When this enemy dies, this enemy splits into smaller enemies on adjacent tiles.",
     "burst": "Destroy the target, then deal X damage on that tile and each adjacent tile.",
     "surface": "Place the named ground on each tile in the area.",
     "surface_fire": "A unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.",
     "surface_ice": "A unit entering Ice or starting a turn on Ice gains Expose 2.",
-    "surface_electrified": "A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.",
+    "surface_electrified": "A Lightning card's hit on an Electrified tile also hits each visible enemy on connected Electrified tiles.",
     "surface_rubble": "Leaving Rubble costs 2 Movement.",
     "surface_consume": "Remove the named ground to use this effect.",
     "surface_relocate": "Move the ground on one tile to another open tile.",
@@ -40,13 +40,13 @@
     "quicken": "Your next card this turn costs X less Time.",
     "rite": "This card's effect lasts for the rest of combat, and this card Exhausts.",
     "next_attack": "Your next attack this turn gains the named bonus.",
-    "swap": "Trade places with a visible enemy or one of your illusions.",
+    "swap": "Trade places with a visible enemy or one of your visible Illusions.",
     "skate": "This turn, Ice costs you no Movement and doesn't Expose you.",
     "anchored": "Anchored units can't be moved by Push, Pull or Gust.",
     "fireproof": "This turn, Fire doesn't damage you.",
     "surface_convert": "Change the chosen ground into the named ground, then damage each enemy on the changed tiles.",
     "all_enemies": "Hit each visible enemy that meets the named condition.",
-    "illusion_swap": "Trade places with one of your illusions.",
+    "illusion_swap": "Trade places with one of your visible Illusions.",
     "shock": "Shocked units can't attack on their next turn.",
     "immobilize": "Immobilized units can't Move, Blink or Swap on their next turn.",
     "chain": "After each hit, hit 1 new target within X tiles, with Electrified tiles as relays.",
@@ -58,7 +58,7 @@
     "summon_minions": "This enemy adds the named enemy to combat.",
     "raise_terrain": "Raise the named terrain, which blocks movement.",
     "terrain_burst": "This enemy damages you if you stand within 2 tiles of an Outcrop this enemy raised.",
-    "cinder_marks": "When this attack lands, each unit on a Marked tile takes X damage, and each Marked tile becomes Fire.",
+    "cinder_marks": "When this attack lands, you and your Illusions on Marked tiles take X damage, and each Marked tile becomes Fire.",
     "detonate_cinders": "This enemy Bursts the Fire on each tile from this enemy's last Cinder Marks.",
     "gale_force": "This enemy damages you and your Illusions on Marked tiles, then Pushes you 1 tile away.",
     "frost_armor": "Each Crystal Mantle layer prevents damage from 1 direct hit, then breaks.",
@@ -68,7 +68,7 @@
     "ember": "Currency spent on wares and levels, and dropped when you die.",
     "turn_clock": "The unit with the lowest Time acts next, and you act first on a tie.",
     "defiance": "Each Defiance charge saves you from 1 lethal hit and leaves you at 25% Health.",
-    "targeting": "Targets must be visible and within Range. Ranged attacks also need line of sight.",
+    "targeting": "Attack targets must be visible and within Range. Ranged attacks also need line of sight.",
     "fatigue": "Drawing from an empty draw pile shuffles your discard into your draw pile and costs Health.",
     "traps": "A trap triggers when entered or attacked, damaging the unit on the trap, then leaving the trap's element on that tile and each adjacent tile.",
     "umbra": "Darkness that hides enemies and enemy intents.",
@@ -90,7 +90,7 @@
     "skill_deferred_choice": "Skip a card reward to save 1 offered card. Replace 1 card in your next non-boss reward with that card.",
     "skill_plunderers_step": "The first @icon(move) or @icon(blink) card that collects loot each combat refunds that card's @icon(card_play).",
     "skill_prismatic_instinct": "Once per combat, place @icon(surface_fire), @icon(surface_ice), @icon(surface_electrified) or @icon(surface_rubble) within @icon(range) 4. Costs no @icon(card_play) or @icon(time).",
-    "skill_curators_patience": "After choosing a relic, save one unchosen relic for your next relic offer.",
+    "skill_curators_patience": "After choosing a relic, save one unchosen relic for your next Relic room.",
     "skill_living_shadow": "Once between turns, when your @icon(illusion) is removed, return your latest non-item discard to hand or draw pile if full.",
     "skill_confluence": "Once per combat, move ground between 2 visible tiles within @icon(range) 4 of you and each other.",
     "skill_witchlight": "Each of your @icon(illusion|Illusions) creates @icon(illuminate) 1 while that Illusion lasts.",
@@ -176,7 +176,7 @@
       "Change your loadout outside combat, including at an Ember Hearth."
     ],
     "basic:rewards": [
-      "After combat, choose 1 of 3 magic cards or skip to heal 3. Dragons and Guardians also give relics.",
+      "After combat, choose a reward.",
       "A magic card you gain goes straight into your deck. Purge removes a card."
     ],
     "basic:relics": [
@@ -352,11 +352,11 @@
       "A Marked tile stays flat if the unit on that tile cannot be moved to an open tile. Outcrops also block Tharokh and Burrow Grubs. Destroy an Outcrop to open a route."
     ],
     "combat:cinder_marks": [
-      "When this attack lands, each unit on a Marked tile takes X damage, and each Marked tile becomes Fire.",
+      "When this attack lands, you and your Illusions on Marked tiles take X damage, and each Marked tile becomes Fire.",
       "Crownfire Bursts each of Vyraketh's Marked Fire tiles, then Vyraketh moves toward you and attacks. The Meteorfall card Marks tiles. At the start of your next turn, each unit on a Marked tile takes damage, and each Marked tile becomes Fire."
     ],
     "combat:hollow_gale": [
-      "Hollow Gale damages each unit within 2 tiles of Vaeloryx, then Pushes each unit hit away.",
+      "Hollow Gale damages you and your Illusions on Marked tiles, then Pushes you 1 tile away from Vaeloryx.",
       "After each Vaeloryx turn, Gust Pushes each unit 1 tile, then turns a quarter clockwise.",
       "Vaeloryx retreats before Eye of the Storm. Leave the area or move closer to take less damage."
     ],
@@ -381,7 +381,7 @@
       "Each layer extends Iskaldra's Shatterstorm by 1 tile, and Shatterstorm breaks the remaining layers. Crystal Mantle cards give you layers that last until broken or combat ends."
     ],
     "combat:boss_eclipse": [
-      "Last Eclipse hits you and your Illusions on Marked tiles, then starts Eclipse for 2 turns.",
+      "Last Eclipse starts Eclipse for your next turn, then hits you and your Illusions on Marked tiles.",
       "Night Coil puts out the nearest brazier. Walk or Blink onto a dark brazier's tile to relight that brazier. Light blocks Eclipse's darkness."
     ],
     "keyword:surface": [
@@ -394,7 +394,7 @@
       "A unit that enters Ice or starts its turn on Ice gains Expose 2."
     ],
     "keyword:surface_electrified": [
-      "A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles. Chain relays through Electrified tiles.",
+      "A Lightning card's hit on an Electrified tile also hits each visible enemy on connected Electrified tiles. Chain relays through Electrified tiles.",
       "Frost Circuit turns connected Ice tiles into Electrified. Discharge Bursts connected Electrified tiles."
     ],
     "keyword:surface_rubble": [

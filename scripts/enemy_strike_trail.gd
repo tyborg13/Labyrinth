@@ -4,11 +4,12 @@ extends RefCounted
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Points = preload("res://scripts/enemy_strike_points.gd")
 const Trail = preload("res://scripts/strike_trail_fx.gd")
+const Pixel = preload("res://scripts/pixel_fx_layer.gd")
+const ClawMarks = preload("res://scripts/enemy_claw_marks.gd")
 const Dragon = preload("res://scripts/dragon_presentation.gd")
 const Wind = preload("res://scripts/vaeloryx_cutout/wind_feedback.gd")
 const Geometry = preload("res://scripts/enemy_strike_geometry.gd")
 const SourceCache = preload("res://scripts/enemy_strike_cache.gd")
-const ClawMarks = preload("res://scripts/enemy_claw_marks.gd")
 const Live = preload("res://scripts/enemy_strike_live.gd")
 const SwingWindow = preload("res://scripts/enemy_strike_window.gd")
 # Thrust tips that already land on the target art keep their streak at the
@@ -135,7 +136,7 @@ func prepare(board: Control, effect: Dictionary, progress: float) -> Array[Dicti
 	resolved["window"] = window
 	resolved["visual_contact"] = boundary
 	resolved.merge(swing,false)
-	return Trail.geometry(samples,kind,progress,boundary,window,str(effect.get("element","none")),scale,
+	return Trail.pixel_geometry(samples,kind,progress,boundary,window,str(effect.get("element","none")),scale,
 		int(effect.get("seed",hash(effect))),float(settings.get("length",48.0)),-1.0,resolved.get("glint_anchor"),float(settings.get("contact_tail",-1.0)))
 
 static func target_center(board: Control, tile: Vector2i) -> Vector2:
@@ -149,18 +150,20 @@ static func target_center(board: Control, tile: Vector2i) -> Vector2:
 
 static func area_rake(board: Control, effect: Dictionary, tile: Vector2i, progress: float) -> Array[Dictionary]:
 	var empty: Array[Dictionary]
-	if not physical_area(effect) or not Dragon.tiles(effect).has(tile): return empty
+	if not physical_area(effect) or not Dragon.tiles(effect).has(tile):
+		return empty
 	var source: Dictionary = actor(board, effect)
 	var scale: float = Geometry.size_scale(board, source)
-	if bool(board.presentation.get("reduced_motion",false)):
-		var anchor: Vector2 = board.world_position_for_tile(tile)-Vector2(0,Trail.ARC_BODY_HEIGHT*scale)
-		var direction: Vector2 = board.world_position_for_tile(tile)-board.world_position_for_tile(effect["from"])
-		var result: Array[Dictionary]
-		for glow: bool in [true,false]:
-			result.append(ClawMarks.geometry(anchor,direction,Trail.palette(str(effect.get("element","none"))),1.0,scale,glow,0.44))
-		return result
+	if bool(board.presentation.get("reduced_motion", false)):
+		var target: Vector2 = board.world_position_for_tile(tile)
+		var anchor: Vector2 = target - Vector2(0, Trail.ARC_BODY_HEIGHT * scale)
+		var direction: Vector2 = target - board.world_position_for_tile(effect["from"])
+		var ramp: PackedColorArray = Pixel.ramp_for(Pixel.trail_ramp_id(str(effect.get("element", "none"))))
+		var mark: Dictionary = ClawMarks.geometry(anchor, direction, ramp, 1.0, scale, ClawMarks.REVEAL.y, true)
+		if not mark.is_empty(): empty.append(mark)
+		return empty
 	var window := Vector2(0.30, 0.60)
 	if Trail.envelope(progress,window) <= 0.0: return empty
 	var samples_value: Array[Dictionary] = Trail.arc_samples(board.world_position_for_tile(effect["from"]), board.world_position_for_tile(tile), scale, window)
-	return Trail.geometry(samples_value, "rake", progress, Trail.CONTACT, window, str(effect.get("element", "none")), scale,
+	return Trail.pixel_geometry(samples_value, "rake", progress, Trail.CONTACT, window, str(effect.get("element", "none")), scale,
 		int(effect.get("seed", hash(effect))) ^ (tile.x * 101 + tile.y * 307))

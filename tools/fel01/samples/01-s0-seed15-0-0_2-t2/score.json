@@ -1,0 +1,311 @@
+{
+	"covered_tiles": 11,
+	"covered_units": 3,
+	"fight": "0-0_2",
+	"focus": {
+		"count": 2,
+		"fraction": 0.31640625,
+		"tile": [
+			3,
+			6
+		]
+	},
+	"kind": "normal",
+	"objective": "kill_all",
+	"room_kind": "combat",
+	"score": 18,
+	"section": 0,
+	"seed": 15,
+	"stacked": 1,
+	"targeted_card_index": 0,
+	"tiles": [
+		{
+			"contents": [
+				"Roc Fledgling [enemy_3]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.31640625,
+					"id": "pillar:4,2",
+					"tile": [
+						4,
+						2
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				4,
+				1
+			]
+		},
+		{
+			"contents": [
+				"pillar"
+			],
+			"occluders": [
+				{
+					"fraction": 0.8203125,
+					"id": "unit:enemy_1",
+					"tile": [
+						3,
+						5
+					]
+				},
+				{
+					"fraction": 0.19140625,
+					"id": "pillar:4,6",
+					"tile": [
+						4,
+						6
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				2,
+				4
+			]
+		},
+		{
+			"contents": [
+				"pillar"
+			],
+			"occluders": [
+				{
+					"fraction": 0.19140625,
+					"id": "pillar:6,4",
+					"tile": [
+						6,
+						4
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				4,
+				2
+			]
+		},
+		{
+			"contents": [
+				"floor telegraph [enemy_1]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.2265625,
+					"id": "unit:enemy_1",
+					"tile": [
+						3,
+						5
+					]
+				},
+				{
+					"fraction": 0.51171875,
+					"id": "unit:player",
+					"tile": [
+						3,
+						6
+					]
+				},
+				{
+					"fraction": 0.30078125,
+					"id": "pillar:4,6",
+					"tile": [
+						4,
+						6
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				2,
+				5
+			]
+		},
+		{
+			"contents": [
+				"floor telegraph [enemy_1]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.31640625,
+					"id": "unit:enemy_1",
+					"tile": [
+						3,
+						5
+					]
+				},
+				{
+					"fraction": 0.3046875,
+					"id": "pillar:4,6",
+					"tile": [
+						4,
+						6
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				3,
+				4
+			]
+		},
+		{
+			"contents": [
+				"terrain wooden_box [terrain_5_2]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.3046875,
+					"id": "pillar:6,4",
+					"tile": [
+						6,
+						4
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				5,
+				2
+			]
+		},
+		{
+			"contents": [
+				"Stone Warden [enemy_1]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.1875,
+					"id": "unit:player",
+					"tile": [
+						3,
+						6
+					]
+				},
+				{
+					"fraction": 0.953125,
+					"id": "pillar:4,6",
+					"tile": [
+						4,
+						6
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				3,
+				5
+			]
+		},
+		{
+			"contents": [
+				"trap ice [trap_2_7]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.1796875,
+					"id": "door:4,8",
+					"tile": [
+						4,
+						8
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				2,
+				7
+			]
+		},
+		{
+			"contents": [
+				"player [player]",
+				"floor telegraph [enemy_1]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.31640625,
+					"id": "pillar:4,6",
+					"tile": [
+						4,
+						6
+					]
+				}
+			],
+			"stacked": true,
+			"tile": [
+				3,
+				6
+			]
+		},
+		{
+			"contents": [
+				"floor telegraph [enemy_1]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.31640625,
+					"id": "pillar:4,6",
+					"tile": [
+						4,
+						6
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				4,
+				5
+			]
+		},
+		{
+			"contents": [
+				"Roc Fledgling [enemy_2]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.31640625,
+					"id": "pillar:6,4",
+					"tile": [
+						6,
+						4
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				5,
+				4
+			]
+		}
+	],
+	"turn": 2,
+	"units": [
+		{
+			"fraction": 0.328692962103635,
+			"tile": [
+				4,
+				1
+			],
+			"unit": "Roc Fledgling [enemy_3]"
+		},
+		{
+			"fraction": 0.449712643678161,
+			"tile": [
+				3,
+				5
+			],
+			"unit": "Stone Warden [enemy_1]"
+		},
+		{
+			"fraction": 0.4021101992966,
+			"tile": [
+				5,
+				4
+			],
+			"unit": "Roc Fledgling [enemy_2]"
+		}
+	]
+}

@@ -14,7 +14,7 @@ const EXPECTED_COPY: Dictionary = {
 	"kill_all": "Defeat each enemy.",
 	"kill_leader": "Defeat the marked leader. The rest flee.",
 	"survive": "Survive until the marked time.",
-	"reach_exit": "Reach a marked door to escape."
+	"reach_exit": "Reach a marked tile to escape."
 }
 const TEST_STAGE_SIZE := Vector2(206, 365)
 const PROCESS_FRAMES: int = 3

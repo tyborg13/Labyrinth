@@ -33,6 +33,7 @@ const DeathBurstView = preload("res://scripts/enemy_mechanics/death_burst_view.g
 const KindleView = preload("res://scripts/enemy_mechanics/kindle_view.gd")
 
 const PathUtils = preload("res://scripts/path_utils.gd")
+const TutorialPrompt = preload("res://scripts/contextual_combat_prompt.gd")
 const ScenePropRedraws = preload("res://scripts/board_scene_prop_redraws.gd")
 const PropMossGeometry = preload("res://scripts/board_prop_moss_geometry.gd")
 const BattlefieldItems = preload("res://scripts/battlefield_item_rules.gd")
@@ -523,6 +524,8 @@ const COLUMN_TORCH_EMBER_PLUME_HEIGHT_SCALE: float = 0.52
 const COLUMN_TORCH_EMBER_MIN_WIDTH_SCALE: float = 0.020
 const COLUMN_TORCH_EMBER_MAX_WIDTH_SCALE: float = 0.040
 const CONTINUOUS_PRESENTATION_REDRAW_SECONDS: float = 1.0 / 30.0
+# Neighbors across the diamond's clockwise edges, starting at its top point.
+const UMBRA_TUTORIAL_EDGE_NEIGHBORS: Array = [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]
 const RENDER_LAYER_AMBIENT: String = "ambient"
 const RENDER_LAYER_OVERLAYS: String = "overlays"
 const RENDER_LAYER_GROUND: String = "ground"
@@ -770,6 +773,7 @@ var _tile_tooltip_refresh_pending: bool = false
 var _tooltip_loop_source: Dictionary = {}
 var _tooltip_loop_actor_key: String = ""
 var _tooltips_enabled: bool = true
+var _combat_door_tooltips: bool = false
 var _pointer_tooltips_suppressed: bool = false
 var equipment_tooltip_builder: Callable
 var item_tooltip_builder: Callable
@@ -910,6 +914,11 @@ var _path_command_capture_active: bool = false
 var _path_captured_commands: Array[Dictionary]
 var _impact_floor_render_layer: Control = null
 var _dynamic_render_layer: Control = null
+var _umbra_tutorial_pulse: Callable
+var _umbra_tutorial_dark_floor: Dictionary
+var _umbra_tutorial_contours: Array[Array]
+var _floor_silhouette_tiles: Array[Vector2i]
+var _floor_silhouette_parts: Array[PackedVector2Array]
 var _action_floor_render_layer: Control = null
 var _surface_base_drawing: Node2D
 var _surface_feedback_pixel_layer: Node2D
@@ -959,12 +968,14 @@ var _hud_direct_ops: Variant
 var _hud_direct_inputs: Variant
 var _hud_paint_environment: Array = []
 var _effects_render_layer: Control = null
+var _drew_mark_group_badge: bool = false
 var _strike_trail_layer: Node2D
 var _hero_strike_trail: RefCounted = HeroStrikeTrail.new()
 var _fixed_visual_rects := FixedVisualRects.new()
 var _enemy_strike_trail: RefCounted = EnemyStrikeTrail.new()
 var _floating_text_layout_cache: Dictionary = {}
 var _floating_text_last_layout: Array[Dictionary]
+var _label_ink: RefCounted
 var _floating_icon_canvas := FloatingCombatText.IconCanvas.new()
 var _foreground_obstruction_entries_cache: Array[Dictionary]
 var _foreground_obstruction_geometry_inputs: Dictionary = {}
@@ -2618,6 +2629,13 @@ func _queue_dynamic_redraw() -> void:
 
 var _render_redraw_request_count: int = 0
 
+func _last_effect_draw_has_mark_badges() -> bool:
+	if not is_instance_valid(_effects_render_layer): return _drew_mark_group_badge
+	if _effects_render_layer._drew_mark_group_badge: return true
+	for canvas: Control in _effects_render_layer._layer_slices.canvases:
+		if canvas._drew_mark_group_badge: return true
+	return false
+
 func _queue_render_layer_redraw(layer: Control, clock_only: bool = false) -> void:
 	_request_render_layer_redraw(layer, clock_only, true)
 
@@ -3363,13 +3381,15 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	# layers (unit tests and callers can submit state while the view is detached).
 	# Live views already pay this exact diff cost for selective redraw routing.
 	var presentation_changes: Dictionary = _changed_presentation_keys(presentation, next_presentation)
-	var tile_tooltips_changed: bool = state_changed or not _submission_cache_initialized
-	for key: String in ["umbra_visible_tiles", "umbra_light_sources", "scene_props", "visible_enemy_ids"]:
+	var combat_door_tooltips: bool = _door_tooltips_in_combat()
+	var door_tooltip_mode_changed: bool = _combat_door_tooltips != combat_door_tooltips
+	var tile_tooltips_changed: bool = state_changed or not _submission_cache_initialized or exit_tiles_changed or door_tooltip_mode_changed
+	for key: String in ["umbra_visible_tiles", "umbra_light_sources", "scene_props", "visible_enemy_ids", "active_door_tiles", "locked_door_tiles", "objective_exit_target_tiles"]:
 		if presentation_changes.has(key): tile_tooltips_changed = true
 	var biome_changed: bool = _biome_id != str(next_presentation.get("biome_id", Biomes.default_biome()))
 	var focus_delta: bool = (
 		focus_refresh and not _focus_submission_baseline and not _board_redraw_baseline()
-		and not state_changed and combat_render_changes.is_empty() and is_same(next_state, combat_state)
+		and not state_changed and not door_tooltip_mode_changed and combat_render_changes.is_empty() and is_same(next_state, combat_state)
 		and not biome_changed and not selected_tile_changed and not status_changed
 		and not exit_tiles_changed and not exit_icon_ids_changed
 		and _submission_cache_initialized and _submission_cache_valid and _cutout_roster_initialized
@@ -3384,7 +3404,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	# and detached views keep the normal bootstrap/reattachment path. Reservations
 	# can move independently of the submitted dictionaries, so validate those too.
 	if (
-		not state_changed and combat_render_changes.is_empty() and not interaction_changed and (presentation_changes.is_empty() or metadata_only)
+		not state_changed and not door_tooltip_mode_changed and combat_render_changes.is_empty() and not interaction_changed and (presentation_changes.is_empty() or metadata_only)
 		and not biome_changed and _submission_cache_initialized and _submission_cache_valid
 		and _cutout_roster_initialized and not _hud_layout_entries_cache.is_empty()
 		and (next_presentation.get("death_animation_units", []) as Array).is_empty()
@@ -3555,8 +3575,14 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_tiles = next_exit_tiles
 	exit_icon_ids = next_exit_icon_ids
 	presentation = next_presentation
+	_combat_door_tooltips = combat_door_tooltips
 	if tile_tooltips_changed:
 		_tile_tooltip_cache.invalidate()
+		_queue_tile_tooltip_refresh()
+	elif _tile_tooltip_cache.has_enemy_marks() and (
+		presentation_changes.has("expanded_enemy_actor_keys") or presentation_changes.has("expand_enemy_intents")
+		or presentation_changes.has("show_all_enemy_intents") or presentation_changes.has("umbra_action_actor_clips")
+	):
 		_queue_tile_tooltip_refresh()
 	_invalidate_maquette_pixel_centers()
 	_preparing_submission = true
@@ -3993,6 +4019,19 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_sync_pixel_ground(field_changed, field_changed or geometry_changed or visual_framing_changed)
 	if not _enemy_shadow_dissolve_effects_by_key.is_empty() or not (presentation.get("death_animation_units", []) as Array).is_empty():
 		_sync_enemy_shadow_dissolve_effects()
+	# Mark anchors and their standing line read occupancies at paint time.
+	if not _submission_redraws.has(_effects_render_layer) and (
+		combat_render_changes.has("player") or combat_render_changes.has("illusions")
+		or combat_render_changes.has("enemies") or combat_render_changes.has("npcs")
+		or combat_render_changes.has("terrain") or combat_render_changes.has("loot")
+		or combat_render_changes.has("traps") or combat_render_changes.has("guardian_braziers")
+		or presentation_changes.has("scene_props")
+	) and _last_effect_draw_has_mark_badges():
+		if is_instance_valid(_effects_render_layer):
+			_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
+			_queue_render_layer_redraw(_effects_render_layer)
+		else:
+			queue_redraw()
 	var retained_strike_frame: bool = (
 		(presentation_changes.has("strike_trail_effect") or presentation_changes.has("strike_trail_progress"))
 		and is_instance_valid(_effects_render_layer) and not _submission_redraws.has(_effects_render_layer)
@@ -4715,6 +4754,7 @@ func _combat_submission_cache_source(source_state: Dictionary) -> Dictionary:
 		"terrain": source_state.get("terrain", []),
 		"loot": source_state.get("loot", []),
 		"traps": source_state.get("traps", []),
+		"guardian_braziers": source_state.get("guardian_braziers", []),
 		"surfaces": source_state.get("surfaces", {}),
 		"relics": source_state.get("relics", []),
 		# Player keyword badges (Retaliate, Quicken, next attack, Rite thorns).
@@ -5266,6 +5306,12 @@ func set_pointer_tooltips_suppressed(suppressed: bool) -> void:
 	_pointer_tooltips_suppressed = suppressed
 	if suppressed: dismiss_tooltip_popups()
 
+func _door_tooltips_in_combat() -> bool:
+	# Reward, escape and defeat can reuse combat framing. The scene owner holds
+	# the displayed run mode independently of the board snapshot.
+	var run: Variant = owner.get("_run_state") if owner != null else null
+	return run is Dictionary and run.get("mode") == "combat"
+
 func _get_tooltip(at_position: Vector2) -> String:
 	if not _tooltips_enabled or _pointer_tooltips_suppressed:
 		return ""
@@ -5274,10 +5320,10 @@ func _get_tooltip(at_position: Vector2) -> String:
 	# Owner 2026-11-12: hovering a unit inspects the unit (plate, intent, rail);
 	# floor, trap, prop and loot tooltips under it stay closed.
 	var on_unit: bool = _pointer_on_unit(at_position)
+	var pointer_tile: Vector2i = _tile_at_point(at_position)
 	# Equipment floats and bobs independently of its tile layer. Resolve its live
-	# draw rect directly so pointer inspection is reliable even between retained
-	# scene-layer redraws or near the edge of the sprite's glow.
-	var live_loot_tooltip: String = "" if on_unit else _loot_tooltip_at_position(at_position)
+	# draw rect between retained redraws, within the pickup's own square.
+	var live_loot_tooltip: String = "" if on_unit else _loot_tooltip_at_position(at_position, pointer_tile)
 	if not live_loot_tooltip.is_empty():
 		return live_loot_tooltip
 	var tooltip_sources: Array = _retained_render_layers().duplicate(false)
@@ -5294,9 +5340,17 @@ func _get_tooltip(at_position: Vector2) -> String:
 			if rect.has_point(at_position):
 				var tile_region: Dictionary = (source.get("_tile_tooltip_regions") as Dictionary).get(index, {})
 				if tile_region.has("tile"):
-					return "" if on_unit else _surface_tooltip_for_tile(tile_region["tile"])
+					var region_tile: Vector2i = tile_region["tile"]
+					if not _tile_tooltip_region_matches_square(region_tile, pointer_tile):
+						continue
+					return "" if on_unit else _surface_tooltip_for_tile(region_tile)
 				return str(region.get("tooltip", ""))
-	return "" if on_unit else _surface_tooltip_for_tile(tile_at_global_position(at_position + global_position))
+	return "" if on_unit else _surface_tooltip_for_tile(pointer_tile)
+
+func _tile_tooltip_region_matches_square(region_tile: Vector2i, pointer_tile: Vector2i) -> bool:
+	# Off-board prop regions still use their rect. The pointer pick has already
+	# populated the layout's polygon map with every rendered board square.
+	return region_tile == pointer_tile or not _board_layout_cache_tile_polygons.has(region_tile)
 
 # Tile-based like hover: the pointer is on a unit when the floor tile under it
 # is part of a living unit's footprint.
@@ -5316,7 +5370,9 @@ func dismiss_tooltip_popups() -> void:
 			(child as Window).hide()
 			child.queue_free()
 
-func _loot_tooltip_at_position(at_position: Vector2) -> String:
+func _loot_tooltip_at_position(at_position: Vector2, pointer_tile: Vector2i) -> String:
+	if pointer_tile.x < 0:
+		return ""
 	for loot_var: Variant in combat_state.get("loot", []):
 		if typeof(loot_var) != TYPE_DICTIONARY:
 			continue
@@ -5324,7 +5380,7 @@ func _loot_tooltip_at_position(at_position: Vector2) -> String:
 		if bool(loot.get("claimed", false)):
 			continue
 		var tile: Vector2i = loot.get("pos", Vector2i(-1, -1))
-		if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
+		if tile != pointer_tile or not _board_tile_is_visible_to_player(tile):
 			continue
 		var texture: Texture2D = _loot_texture(loot)
 		if texture == null:
@@ -5372,6 +5428,7 @@ func controller_tooltip_for_tile(tile: Vector2i) -> String:
 	return _surface_tooltip_for_tile(tile)
 
 func tile_tooltip_revision() -> int:
+	_tile_tooltip_cache.refresh_intent_labels(self)
 	return _tile_tooltip_cache.revision
 
 func _queue_tile_tooltip_refresh() -> void:
@@ -5393,6 +5450,7 @@ func _refresh_held_tile_tooltip() -> void:
 	_tile_tooltip_refresh_pending = false
 	if not is_inside_tree() or is_queued_for_deletion(): return
 	_tile_tooltip_cache.refresh_used_lights(self)
+	_tile_tooltip_cache.refresh_intent_labels(self)
 	BoardTileTooltip.refresh_held_popup(self)
 
 # Controller discovery retains readable text and the original loot candidate
@@ -5407,11 +5465,11 @@ func tile_tooltip_detail(text: String) -> Dictionary:
 	return {"text": BoardTileTooltip.plain_text(entries), "loot_key": loot_key}
 
 func _make_custom_tooltip(for_text: String, status_route: Dictionary = {}) -> Object:
+	if for_text.strip_edges().is_empty(): return null
 	if for_text.begins_with(BoardTileTooltip.PREFIX):
-		return BoardTileTooltip.make_stack(BoardTileTooltip.decode(for_text), Callable(self, "_make_custom_tooltip"))
+		var entries: Array[Dictionary] = BoardTileTooltip.decode(for_text)
+		return null if entries.is_empty() else BoardTileTooltip.make_stack(entries, Callable(self, "_make_custom_tooltip"))
 	if for_text.begins_with(ActionIcons.label("bramble") + "\n"): return UiTooltipPanel.make_icon_lines(ActionIcons.icon_texture("bramble"), ActionIcons.label("bramble"), PackedStringArray([for_text.substr(for_text.find("\n") + 1)]))
-	if for_text.strip_edges().is_empty():
-		return null
 	if for_text.begins_with("item:"):
 		var card_id: String = for_text.trim_prefix("item:")
 		if item_tooltip_builder.is_valid():
@@ -5456,7 +5514,11 @@ func _draw() -> void:
 		_surface_feedback_pixel_layer.begin(self)
 	if started > 0 and trace.resolve_inputs:
 		_redraw_trace_operations = {}
+	if _label_ink != null:
+		_label_ink.clear_feedback()
+		_floating_icon_canvas.clear()
 	_draw_board_commands()
+	if _label_ink != null: _label_ink.finish_numbers(self)
 	if _hud_direct_ops == null: aim.finish_draw(self)
 	if is_instance_valid(_pixel_fx_layer):
 		_pixel_fx_layer.finish()
@@ -5468,6 +5530,7 @@ func _draw() -> void:
 		if trace.resolve_inputs: HudRetention.record_paint(self)
 
 func _draw_board_commands() -> void:
+	_drew_mark_group_badge = false
 	var operations: Array = _render_slice_ops if _hud_direct_ops == null else _hud_direct_ops
 	if _hud_direct_ops != null and operations.is_empty():
 		_tooltip_regions.clear()
@@ -6156,6 +6219,9 @@ func _record_render_frame_section(frame_id: int, section: String, elapsed_usec: 
 
 func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 	var stage_id: String = str(presentation.get("umbra_stage", "clear"))
+	if stage_id == "clear" and not _umbra_tutorial_contours.is_empty():
+		_umbra_tutorial_dark_floor.clear()
+		_umbra_tutorial_contours.clear()
 	if tiles.is_empty() or not LayerRedraws.world_has_paint(presentation):
 		return
 	if stage_id == "clear":
@@ -6208,6 +6274,74 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 	phase_started_usec = Time.get_ticks_usec()
 	_flush_umbra_shape_batch()
 	_record_render_section_time("umbra_batch_flush", phase_started_usec)
+	if _umbra_tutorial_pulse.is_valid():
+		_draw_umbra_tutorial_outline(hidden_lookup)
+
+func set_umbra_tutorial_outline(pulse: Callable) -> void:
+	var floor_layer: Control = _dynamic_render_layer if is_instance_valid(_dynamic_render_layer) else self
+	if floor_layer._umbra_tutorial_pulse == pulse:
+		return
+	floor_layer._umbra_tutorial_pulse = pulse
+	if not pulse.is_valid():
+		floor_layer._umbra_tutorial_dark_floor.clear()
+		floor_layer._umbra_tutorial_contours.clear()
+	floor_layer.queue_redraw()
+
+func _draw_umbra_tutorial_outline(hidden_lookup: Dictionary) -> void:
+	var grid: Array = combat_state.get("grid", [])
+	var dark_floor: Dictionary = {}
+	for tile: Vector2i in hidden_lookup:
+		var tile_id: String = _display_tile_id(PathUtils.tile_id(grid, tile), tile)
+		if tile_id not in ["wall", "pillar", "void", "empty", ""]:
+			dark_floor[tile] = true
+	if dark_floor != _umbra_tutorial_dark_floor:
+		_umbra_tutorial_dark_floor = dark_floor
+		_umbra_tutorial_contours = _umbra_tutorial_boundary(dark_floor)
+	var pulse: float = _umbra_tutorial_pulse.call()
+	var distance: float = TutorialPrompt.spotlight_halo_distance(pulse, bool(presentation.get("reduced_motion", false))) * _navigation_zoom
+	var accent: Color = TutorialPrompt.SPOTLIGHT_ACCENT
+	for contour: Array in _umbra_tutorial_contours:
+		var core := PackedVector2Array()
+		for edge: Vector3i in contour:
+			core.append(_tile_polygon(Vector2i(edge.x, edge.y))[edge.z])
+		var halo := PackedVector2Array()
+		for index: int in core.size():
+			var point: Vector2 = core[index]
+			var incoming: Vector2 = (point - core[posmod(index - 1, core.size())]).orthogonal().normalized()
+			var outgoing: Vector2 = (core[(index + 1) % core.size()] - point).orthogonal().normalized()
+			# Intersect the two offset edges so the halo stays joined at turns.
+			halo.append(point + (incoming + outgoing) * distance / (1.0 + incoming.dot(outgoing)))
+		core.append(core[0])
+		halo.append(halo[0])
+		draw_polyline(halo, TutorialPrompt.spotlight_halo(accent, pulse), TutorialPrompt.SPOTLIGHT_HALO_WIDTH * _navigation_zoom, true)
+		draw_polyline(core, TutorialPrompt.spotlight_core(accent), TutorialPrompt.SPOTLIGHT_CORE_WIDTH * _navigation_zoom, true)
+
+func _umbra_tutorial_boundary(dark_floor: Dictionary) -> Array[Array]:
+	var remaining: Dictionary = {}
+	for tile: Vector2i in dark_floor:
+		for side: int in UMBRA_TUTORIAL_EDGE_NEIGHBORS.size():
+			if not dark_floor.has(tile + UMBRA_TUTORIAL_EDGE_NEIGHBORS[side]):
+				remaining[Vector3i(tile.x, tile.y, side)] = true
+	var contours: Array[Array]
+	while not remaining.is_empty():
+		var contour: Array[Vector3i]
+		var edge: Vector3i = remaining.keys()[0]
+		while remaining.erase(edge):
+			contour.append(edge)
+			var tile := Vector2i(edge.x, edge.y)
+			var next_side: int = (edge.z + 1) % UMBRA_TUTORIAL_EDGE_NEIGHBORS.size()
+			var across_next: Vector2i = tile + UMBRA_TUTORIAL_EDGE_NEIGHBORS[next_side]
+			var diagonal: Vector2i = across_next + UMBRA_TUTORIAL_EDGE_NEIGHBORS[edge.z]
+			# Turn around the current tile first. Diagonal-only contacts keep
+			# separate contours even though they share a projected point.
+			if not dark_floor.has(across_next):
+				edge.z = next_side
+			elif dark_floor.has(diagonal):
+				edge = Vector3i(diagonal.x, diagonal.y, posmod(edge.z - 1, UMBRA_TUTORIAL_EDGE_NEIGHBORS.size()))
+			else:
+				edge = Vector3i(across_next.x, across_next.y, edge.z)
+		contours.append(contour)
+	return contours
 
 func _begin_umbra_shape_batch(reset_mesh_cursor: bool = false) -> void:
 	_umbra_shape_batch_active = _umbra_shape_batch_enabled
@@ -6650,6 +6784,9 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		_begin_umbra_shape_batch()
 	_flush_umbra_shape_batch()
 
+enum BrazierPlacement { STANDARD, EXPANDED, COMPACT, CROWDED }
+const BRAZIER_HARD_OBSTACLE_WEIGHT: float = 1000000000.0
+
 # Night Coil announces a snuff before the next Eclipse. Keep current Light and
 # the future loss distinct, with a visible movement action on every dark refuge.
 func _noctyrax_brazier_markers() -> Array[Dictionary]:
@@ -6685,45 +6822,194 @@ func _noctyrax_brazier_markers() -> Array[Dictionary]:
 			detail = "Relights after Night Coil"
 			tooltip = "Relights after Night Coil; step onto it to relight it sooner."
 		var width: float = maxf(font.get_string_size(label,HORIZONTAL_ALIGNMENT_LEFT,-1,20).x,font.get_string_size(detail,HORIZONTAL_ALIGNMENT_LEFT,-1,18).x)+56.0
-		var center: Vector2 = _tile_center(tile)
-		var rect: Rect2 = _noctyrax_brazier_marker_rect(center,width,result)
-		result.append({"tile":tile,"rect":rect,"label":label,"detail":detail,"tooltip":tooltip,"threatened":threatened,"lit":lit,"eclipse":str(intent.get("id",""))=="last_eclipse"})
+		result.append({"tile":tile,"width":width,"label":label,"detail":detail,"tooltip":tooltip,"threatened":threatened,"lit":lit,"eclipse":str(intent.get("id",""))=="last_eclipse"})
+	if result.is_empty(): return result
+	var layout: Dictionary = _noctyrax_brazier_layout(result, _noctyrax_brazier_obstacles())
+	for choice: Dictionary in layout["placements"]:
+		var marker: Dictionary = result[choice["index"]]
+		marker["rect"] = choice["rect"]
+		marker["stage"] = layout["stage"]
 	return result
 
-func _noctyrax_brazier_marker_rect(center: Vector2, width: float, placed: Array[Dictionary]) -> Rect2:
-	var base := Rect2(center+Vector2(-width*.5,-_tile_height()*1.6-54.0),Vector2(width,54))
-	var obstacles: Array[Rect2]
+func _noctyrax_brazier_layout(markers: Array[Dictionary], obstacles: Dictionary) -> Dictionary:
+	var soft_layout: Dictionary = {}
+	for stage: int in range(BrazierPlacement.CROWDED + 1):
+		if stage == BrazierPlacement.CROWDED and not soft_layout.is_empty(): return soft_layout
+		var options: Array[Array]
+		for marker: Dictionary in markers:
+			options.append(_noctyrax_brazier_candidates(marker, obstacles, stage))
+		var best: Dictionary = {"hard": INF, "overlap": INF, "score": INF}
+		var placed: Array[Dictionary]
+		_noctyrax_brazier_search(options, placed, best, 0.0, 0.0, 0.0, stage == BrazierPlacement.CROWDED)
+		if not best.has("placements"): continue
+		best["stage"] = stage
+		var choices: Array = best["placements"]
+		if not choices.any(func(choice: Dictionary) -> bool: return choice["can_route_around_unit"]): return best
+		# Try the next candidate set before accepting a soft crossing that
+		# isn't forced by the brazier endpoint itself.
+		if soft_layout.is_empty() or best["score"] < soft_layout["score"]: soft_layout = best
+		if stage == BrazierPlacement.CROWDED: return best
+	return {"placements": [], "stage": BrazierPlacement.CROWDED}
+
+func _noctyrax_brazier_obstacles() -> Dictionary:
 	var fixed_hud: Array[Rect2]
 	var inverse: Transform2D = get_global_transform_with_canvas().affine_inverse()
-	for global_rect: Rect2 in presentation.get("hud_obstacle_global_rects",[]):
-		fixed_hud.append(inverse*global_rect)
-	obstacles.append_array(fixed_hud)
+	for global_rect: Rect2 in presentation.get("hud_obstacle_global_rects", []):
+		# Before the cards are laid out, the hand can reserve a rect with an
+		# infinite top. Transforming that rect poisons every candidate score.
+		if not global_rect.position.is_finite() or not global_rect.end.is_finite():
+			continue
+		fixed_hud.append(inverse * global_rect)
+	var units: Array[Rect2]
+	var bodies: Array[Rect2]
 	for unit: Dictionary in _visible_units():
-		if _unit_is_preview_echo(unit): continue
-		obstacles.append(_unit_draw_rect(unit).grow(8))
-		obstacles.append_array(_health_bar_collision_rects(unit,_unit_health_bar_rect(unit,_unit_center(unit))))
-	for marker: Dictionary in placed: obstacles.append((marker["rect"] as Rect2).grow(8))
-	var bounds: Rect2 = _enemy_hud_viewport_bounds()
-	var best: Rect2 = base
-	var score: float = INF
-	var y_offsets: Array[float]
-	for value: float in [0.0,-70.0,70.0,-140.0,140.0,210.0]: y_offsets.append(value)
-	# Include exact clear positions beneath/above fixed overlays. Actor crowding
-	# must not push a brazier's words through the current action banner.
-	for rect: Rect2 in fixed_hud:
-		y_offsets.append(rect.end.y+8.0-base.position.y)
-		y_offsets.append(rect.position.y-8.0-base.end.y)
-	for x: float in [0.0,-width*.7,width*.7,-width*1.15,width*1.15]:
-		for y: float in y_offsets:
-			var offset := Vector2(x,y)
-			var candidate := Rect2(base.position+offset,base.size)
-			var candidate_score: float = _enemy_hud_layout_score([candidate],obstacles,bounds,offset)
-			for rect: Rect2 in fixed_hud:
-				candidate_score += _rect_overlap_area(candidate,rect)*1000000000.0
-			if candidate_score < score:
-				score = candidate_score
-				best = candidate
-	return best
+		if _unit_is_preview_echo(unit) or int(unit.get("hp", 0)) <= 0 or bool(unit.get("death_animation", false)):
+			continue
+		var body: Rect2 = _unit_draw_rect(unit)
+		bodies.append(body)
+		units.append(body.grow(8.0))
+		units.append_array(_health_bar_collision_rects(unit, _unit_health_bar_rect(unit, _unit_center(unit))))
+	var hard: Array[Rect2]
+	hard.append_array(fixed_hud)
+	for prop: Dictionary in presentation.get("scene_props", []):
+		if not str(prop.get("kind", "")).begins_with("watch_brazier"): continue
+		var texture: Texture2D = _texture_for_scene_prop(prop)
+		if texture != null: hard.append(_noctyrax_brazier_prop_rect(prop, texture).grow(6.0))
+	return {"fixed_hud": fixed_hud, "hard": hard, "units": units, "bodies": bodies, "bounds": _enemy_hud_viewport_bounds()}
+
+func _noctyrax_brazier_prop_rect(prop: Dictionary, texture: Texture2D) -> Rect2:
+	var rect: Rect2 = _scene_prop_rect(texture, prop)
+	if prop["kind"] != "watch_brazier_lit": return rect
+	var bowl: Vector2 = rect.position + rect.size * Vector2(0.5, 0.46)
+	var fire_width: float = rect.size.x * 0.72
+	# Enclose every frame of BoardSurfacePresentation._draw_fire. Its pocket
+	# motion, curl and flame thickness set the top and sides; puffs set the bottom.
+	const POCKET_X: float = 0.335
+	const POCKET_Y: float = POCKET_X * 0.45
+	const FLAME_SIDE: float = POCKET_X + 0.085 + 0.10
+	const FLAME_TOP: float = POCKET_Y + 0.215 + 0.055 + 0.10
+	var flame_bottom: float = POCKET_Y + (0.29 + sin(0.22) * 0.235) * 0.5
+	var flames := Rect2(bowl - Vector2(FLAME_SIDE, FLAME_TOP) * fire_width,
+		Vector2(FLAME_SIDE * 2.0, FLAME_TOP + flame_bottom) * fire_width)
+	return rect.merge(flames)
+
+func _noctyrax_brazier_candidates(marker: Dictionary, obstacles: Dictionary, stage: int) -> Array[Dictionary]:
+	var center: Vector2 = _tile_center(marker["tile"])
+	var width: float = marker["width"]
+	var height: float = 54.0 if stage < BrazierPlacement.COMPACT else 34.0
+	var base := Rect2(center + Vector2(-width * 0.5, -_tile_height() * 1.6 - height), Vector2(width, height))
+	var bounds: Rect2 = obstacles["bounds"]
+	var xs: Array[float]
+	xs.append_array([0.0, -0.7, 0.7, -1.15, 1.15])
+	var ys: Array[float]
+	ys.append_array([0.0, -70.0, 70.0, -140.0, 140.0, 210.0])
+	if stage >= BrazierPlacement.EXPANDED:
+		for step: int in range(1, floori(2.0 / 0.35) + 1):
+			var factor: float = step * 0.35
+			if not xs.has(factor): xs.append_array([-factor, factor])
+		for y: int in range(-245, 246, 35):
+			if not ys.has(float(y)): ys.append(float(y))
+	# Preserve the existing HUD-edge positions as well as the regular offsets.
+	for rect: Rect2 in obstacles["fixed_hud"]:
+		ys.append(rect.end.y + 8.0 - base.position.y)
+		ys.append(rect.position.y - 8.0 - base.end.y)
+	var options: Array[Dictionary]
+	var seen: Dictionary = {}
+	for x: float in xs:
+		for y: float in ys:
+			var offset := Vector2(width * x, y)
+			var rect := Rect2(base.position + offset, base.size)
+			if not bounds.encloses(rect) or seen.has(rect): continue
+			seen[rect] = true
+			var option: Dictionary = _noctyrax_brazier_candidate(rect, center, offset, obstacles)
+			if stage == BrazierPlacement.CROWDED or (option["hard"] == 0.0 and option["overlap"] == 0.0):
+				options.append(option)
+	# An undersized viewport can leave no in-bounds candidate at all.
+	if stage == BrazierPlacement.CROWDED and options.is_empty():
+		options.append(_noctyrax_brazier_candidate(base, center, Vector2.ZERO, obstacles))
+	options.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["score"] < b["score"])
+	return options
+
+func _noctyrax_brazier_candidate(rect: Rect2, center: Vector2, offset: Vector2, obstacles: Dictionary) -> Dictionary:
+	var hard: float = 0.0
+	for obstacle: Rect2 in obstacles["hard"]:
+		hard += _rect_overlap_area(rect, obstacle) * BRAZIER_HARD_OBSTACLE_WEIGHT
+	# If the brazier is level with the interior, either allowed anchor sends
+	# the line through its own plate.
+	if center.y > rect.position.y and center.y < rect.end.y:
+		hard += BRAZIER_HARD_OBSTACLE_WEIGHT
+	var collision: Dictionary = _enemy_hud_collision_areas([rect], obstacles["units"], obstacles["bounds"])
+	var start: Vector2 = _noctyrax_brazier_tether_anchor(rect, center)
+	var score: float = _enemy_hud_layout_score_from_areas(collision, offset) + start.distance_to(center) * 0.6
+	var can_route_around_unit: bool = false
+	for body: Rect2 in obstacles["bodies"]:
+		if not _noctyrax_brazier_tether_hits_rect(start, center, body): continue
+		score += 40000.0
+		can_route_around_unit = can_route_around_unit or not _noctyrax_brazier_tether_hits_rect(center, center, body)
+	return {"rect": rect, "start": start, "end": center, "hard": hard, "overlap": collision["overlap_area"], "score": score,
+		"can_route_around_unit": can_route_around_unit}
+
+func _noctyrax_brazier_search(options: Array[Array], placed: Array[Dictionary], best: Dictionary, hard: float, overlap: float, score: float, crowded: bool) -> void:
+	if not _noctyrax_brazier_better(hard, overlap, score, best): return
+	if placed.size() == options.size():
+		best.merge({"hard": hard, "overlap": overlap, "score": score, "placements": placed.duplicate()}, true)
+		return
+	for index: int in range(options.size()):
+		if placed.any(func(choice: Dictionary) -> bool: return choice["index"] == index): continue
+		for candidate: Dictionary in options[index]:
+			var next_score: float = score + candidate["score"]
+			if not crowded and next_score >= best["score"]: break
+			var next_hard: float = hard + candidate["hard"]
+			var next_overlap: float = overlap + candidate["overlap"]
+			for other: Dictionary in placed:
+				var plate_overlap: float = _rect_overlap_area(candidate["rect"], (other["rect"] as Rect2).grow(8.0))
+				next_hard += (plate_overlap + _noctyrax_brazier_tether_conflicts(candidate, other)) * BRAZIER_HARD_OBSTACLE_WEIGHT
+			if not crowded and (next_hard > 0.0 or next_overlap > 0.0): continue
+			placed.append({"index": index, "rect": candidate["rect"], "start": candidate["start"], "end": candidate["end"],
+				"can_route_around_unit": candidate["can_route_around_unit"]})
+			_noctyrax_brazier_search(options, placed, best, next_hard, next_overlap, next_score, crowded)
+			placed.pop_back()
+
+func _noctyrax_brazier_better(hard: float, overlap: float, score: float, best: Dictionary) -> bool:
+	if hard != best["hard"]: return hard < best["hard"]
+	if overlap != best["overlap"]: return overlap < best["overlap"]
+	return score < best["score"]
+
+func _noctyrax_brazier_tether_anchor(rect: Rect2, center: Vector2) -> Vector2:
+	return Vector2(rect.get_center().x, rect.end.y if rect.get_center().y < center.y else rect.position.y)
+
+func _noctyrax_brazier_tether_conflicts(first: Dictionary, second: Dictionary) -> int:
+	var first_start: Vector2 = first["start"]
+	var first_end: Vector2 = first["end"]
+	var second_start: Vector2 = second["start"]
+	var second_end: Vector2 = second["end"]
+	# Each plate must leave clearance for the other's tether in either order.
+	var hits: int = int(_noctyrax_brazier_tether_hits_rect(first_start, first_end, (second["rect"] as Rect2).grow(6.0)))
+	hits += int(_noctyrax_brazier_tether_hits_rect(second_start, second_end, (first["rect"] as Rect2).grow(6.0)))
+	if Geometry2D.segment_intersects_segment(first_start, first_end, second_start, second_end) != null:
+		return hits + 1
+	# Geometry2D does not report coincident segments.
+	if (first_start.is_equal_approx(Geometry2D.get_closest_point_to_segment(first_start, second_start, second_end))
+		or first_end.is_equal_approx(Geometry2D.get_closest_point_to_segment(first_end, second_start, second_end))
+		or second_start.is_equal_approx(Geometry2D.get_closest_point_to_segment(second_start, first_start, first_end))
+		or second_end.is_equal_approx(Geometry2D.get_closest_point_to_segment(second_end, first_start, first_end))):
+		return hits + 1
+	return hits
+
+func _noctyrax_brazier_tether_hits_rect(start: Vector2, end: Vector2, rect: Rect2) -> bool:
+	# Clip the segment's [0, 1] interval against both rectangle axes.
+	var enter: float = 0.0
+	var leave: float = 1.0
+	var delta: Vector2 = end - start
+	for axis: int in range(2):
+		if is_zero_approx(delta[axis]):
+			if start[axis] < rect.position[axis] or start[axis] > rect.end[axis]: return false
+			continue
+		var first: float = (rect.position[axis] - start[axis]) / delta[axis]
+		var last: float = (rect.end[axis] - start[axis]) / delta[axis]
+		enter = maxf(enter, minf(first, last))
+		leave = minf(leave, maxf(first, last))
+	return enter <= leave
 
 func _draw_noctyrax_refuge_tile(tile: Vector2i) -> void:
 	var snuffed_id: int = -1
@@ -6755,17 +7041,19 @@ func _draw_noctyrax_brazier_markers() -> void:
 		var color := Color("ffb096") if threatened else Color("ffe4a0")
 		if not bool(marker["lit"]):
 			color = Color("bbb4cd")
-		var tether_top := Vector2(rect.get_center().x, rect.end.y)
-		draw_line(tether_top, _tile_center(tile), Color(0.02, 0.015, 0.025, 0.95), 5.0, true)
-		draw_line(tether_top, _tile_center(tile), color, 2.0, true)
+		var center: Vector2 = _tile_center(tile)
+		var tether_anchor: Vector2 = _noctyrax_brazier_tether_anchor(rect, center)
+		draw_line(tether_anchor, center, Color(0.02, 0.015, 0.025, 0.95), 5.0, true)
+		draw_line(tether_anchor, center, color, 2.0, true)
 		var plate := PackedVector2Array([rect.position+Vector2(8,0),Vector2(rect.end.x-8,rect.position.y),Vector2(rect.end.x,rect.position.y+8),rect.end-Vector2(0,8),rect.end-Vector2(8,0),Vector2(rect.position.x+8,rect.end.y),Vector2(rect.position.x,rect.end.y-8),rect.position+Vector2(0,8)])
 		draw_colored_polygon(plate,Color(.035,.025,.055,.88))
 		var rim: PackedVector2Array = plate.duplicate()
 		rim.append(plate[0])
 		draw_polyline(rim,Color(color,.55),1.3,true)
-		_draw_keyword_icon("light",Rect2(rect.position+Vector2(9,11),Vector2(32,32)),"Light radius 2",color if bool(marker["lit"]) else Color(.45,.42,.50),false)
+		_draw_keyword_icon("light",Rect2(rect.position+Vector2(9,(rect.size.y-32.0)*0.5),Vector2(32,32)),"Light radius 2",color if bool(marker["lit"]) else Color(.45,.42,.50),false)
 		_draw_outlined_string(font,rect.position+Vector2(47,23),marker["label"],rect.size.x-54,20,color,Color.BLACK)
-		_draw_outlined_string(font,rect.position+Vector2(47,44),marker["detail"],rect.size.x-54,18,color.lightened(.13),Color.BLACK)
+		if rect.size.y == 54.0:
+			_draw_outlined_string(font,rect.position+Vector2(47,44),marker["detail"],rect.size.x-54,18,color.lightened(.13),Color.BLACK)
 		_register_tile_tooltip(rect,marker["tooltip"],tile,"brazier")
 
 func _tethered_light_tooltip(source: Dictionary, with_diagram: bool = false) -> String:
@@ -8218,6 +8506,46 @@ func _tile_depth_faces(tile: Vector2i) -> Array[PackedVector2Array]:
 	]))
 	return faces
 
+func floor_silhouette_in_viewport() -> Array[PackedVector2Array]:
+	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+	if tiles != _floor_silhouette_tiles:
+		_floor_silhouette_tiles = tiles.duplicate()
+		_floor_silhouette_parts = _merge_floor_silhouette(tiles)
+	var half_tile := Vector2(_tile_width(), _tile_height()) * 0.5
+	var to_board := Transform2D(Vector2(half_tile.x, 0.0), Vector2(0.0, half_tile.y), _board_origin())
+	var to_viewport: Transform2D = get_global_transform_with_canvas() * to_board
+	var projected: Array[PackedVector2Array]
+	for part: PackedVector2Array in _floor_silhouette_parts:
+		projected.append(to_viewport * part)
+	return projected
+
+func _merge_floor_silhouette(tiles: Array[Vector2i]) -> Array[PackedVector2Array]:
+	var parts: Array[PackedVector2Array]
+	var depth: float = 2.0 * TILE_DEPTH_HEIGHT_RATIO
+	for tile: Vector2i in tiles:
+		# This is the diamond and both stone depth faces in half-tile units.
+		# The grid coordinates keep shared edges exact through the boolean union.
+		var center := Vector2(tile.x - tile.y, tile.x + tile.y)
+		var outline := PackedVector2Array([
+			center + Vector2(0, -1), center + Vector2(1, 0), center + Vector2(1, depth),
+			center + Vector2(0, 1.0 + depth), center + Vector2(-1, depth), center + Vector2(-1, 0),
+		])
+		var index: int = 0
+		while index < parts.size():
+			var exterior: Array[PackedVector2Array]
+			for polygon: PackedVector2Array in Geometry2D.merge_polygons(parts[index], outline):
+				if not Geometry2D.is_polygon_clockwise(polygon):
+					exterior.append(polygon)
+			if exterior.size() == 1:
+				parts.remove_at(index)
+				outline = exterior[0]
+				# Filling a newly enclosed gap can connect another part.
+				index = 0
+			else:
+				index += 1
+		parts.append(outline)
+	return parts
+
 func _draw_tile_overlays(tile: Vector2i) -> void:
 	var detailed: bool = is_instance_valid(_render_instrumentation_owner) and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))
 	var started: int = Time.get_ticks_usec() if detailed else 0
@@ -8340,29 +8668,39 @@ func _draw_slice_meteor_mark(tile: Vector2i, burrow_marks: Variant, burst_tiles:
 
 func _draw_meteor_mark_badges(include_burrow: bool = true) -> void:
 	if include_burrow: BurrowView.draw_badges(self)
-	# Meteorfall's icon and incoming damage sit on a medallion at each marked
-	# tile's front edge in the effects layer, above units, so a mark under an
-	# enemy (or under the hero) stays readable without hovering.
+	# Retain the displayed total on overlaps. Each original entry still owns its
+	# groups, splitting wherever neighboring tiles show different totals.
+	var by_source: Array[Dictionary]
 	var marks: Dictionary = {}
 	for mark_var: Variant in combat_state.get("meteor_marks", []):
 		if typeof(mark_var) != TYPE_DICTIONARY:
 			continue
 		var mark: Dictionary = mark_var as Dictionary
+		var source_tiles: Dictionary = {}
 		for tile_var: Variant in mark.get("tiles", []):
 			var tile: Vector2i = tile_var
+			if source_tiles.has(tile): continue
+			source_tiles[tile] = null
 			var entry: Dictionary = marks.get(tile, {"damage": 0, "surface": ""}) as Dictionary
 			entry["damage"] = int(entry["damage"]) + int(mark.get("damage", 0))
 			entry["surface"] = str(mark.get("surface", entry["surface"]))
 			marks[tile] = entry
+		by_source.append(source_tiles)
 	if marks.is_empty():
 		return
 	var mark_icon: Texture2D = ActionIcons.icon_texture("cinder_marks")
 	var font: Font = get_theme_default_font()
 	var player_tile: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
-	for tile_var: Variant in marks.keys():
-		var tile: Vector2i = tile_var
-		if not _board_tile_is_visible_to_player(tile):
-			continue
+	var badge_groups := preload("res://scripts/mark_badge_groups.gd")
+	var groups: Array[Dictionary]
+	for source_tiles: Dictionary in by_source:
+		for tile: Vector2i in source_tiles:
+			var damage: int = marks[tile]["damage"]
+			source_tiles[tile] = damage if damage > 0 else null
+		groups.append_array(badge_groups.groups(self, source_tiles))
+	for group: Dictionary in groups:
+		_drew_mark_group_badge = true
+		var tile: Vector2i = group["anchor"]
 		var entry: Dictionary = marks[tile] as Dictionary
 		var damage: int = int(entry["damage"])
 		var surface: String = str(entry["surface"])
@@ -8375,7 +8713,7 @@ func _draw_meteor_mark_badges(include_burrow: bool = true) -> void:
 		var tooltip: String = "Meteorfall\nAt the start of your next turn this tile takes %d damage%s.%s" % [
 			damage,
 			" and becomes %s" % surface.capitalize() if not surface.is_empty() else "",
-			"\nYou are standing on it." if tile == player_tile else ""
+			"\nYou are standing on it." if player_tile in group["tiles"] else ""
 		]
 		var rect := Rect2(center - Vector2.ONE * icon_size * 0.5, Vector2.ONE * icon_size)
 		if mark_icon != null:
@@ -8386,7 +8724,7 @@ func _draw_meteor_mark_badges(include_burrow: bool = true) -> void:
 			var font_size: int = int(round(clampf(icon_size * 0.50, 14.0, 20.0)))
 			var text_width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
 			var baseline := Vector2(center.x + radius * 0.60, center.y + radius * 0.95)
-			_draw_outlined_string(font, baseline, text, text_width + 4.0, font_size, COLLISION_MARKER_RING.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2.0)
+			_draw_tile_damage_numeral(font, baseline, text, text_width + 4.0, font_size, COLLISION_MARKER_RING.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2.0)
 			_register_tile_tooltip(Rect2(baseline - Vector2(0.0, float(font_size)), Vector2(text_width + 4.0, float(font_size) + 4.0)), tooltip, tile)
 
 func _draw_controller_door_focus(tile: Vector2i) -> void:
@@ -8905,7 +9243,7 @@ func _draw_tile_stone_props(grid: Array, tile: Vector2i, tile_id: String, obstru
 			var draw_rect: Rect2 = _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))
 			var opening_texture: Texture2D = _door_opening_texture_for_tile(grid, tile)
 			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
-			if _snare_door_sealed(tile): tint = SNARE_SEALED_DOOR_MODULATE
+			if _snare_door_sealed(tile) and not _unselected_escape_door(tile): tint = SNARE_SEALED_DOOR_MODULATE
 			tint = _occlusion_reveal_tint("door", tile, tint)
 			_draw_rect_ground_shadow(tile, draw_rect, 0.62, 0.24, 0.18)
 			if opening_texture != null:
@@ -10304,8 +10642,9 @@ func _draw_unit_huds_from_layout_cache(units_to_draw: Array[Dictionary]) -> void
 			_:
 				var health_rect: Rect2 = entry.get("health_rect", Rect2()) as Rect2
 				_draw_unit_statuses(unit, health_rect)
-	for intent_layout: Dictionary in deferred_intent_layouts:
-		_draw_enemy_intent_layout(intent_layout, font)
+	if not has_meta("fel14_split_intent"):
+		for intent_layout: Dictionary in deferred_intent_layouts:
+			_draw_enemy_intent_layout(intent_layout, font)
 
 func _hud_group_draw_entries(units: Array[Dictionary]) -> Array:
 	var entries: Array = _hud_layout_entries_cache.duplicate(false)
@@ -11204,6 +11543,10 @@ func _draw_enemy_intent_title(rect: Rect2, title: String, border: Color, font: F
 	# "Lunge" remain intact instead of being crossed by the line.
 	draw_line(baseline + Vector2(1.0, 4.0), baseline + Vector2(accent_width, 4.0), Color(border.r, border.g, border.b, 0.82), 2.0, true)
 	preload("res://scripts/board_contour_text.gd").draw_title(self, display_font, baseline, title, rect.size.x, INTENT_POPUP_TITLE_FONT_SIZE)
+
+func _draw_tile_damage_numeral(font: Font, baseline: Vector2, text: String, width: float, font_size: int, fill: Color, outline: Color, outline_size: float, centered: bool = false) -> void:
+	if _label_ink == null: _label_ink = preload("res://scripts/board_label_ink.gd").new()
+	_label_ink.submit_number(font, baseline, text, width, font_size, fill, outline, outline_size, centered)
 
 func _draw_outlined_string(font: Font, baseline: Vector2, text: String, width: float, font_size: int, fill: Color, outline: Color, outline_size: float = 1.0) -> void:
 	for direction: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN, Vector2(-1.0, -1.0), Vector2(1.0, -1.0), Vector2(-1.0, 1.0), Vector2.ONE]:
@@ -12434,7 +12777,7 @@ func _draw_dragon_area_depth(effect: Dictionary, tile: Vector2i, progress: float
 	var reduced: bool = bool(presentation.get("reduced_motion",false))
 	if str(profile.get("geometry","")) == "physical":
 		if foreground and targets.has(tile) and profile.get("enemy") != "vyraketh" and is_instance_valid(_strike_trail_layer):
-			_strike_trail_layer.submit(EnemyStrikeTrail.area_rake(self, effect, tile, progress))
+			_strike_trail_layer.submit(EnemyStrikeTrail.area_rake(self, effect, tile, progress), str(effect.get("element", "none")))
 		return
 	if tile == origin and source_visible and not foreground and not reduced:
 		var skybreak: bool = effect.get("enemy_type") == "zekarion" and effect.get("kind") == "lightning_strikes"
@@ -12571,7 +12914,7 @@ func _sync_strike_trail(effect: Dictionary, progress: float) -> void:
 		if batches.is_empty() and (_strike_trail_layer.get("_batches") as Array).is_empty():
 			return
 		var started: int = Time.get_ticks_usec()
-		_strike_trail_layer.submit(batches)
+		_strike_trail_layer.submit(batches, str(effect.get("element", "none")))
 		_record_render_section_time("effect_overlay", started)
 
 func _draw_effect_overlay() -> void:
@@ -13265,11 +13608,12 @@ func _effect_element(effect: Dictionary) -> String:
 	return str(effect.get("element", effect.get("_card_element", ElementData.NONE)))
 
 func _draw_floating_texts() -> void:
-	_floating_icon_canvas.clear()
 	var default_font: Font = get_theme_default_font()
 	if default_font == null:
 		return
 	_floating_text_last_layout = _floating_text_screen_layout(default_font)
+	if _floating_text_last_layout.is_empty(): return
+	if _label_ink == null: _label_ink = preload("res://scripts/board_label_ink.gd").new()
 	for popup: Dictionary in _floating_text_last_layout:
 		_draw_floating_text_popup(popup)
 
@@ -13293,17 +13637,18 @@ func _draw_floating_text_popup(popup: Dictionary) -> int:
 	outline_color.a *= color.a
 	var shadow_color: Color = entry.get("shadow_color", Color(0.03, 0.01, 0.01, 0.70))
 	shadow_color.a *= color.a
-	var submissions: int = FloatingCombatText.paint_icon(_floating_icon_canvas, self, popup, text_pos, color.a, shadow_color, outline_color)
-	draw_set_transform(text_pos, 0.0, Vector2(font_scale, font_scale))
+	var canvas: RID = _label_ink.feedback_canvas(self)
+	var submissions: int = FloatingCombatText.paint_icon(_floating_icon_canvas, self, popup, text_pos, color.a, shadow_color, outline_color, canvas)
+	RenderingServer.canvas_item_add_set_transform(canvas, Transform2D(0.0, Vector2.ONE * font_scale, 0.0, text_pos))
 	var shadow_offset: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
 	if not shadow_offset.is_zero_approx():
-		draw_string(font, local_text_pos + shadow_offset, text, alignment, label_width, font_size, shadow_color)
+		font.draw_string(canvas, local_text_pos + shadow_offset, text, alignment, label_width, font_size, shadow_color)
 		submissions += 1
 	var outline_offsets: Array[Vector2] = FloatingCombatText.outline_offsets(int(entry.get("outline_size", 2)))
 	for offset: Vector2 in outline_offsets:
-		draw_string(font, local_text_pos + offset, text, alignment, label_width, font_size, outline_color)
-	draw_string(font, local_text_pos, text, alignment, label_width, font_size, color)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		font.draw_string(canvas, local_text_pos + offset, text, alignment, label_width, font_size, outline_color)
+	font.draw_string(canvas, local_text_pos, text, alignment, label_width, font_size, color)
+	RenderingServer.canvas_item_add_set_transform(canvas, Transform2D.IDENTITY)
 	return submissions + outline_offsets.size() + 1
 
 func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
@@ -18199,8 +18544,11 @@ func _draw_surface_floor_line(tile: Vector2i, from: Vector2i, to: Vector2i, _das
 func _snare_sealing_threshold(tile: Vector2i) -> bool:
 	if not SnareRules.active(combat_state): return false
 	for exit: Dictionary in combat_state["objective"]["exits"]:
-		if exit["target_tile"] == tile: return str(exit["role"]) == "sealing"
+		if exit["target_tile"] == tile: return str(exit["role"]) == "sealing" and not _unselected_escape_door(exit["door_tile"])
 	return false
+
+func _unselected_escape_door(tile: Vector2i) -> bool:
+	return presentation.has("selected_escape_door") and tile != presentation["selected_escape_door"]
 
 func _snare_door_sealed(tile: Vector2i) -> bool:
 	if not SnareRules.active(combat_state): return false
@@ -18225,6 +18573,7 @@ func _refresh_snare_chips() -> void:
 	var board_scale: float = _navigation_zoom / _default_navigation_zoom_for_viewport()
 	for exit: Dictionary in combat_state["objective"]["exits"]:
 		if str(exit["role"]) != "sealing" or bool(exit.get("sealed", false)) or bool(exit.get("kept_open", false)): continue
+		if _unselected_escape_door(exit["door_tile"]): continue
 		var key: String = "Door%d" % int(exit["sealbinder_id"])
 		var chip: PanelContainer = holder.get_node_or_null(key)
 		if chip == null:

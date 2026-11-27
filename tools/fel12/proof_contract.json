@@ -1,0 +1,18 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "capture.png",
+      "regions": [{"rect": [510, 200, 900, 530], "min_luma_range": 40, "min_luma_stdev": 3}]
+    },
+    {
+      "pattern": "crowded.png",
+      "regions": [{"rect": [510, 200, 900, 530], "min_luma_range": 40, "min_luma_stdev": 3}]
+    },
+    {
+      "pattern": "hero_in_front.png",
+      "regions": [{"rect": [510, 200, 900, 530], "min_luma_range": 40, "min_luma_stdev": 3}]
+    }
+  ]
+}

@@ -1,0 +1,314 @@
+{
+	"covered_tiles": 11,
+	"covered_units": 2,
+	"fight": "0-2_-1",
+	"focus": {
+		"count": 1,
+		"fraction": 0.953125,
+		"tile": [
+			3,
+			5
+		]
+	},
+	"kind": "normal",
+	"objective": "kill_all",
+	"room_kind": "combat",
+	"score": 16,
+	"section": 0,
+	"seed": 17,
+	"stacked": 1,
+	"targeted_card_index": 0,
+	"tiles": [
+		{
+			"contents": [
+				"terrain wooden_crate [terrain_3_2]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.31640625,
+					"id": "pillar:4,2",
+					"tile": [
+						4,
+						2
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				3,
+				2
+			]
+		},
+		{
+			"contents": [
+				"pillar"
+			],
+			"occluders": [
+				{
+					"fraction": 0.296875,
+					"id": "terrain:3,5",
+					"tile": [
+						3,
+						5
+					]
+				},
+				{
+					"fraction": 0.19140625,
+					"id": "pillar:4,6",
+					"tile": [
+						4,
+						6
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				2,
+				4
+			]
+		},
+		{
+			"contents": [
+				"pillar"
+			],
+			"occluders": [
+				{
+					"fraction": 0.45703125,
+					"id": "unit:enemy_3",
+					"tile": [
+						5,
+						3
+					]
+				},
+				{
+					"fraction": 0.19140625,
+					"id": "pillar:6,4",
+					"tile": [
+						6,
+						4
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				4,
+				2
+			]
+		},
+		{
+			"contents": [
+				"terrain wooden_crate [terrain_3_4]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.296875,
+					"id": "terrain:4,5",
+					"tile": [
+						4,
+						5
+					]
+				},
+				{
+					"fraction": 0.3046875,
+					"id": "pillar:4,6",
+					"tile": [
+						4,
+						6
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				3,
+				4
+			]
+		},
+		{
+			"contents": [
+				"trap fire [trap_5_2]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.39453125,
+					"id": "unit:enemy_1",
+					"tile": [
+						6,
+						3
+					]
+				},
+				{
+					"fraction": 0.3046875,
+					"id": "pillar:6,4",
+					"tile": [
+						6,
+						4
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				5,
+				2
+			]
+		},
+		{
+			"contents": [
+				"terrain wooden_crate [terrain_2_6]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.61328125,
+					"id": "unit:enemy_4",
+					"tile": [
+						3,
+						7
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				2,
+				6
+			]
+		},
+		{
+			"contents": [
+				"terrain wooden_crate [terrain_3_5]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.953125,
+					"id": "pillar:4,6",
+					"tile": [
+						4,
+						6
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				3,
+				5
+			]
+		},
+		{
+			"contents": [
+				"Bone Harrier [enemy_3]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.19921875,
+					"id": "unit:enemy_1",
+					"tile": [
+						6,
+						3
+					]
+				},
+				{
+					"fraction": 0.953125,
+					"id": "pillar:6,4",
+					"tile": [
+						6,
+						4
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				5,
+				3
+			]
+		},
+		{
+			"contents": [
+				"terrain wooden_crate [terrain_4_5]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.31640625,
+					"id": "pillar:4,6",
+					"tile": [
+						4,
+						6
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				4,
+				5
+			]
+		},
+		{
+			"contents": [
+				"Cinder Ooze [enemy_1]"
+			],
+			"occluders": [
+				{
+					"fraction": 0.31640625,
+					"id": "pillar:6,4",
+					"tile": [
+						6,
+						4
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				6,
+				3
+			]
+		},
+		{
+			"contents": [
+				"pillar"
+			],
+			"occluders": [
+				{
+					"fraction": 0.1875,
+					"id": "unit:player",
+					"tile": [
+						4,
+						7
+					]
+				}
+			],
+			"stacked": false,
+			"tile": [
+				4,
+				6
+			]
+		},
+		{
+			"contents": [
+				"player [player]",
+				"floor telegraph [enemy_2, enemy_4]"
+			],
+			"occluders": [],
+			"stacked": true,
+			"tile": [
+				4,
+				7
+			]
+		}
+	],
+	"turn": 5,
+	"units": [
+		{
+			"fraction": 0.527272727272727,
+			"tile": [
+				5,
+				3
+			],
+			"unit": "Bone Harrier [enemy_3]"
+		},
+		{
+			"fraction": 0.34414513468939,
+			"tile": [
+				6,
+				3
+			],
+			"unit": "Cinder Ooze [enemy_1]"
+		}
+	]
+}

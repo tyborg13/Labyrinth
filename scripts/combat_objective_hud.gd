@@ -47,6 +47,7 @@ var _intro_kicker: Label
 var _intro_title: Label
 var _panel_style: StyleBoxFlat
 var _presentation_signature: String = ""
+var _objective_type: String = ""
 var intro_active: bool = false
 var intro_phase: String = ""
 var intro_chrome_progress: float = 1.0
@@ -57,6 +58,9 @@ var _intro_tween: Tween
 func _ready() -> void:
 	_build()
 
+func _make_custom_tooltip(text: String) -> Object:
+	return preload("res://scripts/ui_tooltip_panel.gd").make_text(text, {"kind": "objective", "id": _objective_type})
+
 func set_combat_state(state: Dictionary) -> bool:
 	if _icon == null:
 		_build()
@@ -65,14 +69,15 @@ func set_combat_state(state: Dictionary) -> bool:
 		var changed: bool = visible or not _presentation_signature.is_empty()
 		visible = false
 		_presentation_signature = ""
+		_objective_type = ""
 		return changed
-	var objective_type: String = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
-	var icon_path: String = CombatObjectiveRules.icon_path(objective_type)
+	_objective_type = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
+	var icon_path: String = CombatObjectiveRules.icon_path(_objective_type)
 	var title: String = CombatObjectiveRules.hud_title_for_objective(objective)
 	var title_text: String = title.to_upper()
 	var detail_text: String = _live_detail(state, objective)
 	var next_tooltip: String = title
-	var description: String = CombatObjectiveRules.description_for_objective(objective).strip_edges()
+	var description: String = CombatObjectiveRules.description_for_objective(objective, false).strip_edges()
 	if not description.is_empty():
 		next_tooltip += "\n" + description
 	var next_signature: String = "%s|%s|%s|%s" % [icon_path, title_text, detail_text, next_tooltip]
@@ -549,7 +554,7 @@ func _live_detail(state: Dictionary, objective: Dictionary) -> String:
 			return "Dawn in %d · Final wave deployed" % remaining
 		CombatObjectiveRules.REACH_EXIT:
 			var exit_count: int = CombatObjectiveRules.exit_target_tiles(objective).size()
-			return "Reach any of %d marked threshold%s" % [exit_count, "s" if exit_count != 1 else ""]
+			return "Reach the marked tile" if exit_count == 1 else "Reach any of %d marked tiles" % exit_count
 		_:
 			var live_count: int = 0
 			for enemy_var: Variant in state.get("enemies", []):

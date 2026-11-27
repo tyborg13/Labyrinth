@@ -1,7 +1,7 @@
 extends RefCounted
 class_name ContextualCombatTutorial
 
-## Profile-backed curriculum for the first guided run. RunScene owns transient
+## Profile-backed curriculum and post-guide Umbra acknowledgement. RunScene owns transient
 ## motor phases (a selected card, hovered enemy, or open preview); this class
 ## stores only action-committed milestones so save/resume never restores an
 ## impossible UI selection.
@@ -38,6 +38,7 @@ const MILESTONE_PASS: String = "turn_passed"
 const MILESTONE_CORE: String = "combat_basics_learned"
 const MILESTONE_REWARD: String = "reward_chosen"
 const MILESTONE_PATH: String = "path_chosen"
+const MILESTONE_UMBRA: String = "umbra_read"
 
 const MILESTONE_ORDER: Array = [
 	MILESTONE_MOVE,
@@ -85,6 +86,8 @@ const PHASE_CORE_COMPLETE: String = "core_complete"
 const PHASE_CHOOSE_REWARD: String = "choose_reward"
 const PHASE_CHOOSE_PATH: String = "choose_path"
 const PHASE_COMPLETE: String = "complete"
+const PHASE_UMBRA: String = "umbra"
+const UMBRA_RULE: String = "Enemies on dark tiles are hidden: you can't target them or see their intents."
 
 # Retired probe names remain as phase aliases so older diagnostic scripts still
 # parse while they migrate to the guided curriculum.
@@ -416,6 +419,13 @@ const AUTHORED_PHASES: Dictionary = {
 		"controller_action": "controller_accept", "action_label": "Begin",
 		"requires_continue": true, "continue_text": "Begin",
 	},
+	PHASE_UMBRA: {
+		"id": PHASE_UMBRA, "icon": "", "kicker": "UMBRA", "title": "The Umbra",
+		"pointer_text": UMBRA_RULE, "controller_text": UMBRA_RULE,
+		"spotlight_frame": false,
+		"controller_action": "controller_accept", "action_label": "Continue",
+		"requires_continue": true, "continue_text": "Continue", "hide_skip": true,
+	},
 }
 
 static func default_state() -> Dictionary:
@@ -436,16 +446,16 @@ static func normalized_state(value: Variant) -> Dictionary:
 	if typeof(source.get("completed_steps", null)) == TYPE_ARRAY:
 		for step_var: Variant in source.get("completed_steps", []) as Array:
 			var step_id: String = str(step_var)
-			if MILESTONE_ORDER.has(step_id) and not completed.has(step_id):
+			if _is_milestone(step_id) and not completed.has(step_id):
 				completed.append(step_id)
 	# The authored scenario changes the meaning and ordering of every early
 	# action. An unfinished prototype-v1 guide restarts cleanly at its first rail;
 	# completed and dismissed profiles remain respected.
 	if resets_to_unseen or (source_version < VERSION and status == STATUS_ACTIVE):
 		completed.clear()
-	completed.sort_custom(func(a: String, b: String) -> bool: return MILESTONE_ORDER.find(a) < MILESTONE_ORDER.find(b))
+	completed.sort_custom(_milestone_precedes)
 	if status == STATUS_COMPLETED:
-		completed = _typed_string_array(MILESTONE_ORDER)
+		completed = _completed_curriculum(completed)
 	return {"version": VERSION, "status": status, "completed_steps": completed}
 
 static func state_from_progression(progression: Dictionary) -> Dictionary:
@@ -466,18 +476,24 @@ static func completed_steps(progression: Dictionary) -> Array[String]:
 		result.append(str(step_var))
 	return result
 
+static func guided_milestone_count(progression: Dictionary) -> int:
+	var steps: Array[String] = completed_steps(progression)
+	steps.erase(MILESTONE_UMBRA)
+	return steps.size()
+
 static func complete_milestone(progression: Dictionary, milestone_id: String) -> Dictionary:
-	if not MILESTONE_ORDER.has(milestone_id):
+	if not _is_milestone(milestone_id):
 		return progression.duplicate(true)
 	var result: Dictionary = progression.duplicate(true)
 	var state: Dictionary = state_from_progression(result)
-	if str(state.get("status", "")) != STATUS_ACTIVE:
+	var required_status: String = STATUS_COMPLETED if milestone_id == MILESTONE_UMBRA else STATUS_ACTIVE
+	if str(state.get("status", "")) != required_status:
 		return result
 	var completed: Array = state.get("completed_steps", []) as Array
 	if completed.has(milestone_id):
 		return result
 	completed.append(milestone_id)
-	completed.sort_custom(func(a: String, b: String) -> bool: return MILESTONE_ORDER.find(a) < MILESTONE_ORDER.find(b))
+	completed.sort_custom(_milestone_precedes)
 	state["completed_steps"] = completed
 	result[PROGRESSION_KEY] = state
 	result["progression_revision"] = int(result.get("progression_revision", 0)) + 1
@@ -492,7 +508,7 @@ static func complete_tutorial(progression: Dictionary) -> Dictionary:
 	if str(state.get("status", "")) != STATUS_ACTIVE:
 		return result
 	state["status"] = STATUS_COMPLETED
-	state["completed_steps"] = MILESTONE_ORDER.duplicate()
+	state["completed_steps"] = _completed_curriculum(state["completed_steps"])
 	result[PROGRESSION_KEY] = state
 	result["progression_revision"] = int(result.get("progression_revision", 0)) + 1
 	result.erase(LEGACY_PROGRESSION_KEY)
@@ -513,7 +529,10 @@ static func dismiss_tutorial(progression: Dictionary) -> Dictionary:
 
 static func restart_tutorial(progression: Dictionary) -> Dictionary:
 	var result: Dictionary = progression.duplicate(true)
-	result[PROGRESSION_KEY] = default_state()
+	var state: Dictionary = default_state()
+	if has_completed(progression, MILESTONE_UMBRA):
+		state["completed_steps"].append(MILESTONE_UMBRA)
+	result[PROGRESSION_KEY] = state
 	result["progression_revision"] = int(result.get("progression_revision", 0)) + 1
 	result.erase(LEGACY_PROGRESSION_KEY)
 	return result
@@ -525,9 +544,9 @@ static func merged_state(primary_progression: Dictionary, fallback_progression: 
 	for state: Dictionary in [fallback, primary]:
 		for step_var: Variant in state.get("completed_steps", []) as Array:
 			var step_id: String = str(step_var)
-			if MILESTONE_ORDER.has(step_id) and not completed.has(step_id):
+			if _is_milestone(step_id) and not completed.has(step_id):
 				completed.append(step_id)
-	completed.sort_custom(func(a: String, b: String) -> bool: return MILESTONE_ORDER.find(a) < MILESTONE_ORDER.find(b))
+	completed.sort_custom(_milestone_precedes)
 	var statuses: Array[String]
 	statuses.append(str(primary.get("status", "")))
 	statuses.append(str(fallback.get("status", "")))
@@ -539,8 +558,24 @@ static func merged_state(primary_progression: Dictionary, fallback_progression: 
 	return {
 		"version": VERSION,
 		"status": status,
-		"completed_steps": MILESTONE_ORDER.duplicate() if status == STATUS_COMPLETED else completed,
+		"completed_steps": _completed_curriculum(completed) if status == STATUS_COMPLETED else completed,
 	}
+
+static func _completed_curriculum(previous: Array) -> Array[String]:
+	var completed: Array[String] = _typed_string_array(MILESTONE_ORDER)
+	# Older completed profiles get every guided lesson, with the post-guide
+	# acknowledgement retained only if it was explicitly recorded.
+	if previous.has(MILESTONE_UMBRA):
+		completed.append(MILESTONE_UMBRA)
+	return completed
+
+static func _is_milestone(id: String) -> bool:
+	return id == MILESTONE_UMBRA or MILESTONE_ORDER.has(id)
+
+static func _milestone_precedes(a: String, b: String) -> bool:
+	if a == MILESTONE_UMBRA or b == MILESTONE_UMBRA:
+		return a != MILESTONE_UMBRA
+	return MILESTONE_ORDER.find(a) < MILESTONE_ORDER.find(b)
 
 static func phase_definition(
 	phase_id: String,
@@ -551,7 +586,7 @@ static func phase_definition(
 	if legacy_starter and phase_id == PHASE_FLOOR_LOOT:
 		return {}
 	var definition: Dictionary = (AUTHORED_PHASES.get(phase_id, PHASES.get(phase_id, {})) as Dictionary).duplicate(true)
-	if legacy_starter and not definition.is_empty():
+	if legacy_starter and definition.has("lesson"):
 		definition["lesson_total"] = 10
 		if int(definition["lesson"]) > 1:
 			definition["lesson"] -= 1
@@ -572,11 +607,13 @@ static func phase_ids() -> Array[String]:
 	return _typed_string_array(PHASE_ORDER)
 
 static func milestone_ids() -> Array[String]:
-	return _typed_string_array(MILESTONE_ORDER)
+	var ids: Array[String] = _typed_string_array(MILESTONE_ORDER)
+	ids.append(MILESTONE_UMBRA)
+	return ids
 
 # Compatibility helpers used by unrelated visual fixtures to suppress onboarding.
 static func prompt_ids() -> Array[String]:
-	return milestone_ids()
+	return _typed_string_array(MILESTONE_ORDER)
 
 static func prompt_definition(prompt_id: String) -> Dictionary:
 	var phase_by_milestone: Dictionary = {
@@ -595,6 +632,7 @@ static func prompt_definition(prompt_id: String) -> Dictionary:
 		MILESTONE_CORE: PHASE_CORE_COMPLETE,
 		MILESTONE_REWARD: PHASE_CHOOSE_REWARD,
 		MILESTONE_PATH: PHASE_CHOOSE_PATH,
+		MILESTONE_UMBRA: PHASE_UMBRA,
 	}
 	return phase_definition(str(phase_by_milestone.get(prompt_id, prompt_id)))
 
@@ -615,7 +653,7 @@ static func resolve_progression(progression: Dictionary, prompt_id: String, skip
 	if skipped:
 		return dismiss_tutorial(progression)
 	var result: Dictionary = complete_milestone(progression, prompt_id)
-	if completed_steps(result).size() == MILESTONE_ORDER.size():
+	if guided_milestone_count(result) == MILESTONE_ORDER.size():
 		return complete_tutorial(result)
 	return result
 

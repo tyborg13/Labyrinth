@@ -26,7 +26,7 @@
     },
     "combat:cinder_marks": {
       "body": [
-        "When this attack lands, each unit on a Marked tile takes X damage, and each Marked tile becomes Fire.",
+        "When this attack lands, you and your Illusions on Marked tiles take X damage, and each Marked tile becomes Fire.",
         "Crownfire Bursts each of Vyraketh's Marked Fire tiles, then Vyraketh moves toward you and attacks. The Meteorfall card Marks tiles. At the start of your next turn, each unit on a Marked tile takes damage, and each Marked tile becomes Fire."
       ],
       "identity": {

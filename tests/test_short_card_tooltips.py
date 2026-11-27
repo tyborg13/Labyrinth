@@ -65,6 +65,8 @@ class ShortCardTooltipsTest(unittest.TestCase):
         self.superseding.update(TXT20["glossary_definitions"])
         self.superseding.update(PLA01["glossary"])
         self.superseding.update(marked=MARKED_DEFINITION, traps=TRAP_DEFINITION)
+        # txt-42: Warbands, Guardians and dragons differ, so the tooltip says "most combats".
+        self.superseding["rewards"] = "After combat, choose a reward."
         self.glossary = json.loads((ROOT / "data/glossary.json").read_text())
         self.grimoire = json.loads((ROOT / "data/grimoire.json").read_text())
 

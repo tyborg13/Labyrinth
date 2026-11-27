@@ -7,15 +7,23 @@ const Icons = preload("res://scripts/action_icon_library.gd")
 const Surface = preload("res://scripts/board_surface_presentation.gd")
 const Rules = preload("res://scripts/board_surface_rules.gd")
 const Icefall = preload("res://scripts/enemy_mechanics/icefall_view.gd")
+const BossMarks = preload("res://scripts/boss_area_marks.gd")
+const BossAreas = preload("res://scripts/boss_area_rules.gd")
+const Paths = preload("res://scripts/path_utils.gd")
 const PREFIX: String = "tile-effects:"
 const PANEL_GAP: int = 6
 
 static func entries(view: Control, tile: Vector2i) -> Array[Dictionary]:
 	return view.get("_tile_tooltip_cache").entries_for_tile(view, tile)
 
-static func build_entries(view: Control, tile: Vector2i, marks: Dictionary, lights: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = Surface.tooltip_entries(view.combat_state, tile)
+static func build_entries(view: Control, tile: Vector2i, marks: Dictionary, lights: Dictionary, visible_intents: Dictionary) -> Array[Dictionary]:
 	var state: Dictionary = view.combat_state
+	var result: Array[Dictionary] = Surface.tooltip_entries(state, tile)
+	var tile_id: String = Paths.tile_id(state.get("grid", []), tile)
+	if tile_id == "pillar" and not _living_unit_on_tile(view, tile):
+		result.push_front(from_text("Pillar\nBlocks movement and sight."))
+	elif tile_id == "door" and view._combat_door_tooltips and view._door_is_visible(tile):
+		result.push_front(from_text(_door_text(view, tile, state.get("objective", {}))))
 	for trap: Dictionary in state.get("traps", []):
 		if trap.get("pos") == tile:
 			var entry: Dictionary = from_text(view._trap_tooltip_text(trap), "traps")
@@ -43,8 +51,38 @@ static func build_entries(view: Control, tile: Vector2i, marks: Dictionary, ligh
 		if text.begins_with("equipment:") or text.begins_with("item:"):
 			entry["builder_key"] = text
 		result.append(entry)
-	result.append_array(marks.get(tile, []))
+	for mark: Dictionary in marks.get(tile, []):
+		var sources: Array = mark["sources"]
+		if not sources.all(func(key: String) -> bool: return visible_intents.has(key)):
+			result.append(mark["entry"])
 	result.append_array(lights.get(tile, []))
+	return result
+
+static func _door_text(view: Control, tile: Vector2i, objective: Dictionary) -> String:
+	if view._snare_door_sealed(tile):
+		return "Sealed exit\nBlocks movement and sight."
+	if view.exit_tiles.has(tile):
+		for exit: Dictionary in objective.get("exits", []):
+			if exit.get("door_tile") == tile and view._objective_exit_tiles_lookup_cache.has(exit.get("target_tile")):
+				return "Exit\nReach the marked tile in front to escape."
+	return "Door\nBlocks movement and sight."
+
+static func _living_unit_on_tile(view: Control, tile: Vector2i) -> bool:
+	for unit: Dictionary in view._visible_units():
+		if int(unit.get("hp", 1)) <= 0 or bool(unit.get("death_animation", false)) or view._unit_is_preview_echo(unit): continue
+		if view._unit_footprint_tiles(unit).has(tile): return true
+	return false
+
+static func visible_intent_sources(view: Control, mark_sources: Dictionary) -> Dictionary:
+	# The HUD already resolved expansion, the visible roster and whether an
+	# intent label has room to draw. Read the same layout the painter consumes.
+	var result: Dictionary = {}
+	for entry: Dictionary in view._hud_layout_entries_cache:
+		var key: String = entry.get("actor_key", "")
+		if not mark_sources.has(key): continue
+		var layout: Dictionary = entry.get("layout", {})
+		if str(layout.get("intent_name", "")).is_empty() or (layout.get("line_rects", []) as Array).is_empty(): continue
+		if view._umbra_actor_clip_for_unit({"key": key}).is_empty(): result[key] = true
 	return result
 
 # Build each map once per submitted state revision, rather than forecasting
@@ -56,21 +94,24 @@ static func mark_entries(view: Control) -> Dictionary:
 	var meteors: Dictionary = {}
 	for mark: Dictionary in state.get("meteor_marks", []):
 		var seen_tiles: Dictionary = {}
+		var source: Dictionary = mark.get("source", {})
+		var key: String = _enemy_key(int(source.get("actor_id", -1))) if source.get("actor_kind") == "enemy" else ""
 		for tile: Vector2i in mark.get("tiles", []):
 			if seen_tiles.has(tile): continue
 			seen_tiles[tile] = true
-			var combined: Dictionary = meteors.get(tile, {"damage": 0, "surface": ""})
+			var combined: Dictionary = meteors.get(tile, {"damage": 0, "surface": "", "sources": {}})
 			combined["damage"] = int(combined["damage"]) + int(mark.get("damage", 0))
 			combined["surface"] = str(mark.get("surface", combined["surface"]))
+			combined["sources"][key] = true
 			meteors[tile] = combined
 	for tile: Vector2i in meteors:
 		var mark: Dictionary = meteors[tile]
 		var surface: String = str(mark["surface"])
-		_append_for_tile(result, tile, from_text("Meteorfall\nAt the start of your next turn this tile takes %d damage%s.%s" % [int(mark["damage"]), " and becomes %s" % surface.capitalize() if not surface.is_empty() else "", _standing_line(tile, player_tile)], "cinder_marks"))
+		_append_mark(result, tile, mark["sources"].keys(), from_text("Meteorfall\nAt the start of your next turn this tile takes %d damage%s.%s" % [int(mark["damage"]), " and becomes %s" % surface.capitalize() if not surface.is_empty() else "", _standing_line(tile, player_tile)], "cinder_marks"))
 	var icefall: Dictionary = Icefall.marks(view)
 	for tile: Vector2i in icefall:
 		var amount: int = Icefall.landing_damage(state, icefall[tile])
-		_append_for_tile(result, tile, from_text(Icefall.mark_tooltip(amount, tile == player_tile), "icefall"))
+		_append_mark(result, tile, [_enemy_key(int(icefall[tile].get("id", -1)))], from_text(Icefall.mark_tooltip(amount, tile == player_tile), "icefall"))
 	var lob: Dictionary = preload("res://scripts/enemy_mechanics/lob_view.gd").marks(view)
 	var lob_texts: Dictionary = {}
 	for tile: Vector2i in lob:
@@ -81,20 +122,35 @@ static func mark_entries(view: Control) -> Dictionary:
 		var entry: Dictionary = from_text(text, "lob")
 		entry["loop_source"] = preload("res://scripts/tooltip_loop_context.gd").enemy_unit(enemy)
 		entry["loop_term"] = "lob"
-		_append_for_tile(result, tile, entry)
+		_append_mark(result, tile, [_enemy_key(id)], entry)
 	for mark: Dictionary in preload("res://scripts/enemy_mechanics/burrow_view.gd").marks(state):
 		var tile: Vector2i = mark["tile"]
 		var entry: Dictionary = from_text(Icons.tooltip("erupt") + "\n%d damage.%s" % [int(mark["damage"]), _standing_line(tile, player_tile)], "erupt")
 		entry["loop_source"] = preload("res://scripts/tooltip_loop_context.gd").enemy("burrow_grub")
 		entry["loop_term"] = "erupt"
-		_append_for_tile(result, tile, entry)
+		_append_mark(result, tile, [_enemy_key(int(mark["enemy_id"]))], entry)
 	var fixed_marks: Dictionary = {}
 	for enemy: Dictionary in state.get("enemies", []):
 		if int(enemy.get("hp", 0)) <= 0: continue
-		for tile: Vector2i in preload("res://scripts/boss_area_marks.gd").tiles(state, enemy): fixed_marks[tile] = true
+		var key: String = _enemy_key(int(enemy.get("id", -1)))
+		var pending: Array[Vector2i] = BossAreas.pending_wall_tiles(enemy)
+		for group: Dictionary in BossMarks.groups(view, enemy):
+			for tile: Vector2i in group["tiles"]:
+				var record: Dictionary = fixed_marks.get(tile, {"sources": {}})
+				record["group"] = group
+				record["sources"]["" if pending.has(tile) else key] = true
+				fixed_marks[tile] = record
 	for tile: Vector2i in fixed_marks:
-		_append_for_tile(result, tile, from_text(Icons.tooltip("marked"), "marked"))
+		var record: Dictionary = fixed_marks[tile]
+		var text: String = BossMarks.tooltip(record["group"], tile == player_tile)
+		_append_mark(result, tile, record["sources"].keys(), from_text(text, BossMarks.ICON))
 	return result
+
+static func _enemy_key(id: int) -> String:
+	return "enemy_%d" % id if id >= 0 else ""
+
+static func _append_mark(target: Dictionary, tile: Vector2i, sources: Array, entry: Dictionary) -> void:
+	_append_for_tile(target, tile, {"sources": sources, "entry": entry})
 
 static func _standing_line(tile: Vector2i, player_tile: Vector2i) -> String:
 	return "\nYou are standing on it." if tile == player_tile else ""

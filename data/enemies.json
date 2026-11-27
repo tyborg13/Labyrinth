@@ -1522,7 +1522,7 @@
       {
         "id": "last_eclipse",
         "name": "Last Eclipse",
-        "known_summary": "Marked: Ranged 8 · Eclipse 2, then Summon Veilbound Acolyte",
+        "known_summary": "Marked: Ranged 8 · Eclipse X, then Summon Veilbound Acolyte",
         "time": 6,
         "weight": 1,
         "actions": [

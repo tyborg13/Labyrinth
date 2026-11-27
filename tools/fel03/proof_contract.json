@@ -1,0 +1,89 @@
+{
+  "min_images": 13,
+  "expected_sizes": [
+    "1920x1080",
+    "4800x3740"
+  ],
+  "required_images": [
+    {
+      "pattern": "*-melee-*-sheet.png",
+      "width": 4800,
+      "height": 3740,
+      "min_count": 4,
+      "regions": [
+        {
+          "rect": [
+            450,
+            0,
+            60,
+            28
+          ]
+        }
+      ]
+    },
+    {
+      "pattern": "*-fx12-*-sheet.png",
+      "width": 4800,
+      "height": 3740,
+      "min_count": 1,
+      "regions": [
+        {
+          "rect": [
+            450,
+            0,
+            60,
+            28
+          ]
+        }
+      ]
+    },
+    {
+      "pattern": "01-*-caption-*.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 3,
+      "regions": [
+        {
+          "rect": [
+            760,
+            80,
+            400,
+            68
+          ]
+        }
+      ]
+    },
+    {
+      "pattern": "02-*-caption-*.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 4,
+      "regions": [
+        {
+          "rect": [
+            760,
+            80,
+            400,
+            68
+          ]
+        }
+      ]
+    },
+    {
+      "pattern": "03-*-caption-*.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 1,
+      "regions": [
+        {
+          "rect": [
+            760,
+            80,
+            400,
+            68
+          ]
+        }
+      ]
+    }
+  ]
+}

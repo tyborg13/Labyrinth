@@ -1,0 +1,10 @@
+{
+  "min_images": 4,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*-snare-open.png"},
+    {"pattern": "*-snare-sealed.png"},
+    {"pattern": "*-sealed-destination-map.png"},
+    {"pattern": "*-escape-reward.png"}
+  ]
+}

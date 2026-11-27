@@ -1,0 +1,14 @@
+{
+  "min_images": 8,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "01-s0-seed1-0-4_0-t9-C-hover.png", "width": 1920, "height": 1080, "min_count": 1},
+    {"pattern": "09-s3-seed12-3-16_0-t15-C-hover.png", "width": 1920, "height": 1080, "min_count": 1},
+    {"pattern": "exit-hover.png", "width": 1920, "height": 1080, "min_count": 1},
+    {"pattern": "sealed-exit-hover.png", "width": 1920, "height": 1080, "min_count": 1},
+    {"pattern": "door-hover.png", "width": 1920, "height": 1080, "min_count": 1},
+    {"pattern": "objective-one-exit.png", "width": 1920, "height": 1080, "min_count": 1},
+    {"pattern": "objective-two-exits-resumed.png", "width": 1920, "height": 1080, "min_count": 1},
+    {"pattern": "objective-pre-battle.png", "width": 1920, "height": 1080, "min_count": 1}
+  ]
+}

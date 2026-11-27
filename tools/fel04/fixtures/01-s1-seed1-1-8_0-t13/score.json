@@ -1,0 +1,471 @@
+{
+  "covered_tiles": 11,
+  "covered_units": 1,
+  "fight": "1-8_0",
+  "focus": {
+    "count": 3,
+    "fraction": 0.640625,
+    "tile": [
+      4,
+      4
+    ]
+  },
+  "kind": "dragon",
+  "objective": "kill_leader",
+  "room_kind": "boss",
+  "score": 38,
+  "section": 1,
+  "seed": 1,
+  "stacked": 25,
+  "tiles": [
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        2,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        2,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.51171875,
+          "id": "unit:player",
+          "tile": [
+            4,
+            4
+          ]
+        },
+        {
+          "fraction": 0.484375,
+          "id": "unit:enemy_1",
+          "tile": [
+            6,
+            5
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        3,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.61328125,
+          "id": "unit:enemy_1",
+          "tile": [
+            6,
+            5
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        4,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        5,
+        1
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        2,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        3,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.203125,
+          "id": "unit:enemy_1",
+          "tile": [
+            6,
+            5
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        5,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:7,1",
+          "tile": [
+            7,
+            1
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        6,
+        1
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        2,
+        6
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        3,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "player [player]",
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.640625,
+          "id": "unit:enemy_1",
+          "tile": [
+            6,
+            5
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        4,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.82421875,
+          "id": "unit:enemy_1",
+          "tile": [
+            6,
+            5
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        5,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        6,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        3,
+        6
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        4,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        6,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        3,
+        7
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        4,
+        6
+      ]
+    },
+    {
+      "contents": [
+        "Iskaldra, the Rime Tyrant [enemy_1]"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.19140625,
+          "id": "pillar:7,7",
+          "tile": [
+            7,
+            7
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        5,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.30078125,
+          "id": "pillar:7,7",
+          "tile": [
+            7,
+            7
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        5,
+        6
+      ]
+    },
+    {
+      "contents": [
+        "Iskaldra, the Rime Tyrant [enemy_1]"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.3046875,
+          "id": "pillar:7,7",
+          "tile": [
+            7,
+            7
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        6,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        7,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        5,
+        7
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.953125,
+          "id": "pillar:7,7",
+          "tile": [
+            7,
+            7
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        6,
+        6
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        7,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "surface ice",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:7,7",
+          "tile": [
+            7,
+            7
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        6,
+        7
+      ]
+    }
+  ],
+  "turn": 13,
+  "units": [
+    {
+      "fraction": 0.560721062618596,
+      "tile": [
+        4,
+        4
+      ],
+      "unit": "player [player]"
+    }
+  ],
+  "campaign": {
+    "id": "fel01-round0-diagnostic-9999",
+    "seed_directory": "fel01-census-001-seed1"
+  },
+  "composition": {
+    "largest_enemy_rect_px2": 57007,
+    "visible_pillars": 4
+  }
+}

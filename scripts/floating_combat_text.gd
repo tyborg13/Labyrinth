@@ -358,7 +358,7 @@ static func _icon_ink(texture: Texture2D, rect: Rect2, outline_size: int) -> Dic
 
 
 # A float adds at most three icon rectangles regardless of outline radius.
-static func paint_icon(canvas: IconCanvas, owner: CanvasItem, popup: Dictionary, origin: Vector2, alpha: float, shadow_color: Color, outline_color: Color) -> int:
+static func paint_icon(canvas: IconCanvas, owner: CanvasItem, popup: Dictionary, origin: Vector2, alpha: float, shadow_color: Color, outline_color: Color, paint_parent: RID = RID()) -> int:
 	var rect: Rect2 = popup["icon_rect"]
 	if not rect.has_area():
 		return 0
@@ -367,7 +367,7 @@ static func paint_icon(canvas: IconCanvas, owner: CanvasItem, popup: Dictionary,
 	var scale: float = popup["font_scale"]
 	var screen: Transform2D = owner.get_viewport().get_final_transform() * owner.get_global_transform_with_canvas()
 	var nearest: bool = uses_nearest_filter(texture.get_size(), rect.size * scale * screen.get_scale().abs())
-	var item: RID = canvas.item_for_filter(owner, nearest)
+	var item: RID = canvas.item_for_filter(owner, nearest, paint_parent)
 	var ink: Dictionary = _icon_ink(texture, rect, int(entry.get("outline_size", 2)))
 	rect.position.x += float(popup["glyph_inset"])
 	var shadow_offset: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
@@ -393,10 +393,10 @@ class IconCanvas:
 		for item: RID in _items.values():
 			RenderingServer.canvas_item_clear(item)
 
-	func item_for_filter(owner: CanvasItem, nearest: bool) -> RID:
+	func item_for_filter(owner: CanvasItem, nearest: bool, paint_parent: RID) -> RID:
 		if not _items.has(nearest):
 			var created: RID = RenderingServer.canvas_item_create()
-			RenderingServer.canvas_item_set_parent(created, owner.get_canvas_item())
+			RenderingServer.canvas_item_set_parent(created, paint_parent if paint_parent.is_valid() else owner.get_canvas_item())
 			RenderingServer.canvas_item_set_default_texture_filter(created, RenderingServer.CANVAS_ITEM_TEXTURE_FILTER_NEAREST if nearest else RenderingServer.CANVAS_ITEM_TEXTURE_FILTER_LINEAR)
 			_items[nearest] = created
 		return _items[nearest]
