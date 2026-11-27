@@ -5,6 +5,101 @@ extends RefCounted
 const Assets = preload("res://scripts/asset_loader.gd")
 const StaticFacing = preload("res://scripts/static_enemy_facing.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
+const Field = preload("res://scripts/board_pixel_surface_field.gd")
+const SurfacePaint = preload("res://scripts/board_surface_presentation.gd")
+const DragonProps = preload("res://scripts/dragon_board_props.gd")
+const Pathing = preload("res://scripts/path_utils.gd")
+const DEATH_SITE_ID := "death_site_embers"
+const FILL_SURFACES := ["fire", "electrified", "ice"]
+
+static func noctyrax_refuge_centers(state: Dictionary) -> Array[Vector2i]:
+	var centers: Array[Vector2i]
+	var has_noctyrax: bool = false
+	var snuffed_id: int = -1
+	for enemy: Dictionary in state.get("enemies", []):
+		if str(enemy.get("type", "")) != "noctyrax" or int(enemy.get("hp", 0)) <= 0: continue
+		has_noctyrax = true
+		for action: Dictionary in enemy.get("intent", {}).get("actions", []):
+			if bool(action.get("snuff_brazier", false)): snuffed_id = int(action.get("brazier_id", -1))
+	if not has_noctyrax: return centers
+	for brazier: Dictionary in state.get("guardian_braziers", []):
+		if bool(brazier.get("lit", true)) and int(brazier.get("id", -1)) != snuffed_id:
+			centers.append(brazier["pos"])
+	return centers
+
+static func noctyrax_refuge_edges(grid: Array, tile: Vector2i, centers: Array[Vector2i]) -> PackedInt32Array:
+	var edges := PackedInt32Array()
+	if centers.is_empty() or not Pathing.is_passable(grid, tile): return edges
+	for center: Vector2i in centers:
+		if Pathing.manhattan(tile, center) > 2: continue
+		for index: int in Pathing.DIRS_4.size():
+			if Pathing.manhattan(tile + Pathing.DIRS_4[index], center) > 2: edges.append(index)
+	return edges
+
+# Rule decals and exit targets have a board-wide floor pass. Their lifted
+# medallions and HUD passes are separate and need no show-through.
+static func _floor_sources(board: Control, entries: Array[Dictionary]) -> void:
+	var state: Dictionary = board.get("combat_state")
+	var shown: Dictionary = board.get("presentation")
+	var exits: Dictionary = board.get("exit_tiles")
+	var danger: Dictionary = board.get("_rest_threat_tile_alphas")
+	var marks: Dictionary = {}
+	var decals: Dictionary = {}
+	for decal: Dictionary in shown.get("impact_decals", []):
+		if not bool(decal.get("baked_strike", false)): decals[decal.get("tile", Vector2i(-1, -1))] = true
+	for mark: Dictionary in state.get("meteor_marks", []):
+		for tile: Vector2i in mark.get("tiles", []): marks[tile] = true
+	for tile: Vector2i in board.call("_rendered_tiles_in_draw_order"):
+		if not board.call("_board_tile_is_visible_to_player", tile): continue
+		if danger.has(tile) or marks.has(tile): _add_floor(board, entries, "danger", tile)
+		if exits.has(tile) or tile in shown.get("objective_exit_target_tiles", []):
+			_add_floor(board, entries, "exit", tile)
+		if decals.has(tile) or board.call("_tile_has_moss", "floor", tile):
+			_add_floor(board, entries, "decorative_decal", tile)
+
+static func _add_floor(board: Control, entries: Array[Dictionary], kind: String, tile: Vector2i, parts: Array[Dictionary] = [], surface_kind: String = "") -> void:
+	var diamond: PackedVector2Array = board.call("_tile_polygon", tile)
+	var bounds := Rect2(diamond[0], Vector2.ZERO)
+	for point: Vector2 in diamond: bounds = bounds.expand(point)
+	for part: Dictionary in parts: bounds = bounds.merge(part["rect"])
+	entries.append({"key": "%s:%s" % [kind, tile], "kind": kind, "tile": tile, "data": {},
+		"eligible": true, "fill": kind in ["exit", "refuge"] or surface_kind in FILL_SURFACES,
+		"surface_kind": surface_kind, "rect": bounds, "diamond": diamond, "parts": parts})
+
+static func _add_surface(board: Control, entries: Array[Dictionary], state: Dictionary, tile: Vector2i) -> void:
+	var ground: Node = board.get("_pixel_ground")
+	var flags: int = ground.field.tiles.get(tile, 0) if is_instance_valid(ground) else 0
+	var surface: Dictionary = Surface.surface_at(state, tile)
+	var kind: String = Surface.kind(str(surface.get("elemental", "")))
+	if flags == 0 and not bool(surface.get("rubble", false)) and kind not in Surface.ELEMENTAL_KINDS: return
+	var parts: Array[Dictionary]
+	if is_instance_valid(ground) and flags != 0:
+		for key: Variant in ground.depth.stamps:
+			if not key is Array or key.size() < 3 or not key[0] is Vector2i or key[0] != tile: continue
+			var stamp: Node = ground.depth.stamps[key]
+			if not is_instance_valid(stamp) or not stamp.visible: continue
+			var ink: ShaderMaterial = stamp.material
+			var region: Vector4 = ink.get_shader_parameter("art_rect")
+			parts.append({"rect": stamp.rect, "mask_texture": ink.get_shader_parameter("art_texture"),
+				"mask_region": Rect2i(int(region.x), int(region.y), int(region.z), int(region.w))})
+		if ground.sheet.ink != null and (Field.tile_kind(flags, 1) or Field.has_electrified_decal(flags)):
+			var sheet: Variant = ground.sheet
+			var atlas: Texture2D = sheet.ink.get_shader_parameter("atlas")
+			var scale: Vector2 = (ground.get_viewport().get_stretch_transform() * ground.get_global_transform()).get_scale().abs()
+			var cell: Vector2 = Vector2.ONE * sheet.cell_px / scale
+			var cells := Vector2i(sheet.bounds.size)
+			for pass_index: int in 2:
+				var stamp: Node = sheet.stamps.get(Vector3i(tile.x, tile.y, pass_index))
+				if not is_instance_valid(stamp): continue
+				var rows: Vector2i = stamp.rows_at(sheet.tick)
+				for row: int in [rows.x, rows.y]:
+					if row < 0: continue
+					parts.append({"rect": Rect2(stamp.position + sheet.bounds.position * cell, sheet.bounds.size * cell),
+						"mask_texture": atlas, "mask_region": Rect2i(Vector2i(0, row * cells.y), Vector2i(sheet.frames * cells.x, cells.y)),
+						"sheet_cells": cells, "sheet_frames": sheet.frames})
+	var surface_kind: String = kind if not kind.is_empty() else ("rubble" if bool(surface.get("rubble", false)) else "")
+	_add_floor(board, entries, "surface", tile, parts, surface_kind)
+
 
 static func collect(board: Control) -> Array[Dictionary]:
 	var entries: Array[Dictionary]
@@ -12,14 +107,22 @@ static func collect(board: Control) -> Array[Dictionary]:
 	var state: Dictionary = board.get("combat_state")
 	var shown: Dictionary = board.get("presentation")
 	var grid: Array = state.get("grid", [])
-	for trap: Dictionary in state.get("traps", []):
-		_add_object(board, entries, "trap", trap, true)
+	_floor_sources(board, entries)
+	var death_site: Dictionary = shown.get("death_site_embers", {})
+	if not death_site.is_empty():
+		_add_object(board, entries, "loot", {"id": DEATH_SITE_ID, "kind": "dropped_embers", "pos": death_site.get("tile", Vector2i(-1, -1))}, true)
+	var refuges: Array[Vector2i] = noctyrax_refuge_centers(state)
 	for loot: Dictionary in state.get("loot", []):
 		if board.call("_loot_renders_below_path", loot): _add_object(board, entries, "loot", loot, true)
+	for trap: Dictionary in state.get("traps", []):
+		_add_object(board, entries, "trap", trap, true)
 	for tile: Vector2i in board.call("_rendered_tiles_in_draw_order"):
 		# Rendered tiles can briefly describe a previous board while a new state lands.
 		if tile.y < 0 or tile.y >= grid.size() or tile.x < 0 or tile.x >= (grid[tile.y] as Array).size(): continue
 		if board.call("_board_tile_is_visible_to_player", tile):
+			_add_surface(board, entries, state, tile)
+			if not refuges.is_empty() and not noctyrax_refuge_edges(grid, tile, refuges).is_empty():
+				_add_floor(board, entries, "refuge", tile)
 			for prop: Dictionary in shown.get("scene_props", []):
 				if prop.get("tile", Vector2i(-1, -1)) != tile: continue
 				var texture: Texture2D = board.call("_texture_for_scene_prop", prop)
@@ -58,20 +161,16 @@ static func _blocker(tile: Vector2i, rect: Rect2, prop_kind: String = "", textur
 static func _add_object(board: Control, entries: Array[Dictionary], kind: String, data: Dictionary, ground: bool = false) -> void:
 	var tile: Vector2i = data.get("pos", Vector2i(-1, -1))
 	if not board.call("_board_tile_is_visible_to_player", tile): return
-	if kind == "loot" and (str(data.get("kind", "")) not in ["equipment", "item"] or bool(data.get("claimed", false)) or float(board.call("_missed_equipment_disintegration_progress", data)) >= 0.0): return
+	if kind == "loot" and (bool(data.get("claimed", false)) or float(board.call("_missed_equipment_disintegration_progress", data)) >= 0.0): return
 	if kind == "terrain" and not Surface.terrain_is_live(data): return
 	var entry: Dictionary = {"key": "%s:%s:%s" % [kind, str(data.get("id", "")), str(tile)],
-		"tile": tile, "kind": kind, "data": data, "ground": ground, "eligible": true}
+		"tile": tile, "kind": kind, "data": data, "ground": ground, "eligible": true, "fill": kind in ["trap", "loot"]}
 	var draw: Dictionary = drawing(board, entry)
 	if draw.is_empty(): return
 	entry["rect"] = draw["rect"]
 	entry["mask_texture"] = draw["texture"]
 	entry["mask_pose"] = "rest"
-	if kind == "trap": entry["mask_texture"] = (board.get("_trap_textures") as Dictionary).get(str(data.get("element", "")), draw["texture"])
-	if kind == "loot": entry["rect"] = board.call("_loot_rect_for_tile", tile, draw["texture"], data)
-	# Only the tactical terrain in the brief receives rims; other terrain can
-	# still occlude units. These are the production crate/box/barrel ids.
-	if kind == "terrain": entry["eligible"] = str(data.get("kind", "")) in ["wooden_box", "wooden_crate", "powder_keg", "barrel"]
+	if kind == "terrain": entry["eligible"] = false
 	entries.append(entry)
 
 static func _unit_mask(board: Control, unit: Dictionary) -> Dictionary:
@@ -145,3 +244,70 @@ static func drawing(board: Control, entry: Dictionary) -> Dictionary:
 			if texture != null: rect = board.call("_terrain_rect_for_tile", tile, texture, art_kind)
 	if texture == null or rect.get_area() <= 0.0: return {}
 	return {"texture": texture, "rect": rect}
+
+
+static func opening_door_mask(board: Control, grid: Array, source: Dictionary) -> Dictionary:
+	if source.get("prop_kind") != "door": return {}
+	var tile: Vector2i = source["tile"]
+	var opening: Texture2D = board._door_opening_texture_for_tile(grid, tile)
+	if opening == null: return {}
+	return {"mask_texture": opening, "rect": board._door_opening_draw_rect(opening, source["mask_texture"],
+		source["rect"], board._door_uses_flipped_orientation(grid, tile))}
+
+static func static_content_geometry(board: Control, source: Dictionary, alpha: RefCounted) -> Dictionary:
+	var grid: Array = board.combat_state.get("grid", [])
+	var door: Dictionary = opening_door_mask(board, grid, source)
+	if not door.is_empty():
+		return source.merged({"rect": door["rect"], "mask": alpha.mask_for(door)}, true)
+	var terrain: Dictionary = source.get("data", {})
+	var kind: String = terrain.get("kind", "")
+	if kind not in ["crag_outcrop", "dragon_spire"]: return source
+	var tile: Vector2i = source["tile"]
+	var width: float = board._tile_width()
+	var rise: float = board._procedural_terrain_rise(terrain) if board.has_method("_procedural_terrain_rise") else 1.0
+	var shape: Dictionary = procedural_mask(board, {"kind": kind, "tile": tile, "width": width, "rise": rise})
+	if shape.is_empty(): return source
+	var rect: Rect2 = shape["bounds"]
+	rect.position += board._tile_center(tile)
+	return source.merged({"rect": rect, "mask": alpha.mask_from_image(shape["image"], str([kind, tile, width, rise]))}, true)
+
+# The live terrain renderer paints these two bodies as opaque stone facets,
+# rather than using the placeholder sprite in the resting coverage sources.
+static func procedural_mask(board: Control, asset: Dictionary) -> Dictionary:
+	var faces: Array[PackedVector2Array]
+	var record := func(command: Array) -> void:
+		if command[0] == "polygon": faces.append(command[1])
+	var tile: Vector2i = asset["tile"]
+	var seed: int = tile.x * 101 + tile.y * 307
+	if asset["kind"] == "dragon_spire":
+		DragonProps.draw_spire(board, Vector2.ZERO, asset["width"], seed, asset["rise"], 1.0, record)
+	else:
+		SurfacePaint.draw_outcrop(board, Vector2.ZERO, asset["width"], seed, asset["rise"], 1.0, record)
+	if faces.is_empty(): return {}
+	var bounds := Rect2(faces[0][0], Vector2.ZERO)
+	for face: PackedVector2Array in faces:
+		for point: Vector2 in face: bounds = bounds.expand(point)
+	var origin: Vector2 = bounds.position.floor()
+	var size := Vector2i(bounds.end.ceil() - origin)
+	if size.x <= 0 or size.y <= 0: return {}
+	var image := Image.create_empty(size.x, size.y, false, Image.FORMAT_RGBA8)
+	# Scan each facet along pixel centers. Paint only its covered spans.
+	for face: PackedVector2Array in faces:
+		var min_y: int = maxi(0, ceili(minf(face[0].y, minf(face[1].y, face[2].y)) - origin.y - 0.5))
+		var max_y: int = mini(size.y, ceili(maxf(face[0].y, maxf(face[1].y, face[2].y)) - origin.y - 0.5))
+		for y: int in range(min_y, max_y):
+			var scan_y: float = origin.y + float(y) + 0.5
+			var left: float = INF
+			var right: float = -INF
+			for edge: int in range(face.size()):
+				var a: Vector2 = face[edge]
+				var b: Vector2 = face[(edge + 1) % face.size()]
+				if (a.y > scan_y) == (b.y > scan_y): continue
+				var x: float = lerpf(a.x, b.x, (scan_y - a.y) / (b.y - a.y))
+				left = minf(left, x)
+				right = maxf(right, x)
+			if left >= right: continue
+			var start: int = clampi(ceili(left - origin.x - 0.5), 0, size.x)
+			var end: int = clampi(ceili(right - origin.x - 0.5), start, size.x)
+			if end > start: image.fill_rect(Rect2i(start, y, end - start, 1), Color.WHITE)
+	return {"image": image, "bounds": Rect2(origin, size)}

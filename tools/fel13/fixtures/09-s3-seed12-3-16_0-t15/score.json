@@ -1,0 +1,397 @@
+{
+  "covered_tiles": 9,
+  "covered_units": 2,
+  "fight": "3-16_0",
+  "focus": {
+    "count": 3,
+    "fraction": 0.71484375,
+    "tile": [
+      6,
+      4
+    ]
+  },
+  "kind": "dragon",
+  "objective": "kill_leader",
+  "room_kind": "boss",
+  "section": 3,
+  "seed": 12,
+  "stacked": 5,
+  "tiles": [
+    {
+      "contents": [
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": false,
+      "tile": [
+        2,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": false,
+      "tile": [
+        3,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": false,
+      "tile": [
+        4,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": false,
+      "tile": [
+        5,
+        1
+      ]
+    },
+    {
+      "contents": [
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": false,
+      "tile": [
+        4,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": false,
+      "tile": [
+        5,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:7,1",
+          "tile": [
+            7,
+            1
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        6,
+        1
+      ]
+    },
+    {
+      "contents": [
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.51171875,
+          "id": "unit:player",
+          "tile": [
+            6,
+            4
+          ]
+        },
+        {
+          "fraction": 0.41796875,
+          "id": "unit:enemy_1",
+          "tile": [
+            7,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        5,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": false,
+      "tile": [
+        6,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.46484375,
+          "id": "unit:enemy_1",
+          "tile": [
+            7,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        4,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": false,
+      "tile": [
+        6,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": false,
+      "tile": [
+        7,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "loot loot_item_0_5_5"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.84375,
+          "id": "unit:enemy_1",
+          "tile": [
+            7,
+            6
+          ]
+        },
+        {
+          "fraction": 0.19140625,
+          "id": "pillar:7,7",
+          "tile": [
+            7,
+            7
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        5,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "player [player]",
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.71484375,
+          "id": "unit:enemy_1",
+          "tile": [
+            7,
+            6
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        6,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [],
+      "stacked": false,
+      "tile": [
+        7,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "surface electrified",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.2421875,
+          "id": "unit:enemy_1",
+          "tile": [
+            7,
+            6
+          ]
+        },
+        {
+          "fraction": 0.30078125,
+          "id": "pillar:7,7",
+          "tile": [
+            7,
+            7
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        5,
+        6
+      ]
+    },
+    {
+      "contents": [
+        "Zekarion, the Raging Tempest [enemy_1]",
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.3046875,
+          "id": "pillar:7,7",
+          "tile": [
+            7,
+            7
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        6,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "Zekarion, the Raging Tempest [enemy_1]",
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.953125,
+          "id": "pillar:7,7",
+          "tile": [
+            7,
+            7
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        6,
+        6
+      ]
+    },
+    {
+      "contents": [
+        "Zekarion, the Raging Tempest [enemy_1]",
+        "surface fire"
+      ],
+      "occluders": [],
+      "stacked": true,
+      "tile": [
+        7,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "Zekarion, the Raging Tempest [enemy_1]",
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:7,7",
+          "tile": [
+            7,
+            7
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        7,
+        6
+      ]
+    }
+  ],
+  "turn": 15,
+  "units": [
+    {
+      "fraction": 0.571157495256167,
+      "tile": [
+        6,
+        4
+      ],
+      "unit": "player [player]"
+    },
+    {
+      "fraction": 0.28327473631341,
+      "tile": [
+        6,
+        5
+      ],
+      "unit": "Zekarion, the Raging Tempest [enemy_1]"
+    }
+  ],
+  "old_stacked": 19,
+  "old_score": 32,
+  "new_score": 20,
+  "campaign": {
+    "id": "fel01-round0-diagnostic-9999",
+    "seed_directory": "fel01-census-seed12"
+  },
+  "composition": {
+    "boss_id": "zekarion",
+    "enemies_on_board": 1,
+    "visible_pillars": 2
+  }
+}

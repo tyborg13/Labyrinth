@@ -9,6 +9,7 @@ const KIND_EFFECT: String = "effect"
 const HOLD_EFFECT_BEAT_KEY: String = "hold_floating_effect_beat"
 const IMPACT_DAMAGE_KEY: String = "impact_damage"
 const POPUP_ONLY_KEY: String = "popup_only"
+const NUMBER_BASE_FONT_SIZE_KEY: String = "number_base_font_size"
 
 const RESOURCE_COLORS: Dictionary = {
 	"block": 0x90d9ffff,
@@ -141,6 +142,14 @@ static func is_popup_entry(entry: Dictionary) -> bool:
 	return is_damage_entry(entry) or is_effect_entry(entry)
 
 
+static func is_number_entry(entry: Dictionary) -> bool:
+	return is_damage_entry(entry) or str(entry.get("resource_kind", "")) in ["heal", "block", "stoneskin", "draw", "card_play"]
+
+
+static func number_fade_start_seconds(reduced_motion: bool) -> float:
+	return ANIMATION_DURATION_SECONDS * (DAMAGE_REDUCED_FADE_START if reduced_motion else DAMAGE_FADE_START)
+
+
 ## The first displayed gain starts its tile's batch. Later floats keep their
 ## existing stagger while the body effects use the authored ordering and clock.
 static func _gain_batches(base_entries: Array) -> Dictionary:
@@ -187,11 +196,11 @@ static func animate_entries(base_entries: Array, elapsed_seconds: float, reduced
 	return animated
 
 
-static func total_duration(base_entries: Array) -> float:
+static func total_duration(base_entries: Array, advance_numbers: bool = false, reduced_motion: bool = false) -> float:
 	if base_entries.is_empty():
 		return GENERIC_PRESENTATION_SECONDS
 	var sequence_count_by_anchor: Dictionary = {}
-	var largest_sequence_index: int = 0
+	var duration: float = 0.0
 	for base_var: Variant in base_entries:
 		if typeof(base_var) != TYPE_DICTIONARY:
 			continue
@@ -199,8 +208,9 @@ static func total_duration(base_entries: Array) -> float:
 		var anchor_key: String = _anchor_key(base_entry)
 		var sequence_index: int = int(sequence_count_by_anchor.get(anchor_key, 0))
 		sequence_count_by_anchor[anchor_key] = sequence_index + 1
-		largest_sequence_index = maxi(largest_sequence_index, sequence_index)
-	return ANIMATION_DURATION_SECONDS + float(largest_sequence_index) * STAGGER_SECONDS
+		var lifetime: float = number_fade_start_seconds(reduced_motion) if advance_numbers and is_number_entry(base_entry) else ANIMATION_DURATION_SECONDS
+		duration = maxf(duration, lifetime + float(sequence_index) * STAGGER_SECONDS)
+	return ANIMATION_DURATION_SECONDS if duration == 0.0 else duration
 
 
 static func action_advance_duration(base_entries: Array) -> float:
@@ -410,6 +420,8 @@ class IconCanvas:
 static func animate_entry(base_entry: Dictionary, progress: float, reduced_motion: bool) -> Dictionary:
 	ensure_screen_layout_id(base_entry)
 	var entry: Dictionary = base_entry.duplicate(true)
+	if is_number_entry(entry) and not entry.has(NUMBER_BASE_FONT_SIZE_KEY):
+		entry[NUMBER_BASE_FONT_SIZE_KEY] = int(base_entry.get("font_size", 0))
 	var t: float = clampf(progress, 0.0, 1.0)
 	if is_damage_entry(entry):
 		entry = _animate_damage_entry(entry, t, reduced_motion)

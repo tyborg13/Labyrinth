@@ -122,7 +122,7 @@ func _capture_acquisitions() -> void:
 	if not (after_combat.get("collected_equipment", []) as Array).has("ward_kite"):
 		_fail("Production combat pickup should collect Ward Kite")
 	create_timer(0.56).timeout.connect(_capture_named_phase.bind(instance, "equipment", "flair"))
-	create_timer(1.08).timeout.connect(_capture_named_phase.bind(instance, "equipment", "ray"))
+	create_timer(1.08).timeout.connect(_capture_named_phase.bind(instance, "equipment", "ray", true))
 	await instance.call("_animate_player_action_step", before_combat, after_combat, "threaded_path", blink_action, equipment_tile)
 	print("PROBE: equipment acquisition complete")
 	room_state = engine.set_combat_state(room_state, after_combat)
@@ -149,8 +149,10 @@ func _capture_acquisitions() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _capture_named_phase(instance: Node, kind: String, phase: String) -> void:
-	var expected_node_name: String = "AcquisitionBurst" if phase == "flair" else "LoadoutAcquisitionBeam"
+func _capture_named_phase(instance: Node, kind: String, phase: String, has_pickup_icon: bool = false) -> void:
+	var expected_node_name: String = "AcquisitionBurst"
+	if phase == "ray":
+		expected_node_name = "LoadoutAcquisitionTrail" if has_pickup_icon else "LoadoutAcquisitionBeam"
 	if instance.find_child(expected_node_name, true, false) == null:
 		_fail("%s %s should render %s" % [kind, phase, expected_node_name])
 	await _save_root_screenshot("%s/%s_%s.png" % [OUTPUT_DIR, kind, phase])
@@ -218,6 +220,7 @@ func _settle() -> void:
 	await process_frame
 
 func _save_root_screenshot(output_path: String) -> void:
+	if DisplayServer.get_name() == "headless": return
 	await RenderingServer.frame_post_draw
 	var image: Image = _proof_viewport.get_texture().get_image()
 	if image.get_size() != Vector2i(1920, 1080):

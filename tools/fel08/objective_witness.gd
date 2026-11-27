@@ -14,18 +14,18 @@ const SINGLE_DETAIL := "Reach the marked tile"
 const DOUBLE_DETAIL := "Reach any of 2 marked tiles"
 const WILDFIRE_SENTENCE := "On each Wildfire beat, after your turn, each Fire tile spreads 1 tile away from the entry."
 const SNARE_REWARD := "Normal combat reward, plus 6 Embers per open door."
-const OTHER_TOOLTIPS := [
-	["defeat_all", {"type": Objectives.KILL_ALL}, "DEFEAT ALL ENEMIES", "Defeat each enemy."],
-	["defeat_leader", {"type": Objectives.KILL_LEADER}, "DEFEAT THE LEADER", "Defeat the marked leader. The rest flee."],
-	["survive", {"type": Objectives.SURVIVE}, "SURVIVE", "Survive until the marked time."],
-	["last_light", {"type": Objectives.SURVIVE, "special_type": "last_light"}, "SURVIVE UNTIL DAWN", "Survive until dawn."],
-	["hoarder", {"type": Objectives.KILL_LEADER, "special_type": "ember_hoarder"}, "DEFEAT THE HOARDER", "Catch the Hoarder before it slips away."],
-	["warband", {"type": Objectives.KILL_LEADER, "special_type": "warband", "special_variant": "ice", "leader_display_name": "The Rime Oracle"}, "DEFEAT THE RIME ORACLE", "Defeat the captain to make each follower flee."]
+const OTHER_OBJECTIVES := [
+	["defeat_all", {"type": Objectives.KILL_ALL}, "DEFEAT ALL ENEMIES"],
+	["defeat_leader", {"type": Objectives.KILL_LEADER}, "DEFEAT THE LEADER"],
+	["survive", {"type": Objectives.SURVIVE}, "SURVIVE"],
+	["last_light", {"type": Objectives.SURVIVE, "special_type": "last_light"}, "SURVIVE UNTIL DAWN"],
+	["hoarder", {"type": Objectives.KILL_LEADER, "special_type": "ember_hoarder"}, "DEFEAT THE HOARDER"],
+	["warband", {"type": Objectives.KILL_LEADER, "special_type": "warband", "special_variant": "ice", "leader_display_name": "The Rime Oracle"}, "DEFEAT THE RIME ORACLE"]
 ]
 
 
 static func run(probe: SceneTree) -> bool:
-	if not _other_tooltips(probe): return false
+	if not _other_objectives(probe): return false
 	Store.set_run_storage_path("user://fel08_legacy_objective.save")
 	Store.set_storage_path("user://fel08_objective_profile.json")
 	var path: String = probe.FIXTURES.path_join(probe.DOOR).path_join(probe.Checkpoint.RUN_FILE)
@@ -85,9 +85,9 @@ static func _combat_case(probe: SceneTree, run_state: Dictionary, count: int, ex
 	if Objectives.exit_target_tiles(objective).size() != count or detail == null or not detail.is_visible_in_tree() or detail.text != expected:
 		return _fail(probe, "expected %d exits with status %s" % [count, expected])
 	print("FEL08 OBJECTIVE exits=%d status: %s" % [count, detail.text])
-	var displayed: String = hud.tooltip_text.get_slice("\n", 1)
-	if displayed != DESCRIPTION:
-		return _fail(probe, "combat description displayed " + displayed)
+	if not _check_passive_hud(probe, hud, "exit"): return false
+	if (scene.call("_controller_header_focus_controls") as Array).has(hud):
+		return _fail(probe, "combat Objective is a controller focus stop")
 	if resume_saved:
 		if objective.get("description") != LEGACY_DESCRIPTION:
 			return _fail(probe, "Continue did not load the legacy stored description")
@@ -95,57 +95,40 @@ static func _combat_case(probe: SceneTree, run_state: Dictionary, count: int, ex
 		var sentence := battlefield.find_child("RuleSentence", true, false) as Label
 		if sentence == null or not sentence.is_visible_in_tree() or sentence.text != WILDFIRE_SENTENCE:
 			return _fail(probe, "Wildfire sentence missing from the Battlefield panel")
-		print("FEL08 OBJECTIVE continued description: %s (legacy value loaded)" % displayed)
+		print("FEL08 OBJECTIVE continued description stored: " + LEGACY_DESCRIPTION)
 	var rect: Rect2 = hud.get_global_rect()
 	var left_margin: float = hud.get_theme_stylebox("panel").get_margin(SIDE_LEFT)
 	await probe._point(Vector2(rect.position.x + left_margin * 0.5, rect.get_center().y))
 	await probe._settle(true)
 	if probe._viewport.gui_get_hovered_control() != hud:
 		return _fail(probe, "pointer could not reach the combat objective from " + str(probe._viewport.gui_get_hovered_control()))
-	var panel: Control = _open_panel(probe._viewport, hud)
-	var label: String = "wildfire_snare" if resume_saved else "ordinary_exit"
-	if not _check_tooltip(probe, label, panel, "REACH THE EXIT", DESCRIPTION): return false
+	for popup: Window in probe._viewport.get_embedded_subwindows():
+		if popup.visible and popup.theme_type_variation == &"TooltipPanel":
+			return _fail(probe, "combat Objective hover opened a tooltip")
+	print("FEL08 OBJECTIVE NO POPUP exits=%d hover=true focus=none" % count)
 	if not await _capture(probe, filename): return false
 	await probe._point(probe.NO_POINTER)
 	await DoorWitness._unmount(probe)
 	return true
 
 
-static func _other_tooltips(probe: SceneTree) -> bool:
+static func _other_objectives(probe: SceneTree) -> bool:
 	var hud := ObjectiveHud.new()
-	for example: Array in OTHER_TOOLTIPS:
+	for example: Array in OTHER_OBJECTIVES:
 		hud.set_combat_state({"objective": example[1]})
 		if (hud.find_child("ObjectiveTitle", true, false) as Label).text != example[2]:
 			hud.free()
 			return _fail(probe, "objective title mismatch for " + str(example[0]))
-		var panel: Control = hud._make_custom_tooltip(hud.tooltip_text)
-		var valid: bool = _check_tooltip(probe, example[0], panel, example[2], example[3])
-		panel.free()
-		if not valid:
+		if not _check_passive_hud(probe, hud, example[0]):
 			hud.free()
 			return false
 	hud.free()
 	return true
 
 
-static func _open_panel(viewport: SubViewport, hud: Control) -> Control:
-	for popup: Window in viewport.get_embedded_subwindows():
-		if not popup.visible or popup.get_parent() != hud: continue
-		for panel: PanelContainer in popup.find_children("*", "PanelContainer", true, false):
-			if panel.has_meta("tooltip_surface") and panel.is_visible_in_tree(): return panel
-	return null
-
-
-static func _check_tooltip(probe: SceneTree, label: String, panel: Control, title: String, body: String) -> bool:
-	if panel == null or not bool(panel.get_meta("tooltip_surface", false)) or panel.get_meta("surface_treatment", "") != "inset":
-		return _fail(probe, label + " did not use the shared tooltip panel")
-	var lines: PackedStringArray
-	for child: Control in panel.get_child(0).get_children():
-		if child is Label: lines.append(child.text)
-		elif child is RichTextLabel: lines.append(child.get_parsed_text())
-	if lines != PackedStringArray([title, body]):
-		return _fail(probe, "%s expected exactly %s and %s, got %s" % [label, title, body, lines])
-	print("FEL08 OBJECTIVE TOOLTIP %s title=%s body=%s" % [label, lines[0], lines[1]])
+static func _check_passive_hud(probe: SceneTree, hud: Control, label: String) -> bool:
+	if not hud.tooltip_text.is_empty() or hud.focus_mode != Control.FOCUS_NONE:
+		return _fail(probe, label + " can expose a tooltip or receive focus")
 	return true
 
 

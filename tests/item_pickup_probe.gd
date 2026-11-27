@@ -32,6 +32,9 @@ func _logical_size() -> Vector2i:
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	if DisplayServer.get_name() == "headless":
+		# The live pickup routes also pass through enemy round render boundaries.
+		process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
 	_output = "user://item_pickup_proof_%dx%d_v4" % [_physical_size().x, _physical_size().y]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_output))
 	ProgressionStore.set_storage_path("user://pickup_probe_progression.json")
@@ -91,7 +94,7 @@ func _initialize() -> void:
 	_scene.call("_begin_player_movement_selection")
 	_scene.call("_on_board_tile_clicked", Vector2i(2, 3))
 	var found_banner: bool = false
-	var found_hand_ray: bool = false
+	var found_hand_trail: bool = false
 	var banner_deadline: int = Time.get_ticks_msec() + 8000
 	while Time.get_ticks_msec() < banner_deadline:
 		await process_frame
@@ -99,15 +102,16 @@ func _initialize() -> void:
 		if not found_banner and banner != null and banner.text == "ITEM FOUND" and banner.modulate.a > 0.7:
 			found_banner = true
 			await _save("05_item_found_animation.png", false)
-		var beam: Control = _scene.find_child("LoadoutAcquisitionBeam", true, false) as Control
-		if not found_hand_ray and _ray_is_visible(beam):
-			found_hand_ray = true
-			_assert_item_ray(beam, "hand", 3, 4)
+		var trail: Node2D = _scene.find_child("LoadoutAcquisitionTrail", true, false) as Node2D
+		if not found_hand_trail and _trail_is_visible(trail):
+			found_hand_trail = true
+			_assert_item_trail(trail, "hand", 3, 4)
 			await _save("05b_item_to_hand_ray.png", false)
-		if found_banner and found_hand_ray:
+			await _assert_item_arrival(trail, "hand", banner_deadline)
+		if found_banner and found_hand_trail:
 			break
 	_require(found_banner, "Live movement uses Item Found acquisition flair")
-	_require(found_hand_ray, "An immediately playable pickup rays to its future hand slot")
+	_require(found_hand_trail, "An immediately playable pickup flies to its future hand slot")
 	var completion_deadline: int = Time.get_ticks_msec() + 8000
 	while Time.get_ticks_msec() < completion_deadline:
 		if not bool(_scene.get("_animation_lock")):
@@ -123,13 +127,13 @@ func _initialize() -> void:
 	await _settle()
 	await _load_fixture([], ["quick_stab", "quick_stab", "quick_stab", "quick_stab", "quick_stab", "quick_stab", "quick_stab"])
 	await _focus_pickup(Vector2i(2, 3), "item:crimson_draught", "08_full_hand_draw_preview.png")
-	await _collect_and_capture_ray("draw", "08b_item_to_draw_ray.png")
+	await _collect_and_capture_trail("draw", "08b_item_to_draw_ray.png")
 	state = _scene.get("_combat_state")
 	_require(state["deck"]["hand"].size() == 7 and state["deck"]["draw"].back() == "crimson_draught", "The full-hand live UI keeps its cap and queues the pickup")
 	await _save("09_full_hand_after_pickup.png")
 	await _load_fixture(["nail_bomb", "smoke_bomb"], ["nail_bomb", "smoke_bomb", "quick_stab"])
 	await _focus_pickup(Vector2i(2, 3), "item:crimson_draught", "10_full_slots_inventory_preview.png")
-	await _collect_and_capture_ray("inventory", "10b_item_to_inventory_ray.png")
+	await _collect_and_capture_trail("inventory", "10b_item_to_inventory_ray.png")
 	state = _scene.get("_combat_state")
 	_require(state["item_inventory"] == ["crimson_draught"] and not state["deck"]["hand"].has("crimson_draught"), "Both occupied slots send the pickup only to inventory")
 	_scene.call("_open_character_overlay", "equipment")
@@ -242,15 +246,15 @@ func _assert_multi_pickup_hand_destinations() -> void:
 	var before_state: Dictionary = {"deck": {"hand": ["quick_stab"]}}
 	var after_state: Dictionary = {"deck": {"hand": ["quick_stab", "nail_bomb", "crimson_draught"]}}
 	# The presentation list can differ from path acquisition order. Card identity
-	# must still map each beam to the slot that actually receives that pickup.
+	# must still map each flight to the slot that actually receives that pickup.
 	var picked_loot: Array = [
 		{"id": "second", "kind": "item", "card_id": "crimson_draught", "destination": "hand"},
 		{"id": "first", "kind": "item", "card_id": "nail_bomb", "destination": "hand"}
 	]
 	var indices: Dictionary = _scene.call("_pickup_hand_destination_indices", picked_loot, before_state, after_state)
-	_require(int(indices.get("second", -1)) == 2 and int(indices.get("first", -1)) == 1, "Multi-pickup rays target each card's actual appended hand slot")
+	_require(int(indices.get("second", -1)) == 2 and int(indices.get("first", -1)) == 1, "Multi-pickup flights target each card's actual appended hand slot")
 
-func _collect_and_capture_ray(expected_kind: String, filename: String) -> void:
+func _collect_and_capture_trail(expected_kind: String, filename: String) -> void:
 	_router.call("set_forced_state_for_test", InputRouter.MODALITY_POINTER, InputRouter.FAMILY_XBOX)
 	var settings: Dictionary = _scene.get("_settings")
 	settings["reduced_motion"] = false
@@ -259,43 +263,42 @@ func _collect_and_capture_ray(expected_kind: String, filename: String) -> void:
 	var before_hand_size: int = (((before_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size())
 	_scene.call("_begin_player_movement_selection")
 	_scene.call("_on_board_tile_clicked", Vector2i(2, 3))
-	var found_ray: bool = false
+	var found_trail: bool = false
 	var deadline: int = Time.get_ticks_msec() + 8000
 	while Time.get_ticks_msec() < deadline:
 		await process_frame
-		var beam: Control = _scene.find_child("LoadoutAcquisitionBeam", true, false) as Control
-		if _ray_is_visible(beam):
-			found_ray = true
-			_assert_item_ray(
-				beam,
+		var trail: Node2D = _scene.find_child("LoadoutAcquisitionTrail", true, false) as Node2D
+		if _trail_is_visible(trail):
+			found_trail = true
+			_assert_item_trail(
+				trail,
 				expected_kind,
 				before_hand_size if expected_kind == "hand" else -1,
 				before_hand_size + 1 if expected_kind == "hand" else -1
 			)
 			await _save(filename, false)
+			await _assert_item_arrival(trail, expected_kind, deadline)
 			break
-	_require(found_ray, "Pickup animation exposes a ray to the %s destination" % expected_kind)
+	_require(found_trail, "Pickup animation exposes a trail to the %s destination" % expected_kind)
 	var completion_deadline: int = Time.get_ticks_msec() + 8000
 	while Time.get_ticks_msec() < completion_deadline and bool(_scene.get("_animation_lock")):
 		await process_frame
 	_require(not bool(_scene.get("_animation_lock")), "The %s pickup animation completes" % expected_kind)
 	await _settle()
 
-func _ray_is_visible(beam: Control) -> bool:
-	return beam != null and beam.is_visible_in_tree() and float(beam.get("progress")) >= 0.55 and beam.modulate.a > 0.5
+func _trail_is_visible(trail: Node2D) -> bool:
+	return trail != null and trail.is_visible_in_tree() and float(trail.get_meta("acquisition_progress", 0.0)) >= 0.55 and trail.modulate.a > 0.5
 
-func _assert_item_ray(beam: Control, expected_kind: String, hand_index: int = -1, hand_total: int = -1) -> void:
-	_require(str(beam.get_meta("acquisition_destination", "")) == expected_kind, "Pickup ray records its %s destination" % expected_kind)
-	var target_global: Vector2 = beam.get_meta("acquisition_target_global", Vector2(-1.0, -1.0)) as Vector2
-	var fx_layer: Control = _scene.get("_card_fx_layer") as Control
+func _assert_item_trail(trail: Node2D, expected_kind: String, hand_index: int = -1, hand_total: int = -1) -> void:
+	_require(str(trail.get_meta("acquisition_destination", "")) == expected_kind, "Pickup trail records its %s destination" % expected_kind)
+	var target_global: Vector2 = trail.get_meta("acquisition_target_global", Vector2(-1.0, -1.0)) as Vector2
 	_require(Rect2(Vector2.ZERO, Vector2(_logical_size())).has_point(target_global), "Pickup destination remains onscreen, including the tucked controller hand")
-	var rendered_target: Vector2 = fx_layer.global_position + (beam.get("target") as Vector2)
-	_require(rendered_target.distance_to(target_global) <= 1.0, "Pickup ray geometry terminates at its recorded destination")
-	var icon: Control = _scene.find_child("EquipmentAcquisitionIcon" if expected_kind == "equipment" else "ItemAcquisitionIcon", true, false) as Control
+	var icon: Control = _pickup_icon(expected_kind)
 	_require(icon != null and icon.is_visible_in_tree() and icon.get("texture") != null, "The acquired object's own icon travels visibly")
 	if icon != null:
-		var expected_center: Vector2 = fx_layer.global_position + (beam.get("start") as Vector2).lerp(beam.get("target"), float(beam.get("progress")))
-		_require(icon.get_global_rect().get_center().distance_to(expected_center) < 2.0, "Pickup icon follows the beam instead of remaining on the board")
+		var source_global: Vector2 = trail.get_meta("acquisition_source_global", Vector2(-1.0, -1.0)) as Vector2
+		var expected_center: Vector2 = source_global.lerp(target_global, float(trail.get_meta("acquisition_progress", 0.0)))
+		_require(icon.get_global_rect().get_center().distance_to(expected_center) < 2.0, "Pickup icon follows the trail from the board")
 	var expected_target: Vector2 = Vector2.ZERO
 	match expected_kind:
 		"hand":
@@ -306,16 +309,30 @@ func _assert_item_ray(beam: Control, expected_kind: String, hand_index: int = -1
 				expected_target.y = float(_logical_size().y) - 32.0
 				_require(absf(target_global.x - card_rect.get_center().x) <= 1.0, "Tucked hand receipt preserves the incoming card's horizontal slot")
 			else:
-				_require(card_rect.grow(1.0).has_point(target_global), "Hand pickup ray lands within the exact future card slot")
+				_require(card_rect.grow(1.0).has_point(target_global), "Hand pickup lands within the exact future card slot")
 		"draw":
 			var draw_pile: Control = _scene.get("draw_pile") as Control
 			expected_target = draw_pile.get_global_rect().get_center()
-			_require(draw_pile.get_global_rect().grow(1.0).has_point(target_global), "Full-hand pickup ray lands on the draw pile")
+			_require(draw_pile.get_global_rect().grow(1.0).has_point(target_global), "Full-hand pickup lands on the draw pile")
 		"inventory", "equipment":
 			var loadout_button: Control = _scene.get("loadout_button") as Control
 			expected_target = loadout_button.get_global_rect().get_center()
-			_require(loadout_button.get_global_rect().grow(1.0).has_point(target_global), "Stored pickup ray lands on the inventory affordance")
-	_require(target_global.distance_to(expected_target) <= 1.0, "Pickup ray targets the exact %s location" % expected_kind)
+			_require(loadout_button.get_global_rect().grow(1.0).has_point(target_global), "Stored pickup lands on the inventory affordance")
+	_require(target_global.distance_to(expected_target) <= 1.0, "Pickup trail targets the exact %s location" % expected_kind)
+
+func _pickup_icon(kind: String) -> Control:
+	var node_name: String = "EquipmentAcquisitionIcon" if kind == "equipment" else "ItemAcquisitionIcon"
+	return _scene.find_child(node_name, true, false) as Control
+
+func _assert_item_arrival(trail: Node2D, kind: String, deadline: int) -> Control:
+	var target: Vector2 = trail.get_meta("acquisition_target_global", Vector2(-1.0, -1.0)) as Vector2
+	var icon: Control = _pickup_icon(kind)
+	while is_instance_valid(icon) and Time.get_ticks_msec() < deadline:
+		if icon.get_global_rect().get_center().distance_to(target) <= 1.0:
+			return icon
+		await process_frame
+	_require(false, "Pickup flight terminates at its recorded %s destination" % kind)
+	return null
 
 func _capture_pickup_edge_cases() -> void:
 	for case_name: String in ["hand", "draw", "inventory", "controller_hand"]:
@@ -343,6 +360,7 @@ func _capture_pickup_edge_cases() -> void:
 		while Time.get_ticks_msec() < deadline and bool(_scene.get("_animation_lock")):
 			await process_frame
 			_require(_scene.find_child("LoadoutAcquisitionBeam", true, false) == null, "Reduced motion does not create a traveling beam")
+			_require(_scene.find_child("LoadoutAcquisitionTrail", true, false) == null, "Reduced motion does not create a pickup trail")
 			var receipt: Label = _scene.find_child("PickupDestinationReceipt", true, false) as Label
 			if receipt == null or receipt_found:
 				continue
@@ -366,13 +384,13 @@ func _capture_pickup_edge_cases() -> void:
 	var equipment_state: Dictionary = (_scene.get("_combat_state") as Dictionary).duplicate(true)
 	equipment_state["loot"][0] = {"id": "walk_gear", "kind": "equipment", "equipment_id": "ward_kite", "pos": Vector2i(2, 3)}
 	await _install_combat_fixture(equipment_state)
-	await _collect_and_capture_ray("equipment", "21_equipment_to_inventory.png")
+	await _collect_and_capture_trail("equipment", "21_equipment_to_inventory.png")
 	_require((_scene.get("_combat_state") as Dictionary).get("collected_equipment", []).has("ward_kite"), "Walking collects the pictured equipment")
 	# A movement card removes its own hand slot before the pickup arrives.
 	await _load_fixture([], ["shadow_gate", "quick_stab"])
 	await _scene.call("_on_card_pressed", 0)
 	_scene.call("_on_board_tile_clicked", Vector2i(2, 3))
-	await _capture_active_ray("hand", "22_blink_pickup.png", 1, 2)
+	await _capture_active_trail("hand", "22_blink_pickup.png", 1, 2)
 	_require((_scene.get("_combat_state") as Dictionary)["deck"]["hand"] == ["quick_stab", "crimson_draught"], "Movement-card pickup settles into the actual remaining hand")
 	# Controller activation and focus recovery use the same live collection path.
 	await _load_fixture()
@@ -383,7 +401,7 @@ func _capture_pickup_edge_cases() -> void:
 	await _scene.call("_controller_activate_current")
 	_scene.call("_controller_set_board_tile", Vector2i(2, 3))
 	_scene.call("_controller_activate_current")
-	await _capture_active_ray("hand", "23_controller_pickup.png", 3, 4)
+	await _capture_active_trail("hand", "23_controller_pickup.png", 3, 4)
 	_require(str(_scene.get("_controller_region")) == "hand" and bool(_scene.get("_controller_hand_focused")), "Controller focus returns to the usable hand after pickup")
 	await _save("24_controller_focus_recovered.png")
 	_router.call("set_forced_state_for_test", InputRouter.MODALITY_POINTER, InputRouter.FAMILY_XBOX)
@@ -403,25 +421,23 @@ func _capture_pickup_edge_cases() -> void:
 	forced["loot"][1] = {"id": "pulled_gear", "kind": "equipment", "equipment_id": "ward_kite", "pos": Vector2i(3, 3)}
 	await _install_combat_fixture(forced)
 	_scene.call("_on_pass_turn_pressed")
-	await _capture_active_ray("equipment", "25_enemy_forced_equipment.png")
+	await _capture_active_trail("equipment", "25_enemy_forced_equipment.png")
 	var result: Dictionary = _scene.get("_combat_state")
 	_require(result.get("collected_equipment", []).has("ward_kite") and result["equipped_items"].has("crimson_draught"), "Enemy forced movement grants both pictured pickups")
 
-func _capture_active_ray(kind: String, filename: String, hand_index: int = -1, hand_total: int = -1) -> void:
+func _capture_active_trail(kind: String, filename: String, hand_index: int = -1, hand_total: int = -1) -> void:
 	var found: bool = false
 	var deadline: int = Time.get_ticks_msec() + 12000
 	while Time.get_ticks_msec() < deadline and bool(_scene.get("_animation_lock")):
 		await process_frame
-		var beam: Control = _scene.find_child("LoadoutAcquisitionBeam", true, false) as Control
-		if not _ray_is_visible(beam) or str(beam.get_meta("acquisition_destination", "")) != kind:
+		var trail: Node2D = _scene.find_child("LoadoutAcquisitionTrail", true, false) as Node2D
+		if not _trail_is_visible(trail) or str(trail.get_meta("acquisition_destination", "")) != kind:
 			continue
-		_assert_item_ray(beam, kind, hand_index, hand_total)
+		_assert_item_trail(trail, kind, hand_index, hand_total)
 		await _save(filename, false)
 		found = true
+		var icon: Control = await _assert_item_arrival(trail, kind, deadline)
 		if filename == "23_controller_pickup.png":
-			while is_instance_valid(beam) and float(beam.get("progress")) < 0.998:
-				await process_frame
-			var icon: Control = _scene.find_child("ItemAcquisitionIcon", true, false) as Control
 			_require(icon != null and Rect2(Vector2.ZERO, Vector2(_logical_size())).encloses(icon.get_global_rect()), "Controller pickup icon arrives fully onscreen")
 			await _save("23b_controller_arrival.png", false)
 		break
@@ -562,6 +578,7 @@ func _save(filename: String, settle: bool = true) -> void:
 	_assert_hand_card_content()
 	_assert_actor_alignment()
 	_assert_pile_layout(filename)
+	if DisplayServer.get_name() == "headless": return
 	var image: Image = _viewport.get_texture().get_image()
 	_require(image != null and image.get_size() == _physical_size(), "Screenshot has exact physical resolution")
 	if image != null:

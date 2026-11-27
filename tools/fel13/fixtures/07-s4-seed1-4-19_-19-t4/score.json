@@ -1,0 +1,275 @@
+{
+  "covered_tiles": 9,
+  "covered_units": 3,
+  "fight": "4-19_-19",
+  "focus": {
+    "count": 2,
+    "fraction": 0.953125,
+    "tile": [
+      2,
+      5
+    ]
+  },
+  "kind": "normal",
+  "objective": "kill_all",
+  "room_kind": "combat",
+  "section": 4,
+  "seed": 1,
+  "stacked": 2,
+  "tiles": [
+    {
+      "contents": [
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.953125,
+          "id": "pillar:3,3",
+          "tile": [
+            3,
+            3
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        2,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "Tunnel Crawler [enemy_4]"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.51171875,
+          "id": "unit:player",
+          "tile": [
+            2,
+            5
+          ]
+        },
+        {
+          "fraction": 0.19140625,
+          "id": "pillar:3,6",
+          "tile": [
+            3,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        1,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:3,3",
+          "tile": [
+            3,
+            3
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        2,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "Lob telegraph"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.1875,
+          "id": "unit:player",
+          "tile": [
+            2,
+            5
+          ]
+        },
+        {
+          "fraction": 0.30078125,
+          "id": "pillar:3,6",
+          "tile": [
+            3,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        1,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "surface fire",
+        "Lob telegraph"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.66796875,
+          "id": "unit:enemy_3",
+          "tile": [
+            3,
+            5
+          ]
+        },
+        {
+          "fraction": 0.3046875,
+          "id": "pillar:3,6",
+          "tile": [
+            3,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        2,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "pillar"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.703125,
+          "id": "unit:enemy_1",
+          "tile": [
+            4,
+            4
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "player [player]",
+        "Lob telegraph"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.1796875,
+          "id": "unit:enemy_3",
+          "tile": [
+            3,
+            5
+          ]
+        },
+        {
+          "fraction": 0.953125,
+          "id": "pillar:3,6",
+          "tile": [
+            3,
+            6
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        2,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "Lob telegraph"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:3,6",
+          "tile": [
+            3,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        2,
+        6
+      ]
+    },
+    {
+      "contents": [
+        "Chainbound Gaoler [enemy_3]",
+        "Lob telegraph"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:3,6",
+          "tile": [
+            3,
+            6
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        3,
+        5
+      ]
+    }
+  ],
+  "turn": 4,
+  "units": [
+    {
+      "fraction": 0.434245366284201,
+      "tile": [
+        1,
+        4
+      ],
+      "unit": "Tunnel Crawler [enemy_4]"
+    },
+    {
+      "fraction": 0.679316888045541,
+      "tile": [
+        2,
+        5
+      ],
+      "unit": "player [player]"
+    },
+    {
+      "fraction": 0.334858188472095,
+      "tile": [
+        3,
+        5
+      ],
+      "unit": "Chainbound Gaoler [enemy_3]"
+    }
+  ],
+  "old_stacked": 3,
+  "old_score": 18,
+  "new_score": 20,
+  "campaign": {
+    "id": "fel01-round0-diagnostic-9999",
+    "seed_directory": "fel01-census-001-seed1"
+  },
+  "composition": {
+    "boss_id": "",
+    "enemies_on_board": 3,
+    "visible_pillars": 2
+  }
+}

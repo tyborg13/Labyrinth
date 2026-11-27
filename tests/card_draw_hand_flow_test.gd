@@ -390,7 +390,7 @@ func _run_opening_hand_entry_regression() -> void:
 		_expect(is_equal_approx(float(objective_hud.get("intro_content_progress")), 1.0), "The settled objective should restore the compact icon, title, and live detail")
 		var settled_intro_text: Control = objective_hud.get("_intro_text_stack") as Control
 		_expect(settled_intro_text != null and not settled_intro_text.visible, "The separate large intro text should retire after the widget settles")
-		_expect(objective_hud.mouse_filter == Control.MOUSE_FILTER_STOP, "The settled objective should restore its existing tooltip interaction")
+		_expect(objective_hud.mouse_filter == Control.MOUSE_FILTER_STOP and objective_hud.tooltip_text.is_empty() and objective_hud.focus_mode == Control.FOCUS_NONE, "The settled objective should block board clicks without a hover or focus tooltip")
 
 	var reduced_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
 	reduced_settings["reduced_motion"] = true

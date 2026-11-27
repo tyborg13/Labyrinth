@@ -165,6 +165,7 @@ func _install_baseline_script() -> bool:
 	# and movement clocks were already identical. Preserve that exact timing.
 	source += "\nfunc begin_movement(_actor_key: String) -> bool:\n\treturn false\n\nfunc end_movement(_resume_action: bool) -> void:\n\tpass\n"
 	source += "\nfunc observe_hurry_input(_event: InputEvent) -> void:\n\tpass\n"
+	source = _with_legacy_number_contact_hooks(source)
 	var script := GDScript.new()
 	script.source_code = source
 	if not check(script.reload() == OK,"Load original pacing without changing its timings"): return false
@@ -172,6 +173,14 @@ func _install_baseline_script() -> bool:
 	run_scene.set("_combat_pacing",script.new())
 	run_scene.get("_combat_pacing").install(run_scene)
 	return true
+
+func _with_legacy_number_contact_hooks(source: String) -> String:
+	if source.contains("func number_contact_deadline("): return source
+	return source + "\nfunc number_contact_deadline(_texts: Array, _state: Dictionary) -> int:\n\treturn 0\n" + \
+		"\nfunc wait_for_number_contact(_deadline: int) -> void:\n\tpass\n" + \
+		"\nfunc plan_sampled_number_contact(_frame: int, _texts: Array, _state: Dictionary) -> void:\n\tpass\n" + \
+		"\nfunc take_sampled_number_contact() -> Dictionary:\n\treturn {}\n" + \
+		"\nfunc begin_number_action() -> void:\n\tpass\n"
 
 func _round(layout: Dictionary, initial: Dictionary, speed: String) -> void:
 	var settings: Dictionary = (run_scene.get("_settings") as Dictionary).duplicate(true)
@@ -271,7 +280,7 @@ func _validate_timeline(rows: Array, speed: String) -> void:
 		var end: float = float(row["clock_end"])
 		if phase == "caption": captions.append(row)
 		if phase == "wind-up":
-			check(start >= settle_end,"%s wind-up follows previous full feedback + settle at %s" % [row["actor"],speed])
+			check(start >= settle_end,"%s wind-up follows previous feedback hand-off and settle at %s" % [row["actor"],speed])
 			action_actors[row["actor"]] = true
 		if phase == "pre-action delay":
 			leads += 1
@@ -280,7 +289,7 @@ func _validate_timeline(rows: Array, speed: String) -> void:
 			check((end >= 0.35 and end <= 0.35 + TIMELINE_TOLERANCE_SECONDS) if first else (end-start >= 0.25 and end-start <= 0.25 + TIMELINE_TOLERANCE_SECONDS),"Caption lead is the approved duration for %s at %s" % [row["actor"],speed])
 		if phase == "post-action settle":
 			settles += 1
-			check(end-start >= 0.15 and end-start <= 0.15 + TIMELINE_TOLERANCE_SECONDS,"Full feedback is followed by 0.15 s settle at %s" % speed)
+			check(end-start >= 0.08 and end-start <= 0.08 + TIMELINE_TOLERANCE_SECONDS,"Feedback hand-off is followed by 0.08 s settle at %s" % speed)
 			settle_end = end
 		if str(row["actor"]) == "enemy_4":
 			check(phase not in ["pre-action delay","wind-up","post-action settle"],"Move-only turn has no action wait at %s" % speed)

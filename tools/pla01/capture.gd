@@ -176,7 +176,9 @@ func _warband() -> void:
 	var panel: Control = scene.call("_build_pre_battle_enemy_inspection_panel", captain, true)
 	await _shot(scene, "warband_captain", [panel], [Vector2(620, 150)], true)
 	var hud: Control = scene.get("_combat_objective_hud")
-	await _shot(scene, "warband_objective", [Panels.make_text(hud.tooltip_text)], [hud.get_global_rect().position + Vector2(0, hud.size.y + 8)], false)
+	if not hud.tooltip_text.is_empty() or hud.focus_mode != Control.FOCUS_NONE:
+		_fail("Warband Objective must skip hover and focus tooltips")
+	await _shot(scene, "warband_objective", [], [], false)
 	var command: Dictionary = await _hover(board, "Command")
 	if command.is_empty(): print("PLA-01 NOTE: no Command chip on the board (expected before pla-01)")
 	else: await _shot(scene, "warband_command_chip", [board._make_custom_tooltip(command["text"])], [command["at"] + CHIP_GAP], false)
@@ -258,7 +260,7 @@ func _shot(scene: Node, id: String, panels: Array, anchors: Array, scrim: bool) 
 		at.y = clampf(at.y, limit.position.y, limit.end.y - panel.size.y)
 		panel.global_position = at
 	# The pinned host only draws while its scrim is up (production pinning).
-	veil.show()
+	if not panels.is_empty(): veil.show()
 	for frame: int in range(SETTLE_FRAMES): await process_frame
 	for panel: Variant in panels:
 		if panel is Control: texts.append(_panel_text(panel))

@@ -1,0 +1,7 @@
+{
+  "min_images": 2,
+  "required_images": [
+    {"pattern": "halfway-full.png", "width": 1920, "height": 1080},
+    {"pattern": "loot_pickup-strip-2x.png"}
+  ]
+}

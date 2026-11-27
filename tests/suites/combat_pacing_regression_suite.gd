@@ -2,6 +2,7 @@ extends RefCounted
 
 const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
 const Pacing = preload("res://scripts/combat_pacing.gd")
+const Floating = preload("res://scripts/floating_combat_text.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Motion = preload("res://tests/suites/combat_motion_timing_suite.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
@@ -57,12 +58,13 @@ static func _run_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect
 
 static func _test_feedback_duration(expect: Callable, pacing_script: Script = Pacing) -> void:
 	var pacing: Node = pacing_script.new()
-	var texts: Array = [{"tile":Vector2i.ZERO,"text":"-1"},{"tile":Vector2i.ZERO,"text":"-2"}]
-	var authored: float = preload("res://scripts/floating_combat_text.gd").total_duration(texts)
+	var texts: Array = [Floating.damage_entry(Vector2i.ZERO, "−1", Color.WHITE), Floating.damage_entry(Vector2i.ZERO, "−2", Color.WHITE)]
+	var authored: float = Floating.total_duration(texts)
 	for enemy_phase: bool in [false,true]:
 		pacing.enemies_active = enemy_phase
 		for elapsed: float in [0.0,FEEDBACK_INITIAL_ELAPSED,authored]:
-			expect.call(is_equal_approx(pacing.feedback_duration(texts,authored,elapsed),authored),"Full authored feedback includes popup stagger (enemies=%s elapsed=%s)" % [enemy_phase,elapsed])
+			var expected: float = Floating.ANIMATION_DURATION_SECONDS * 0.64 + Floating.STAGGER_SECONDS if enemy_phase else authored
+			expect.call(is_equal_approx(pacing.feedback_duration(texts,authored,elapsed),expected),"Feedback hand-off includes popup stagger (enemies=%s elapsed=%s)" % [enemy_phase,elapsed])
 	expect.call(is_equal_approx(Pacing.ENEMY_TILE_SECONDS,0.20),"Enemy movement retains 0.20 s per tile")
 	for kind: String in ["melee","ranged","aoe","push","pull","lightning_strikes"]:
 		expect.call(Pacing.activation_has_action("actor",[{"actor_key":"actor","kind":kind}]),"Action pacing covers %s" % kind)
@@ -98,10 +100,10 @@ static func _action_waits_scoped(_globals: TestClock.GlobalScope, tree: SceneTre
 			_expect_game_wait(began,0.35/scale,expect,"First enemy shares the 0.35 s banner lead at %s reduced=%s" % [speed,reduced])
 			await pacing.before_step(action)
 			expect.call(is_equal_approx(Engine.time_scale,scale*0.80),"Enemy action uses 0.80 times combat speed at %s reduced=%s" % [speed,reduced])
-			# Retained feedback can outlive the action view. It must finish before
-			# settle, even when hit-stop/reduced motion changes real elapsed time.
+			# Retained feedback can outlive the action view. It must reach fade
+			# before settle, even when reduced motion changes the fade boundary.
 			var popup_start: int = pacing.presentation_usec()
-			pacing.get("_popups")["fixture"] = {"start":popup_start}
+			pacing.get("_popups")["fixture"] = {"start":popup_start, "reduced":reduced}
 			began = TestClock.now_usec
 			done = {"done":false}
 			_observe_feedback(pacing,action,done)
@@ -116,9 +118,10 @@ static func _action_waits_scoped(_globals: TestClock.GlobalScope, tree: SceneTre
 				else: wrong_feedback_clock = wrong_feedback_clock or not is_equal_approx(Engine.time_scale,scale*0.80)
 				await tree.process_frame
 			expect.call(done["done"], "Timeout waiting for retained feedback and settle")
-			expect.call(not wrong_feedback_clock,"Retained numbers keep the enemy action clock through their final frame")
+			expect.call(not wrong_feedback_clock,"Retained numbers keep the enemy action clock through fade start")
 			expect.call(saw_settle and not wrong_settle_clock,"Settle uses combat speed without the action multiplier")
-			_expect_game_wait(began,preload("res://scripts/floating_combat_text.gd").ANIMATION_DURATION_SECONDS/(scale*0.80)+0.15/scale,expect,"Retained feedback then settle scale at %s reduced=%s" % [speed,reduced])
+			var fade_start: float = 0.72 if reduced else 0.64
+			_expect_game_wait(began,Floating.ANIMATION_DURATION_SECONDS*fade_start/(scale*0.80)+0.08/scale,expect,"Retained feedback then settle scale at %s reduced=%s" % [speed,reduced])
 			pacing.get("_popups").clear()
 			intent["actor_key"] = "next"
 			action["actor_key"] = "next"
@@ -144,7 +147,7 @@ static func _action_waits_scoped(_globals: TestClock.GlobalScope, tree: SceneTre
 			expect.call(is_equal_approx(Engine.time_scale,1.0),"Action waits restore the original clock")
 			owner.queue_free()
 			await tree.process_frame
-	print("COMBAT PACING ACTION WAITS: full feedback/stagger/lead/settle/move-only/three speeds/reduced motion checked")
+	print("COMBAT PACING ACTION WAITS: fade start/stagger/lead/settle/move-only/three speeds/reduced motion checked")
 
 static func _observe_lead(pacing: Node, intent: Dictionary, steps: Array, done: Dictionary) -> void:
 	await pacing.before_step(intent,steps)

@@ -59,7 +59,10 @@ func _release_pacing() -> Script:
 	if not check(not ref.is_empty() and OS.execute("git", ["show", ref + ":scripts/combat_pacing.gd"], contents) == 0, "Read the requested release pacing reference"):
 		return null
 	var script := GDScript.new()
-	script.source_code = str(contents[0]).replace("class_name CombatPacing", "") + "\nfunc observe_hurry_input(_event: InputEvent) -> void:\n\tpass\n"
+	var source: String = str(contents[0]).replace("class_name CombatPacing", "")
+	if not source.contains("func observe_hurry_input("):
+		source += "\nfunc observe_hurry_input(_event: InputEvent) -> void:\n\tpass\n"
+	script.source_code = _with_legacy_number_contact_hooks(source)
 	if not check(script.reload() == OK, "Compile the release pacing reference"): return null
 	return script
 
@@ -159,6 +162,6 @@ func _scaled_phases(round: Dictionary, speed: String, hurry: float) -> Dictionar
 
 func _clocked_seconds(phase: Dictionary, speed: String, hurry: float) -> float:
 	var scale: float = SettingsStore.combat_speed_scale({"combat_speed": speed})
-	if str(phase["phase"]) in ["wind-up", "impact", "hit reaction / damage number"]:
+	if str(phase["phase"]) in ["wind-up", "impact", "hit reaction / damage number", "number contact wait"]:
 		scale *= 0.8
 	return (float(phase["clock_end"]) - float(phase["clock_start"])) / (scale * hurry)

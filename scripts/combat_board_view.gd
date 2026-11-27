@@ -34,7 +34,6 @@ const KindleView = preload("res://scripts/enemy_mechanics/kindle_view.gd")
 
 const PathUtils = preload("res://scripts/path_utils.gd")
 const TutorialPrompt = preload("res://scripts/contextual_combat_prompt.gd")
-const ScenePropRedraws = preload("res://scripts/board_scene_prop_redraws.gd")
 const PropMossGeometry = preload("res://scripts/board_prop_moss_geometry.gd")
 const BattlefieldItems = preload("res://scripts/battlefield_item_rules.gd")
 const EncounterDependencies = preload("res://scripts/maquette_cutout_runtime/dependencies.gd")
@@ -331,13 +330,9 @@ const ENEMY_HUD_SIDE_SWITCH_SCORE_MARGIN: float = 120000.0
 const ENEMY_HUD_SIDE_STICKY_OVERLAP_AREA: float = 1.0
 const ENEMY_HUD_OFFSET_X_STEPS := [0.0, -24.0, 24.0, -48.0, 48.0, -72.0, 72.0]
 const ENEMY_HUD_OFFSET_Y_STEPS := [0.0, -18.0, 18.0, -36.0, 36.0, -54.0, 54.0, -72.0, 72.0]
-const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
-const FOREGROUND_ACTOR_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.26)
-const PILLAR_ACTOR_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.32)
 const PILLAR_OBSTRUCTION_CAP_ALPHA: float = 0.54
 const PILLAR_OBSTRUCTION_BASE_ALPHA: float = 0.82
-const PILLAR_OBSTRUCTION_TORCH_ALPHA: float = 0.54
-const FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD: float = 0.25
+const PROCEDURAL_TERRAIN_REVEAL_FLOOR: float = 0.58
 const LOOT_DRAW_TILE_WIDTH_SCALE: float = 0.34
 const EQUIPMENT_LOOT_TILE_WIDTH_SCALE: float = 0.56
 const ITEM_LOOT_TILE_WIDTH_SCALE: float = 0.42
@@ -889,6 +884,9 @@ var _slice_operations: Array = []
 var _retained_commands_empty: bool = false
 var _is_dynamic_render_layer: bool = false
 var _render_layer_kind: String = ""
+var _content_floor_kinds: Dictionary = {}
+var _content_object_source: Dictionary = {}
+var _content_object_draw: Dictionary = {}
 var _render_layer_tile: Vector2i = Vector2i(-1, -1)
 var _render_layer_scene_effect_pass: int = 0
 var _render_instrumentation_owner: Node = null
@@ -2115,6 +2113,7 @@ func _static_floor_inputs(cache_size: Vector2i, pixel_transform: Transform2D) ->
 		"tile_textures": _tile_textures, "floor_textures": _floor_texture_variants,
 		"element_textures": _element_overlay_texture_variants,
 		"torch_texture": _pillar_torch_light_texture,
+		"torch_reveal_revision": 0 if _occlusion_reveal == null else _occlusion_reveal.pillar_alpha_revision,
 		"biome_light_color": _biome_light_color,
 	}
 
@@ -2661,6 +2660,8 @@ func _request_render_layer_redraw(layer: Control, clock_only: bool, refresh_scen
 			_occlusion_silhouettes.invalidate_pose(layer.get("_render_layer_tile"))
 		elif kind == RENDER_LAYER_GROUND:
 			_occlusion_silhouettes.invalidate_pose(Vector2i(-1, -1), true)
+		if kind != RENDER_LAYER_SCENE_TILE or int(layer.get("_render_layer_scene_effect_pass")) == 0:
+			_occlusion_silhouettes.redraw_content_for_layer(kind, layer.get("_render_layer_tile"))
 	if LayerRedraws.retain_empty(self, layer):
 		return
 	layer.set("_idle_elapsed", _idle_elapsed)
@@ -3431,7 +3432,6 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var previous_damage_preview: Dictionary = {}
 	var moving_actor_keys: Dictionary = {}
 	var previous_unit_render_tiles: Dictionary = {}
-	var previous_unit_obstruction_entries: Dictionary = {}
 	var previous_elemental_scene_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
 	var previous_focus_actor_keys: Array = presentation.get("focus_actor_keys", []) as Array
 	var previous_terrain_destruction_units: Array = presentation.get("terrain_destruction_units", []) as Array
@@ -3460,17 +3460,14 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			previous_units_by_key = _units_by_key(_visible_units())
 			if not focus_delta:
 				previous_unit_render_tiles = _unit_render_tiles_by_key(_visible_units())
-				previous_unit_obstruction_entries = _unit_obstruction_entries_by_key(_visible_units())
 			else:
 				# A destination echo is the only roster difference on this route.
 				for key: String in previous_units_by_key:
 					if _unit_is_preview_echo(previous_units_by_key[key]): moving_actor_keys[key] = true
 				previous_unit_render_tiles = _unit_render_tiles_for_actor_keys(_visible_units(), moving_actor_keys)
-				previous_unit_obstruction_entries = _unit_obstruction_entries_for_actor_keys(_visible_units(), moving_actor_keys)
 				moving_actor_keys.clear()
 		elif not moving_actor_keys.is_empty():
 			previous_unit_render_tiles = _unit_render_tiles_for_actor_keys(_visible_units(), moving_actor_keys)
-			previous_unit_obstruction_entries = _unit_obstruction_entries_for_actor_keys(_visible_units(), moving_actor_keys)
 	submission_phase_started = _record_submission_performance_phase("diff", submission_phase_started)
 	# Signatures consume room geometry, not unrelated HP/deck/turn changes. The
 	# exact combat diff also detects in-place edits to these room fields.
@@ -3964,7 +3961,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 				next_combat_render_source,
 				moving_actor_keys,
 				previous_unit_render_tiles,
-				previous_unit_obstruction_entries
+				{}
 			)
 		if interaction_changed:
 			_queue_interaction_change_redraws(
@@ -3982,7 +3979,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			previous_damage_preview != _damage_preview_cache,
 			moving_actor_keys,
 			previous_unit_render_tiles,
-			previous_unit_obstruction_entries,
+			{},
 			previous_elemental_scene_tiles,
 			next_elemental_scene_tiles,
 			previous_focus_actor_keys,
@@ -4008,7 +4005,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_rebuild_hud_health_rects_cache()
 		_sync_dynamic_render_state(false, false, ["_foreground_obstruction_entries_cache", "_foreground_obstruction_geometry_inputs", "_hud_health_rects_cache", "_hud_layout_entries_cache"])
 		_queue_render_layer_redraw(_hud_render_layer)
-		_queue_moving_actor_redraws(registration_changes, previous_unit_render_tiles, previous_unit_obstruction_entries)
+		_queue_moving_actor_redraws(registration_changes, previous_unit_render_tiles, {})
 	if _pixel_ground_enabled:
 		var field_changed: bool = (
 			layout_changed or floor_changed or _pixel_ground.field.seed != int(combat_state.get("fight_seed", 0))
@@ -4313,7 +4310,6 @@ func _queue_presentation_change_redraws(
 				hud_changed = true
 			"scene_props":
 				_queue_scene_tiles_for_presentation_entries(previous_scene_props, next_scene_props, "tile")
-				ScenePropRedraws.queue_obstruction_changes(self, previous_scene_props, next_scene_props)
 				_queue_render_layer_redraw(_ambient_render_layer)
 				foreground_changed = true
 			"protagonist_motion":
@@ -4538,7 +4534,6 @@ func _queue_combat_state_change_redraws(
 			break
 	if changed_keys.has("terrain"):
 		_queue_scene_tiles_for_state_entries(previous_source.get("terrain", []) as Array, next_source.get("terrain", []) as Array)
-		ScenePropRedraws.queue_terrain_obstruction_changes(self, previous_source.get("terrain", []) as Array, next_source.get("terrain", []) as Array)
 		_queue_render_layer_redraw(_hud_render_layer)
 	if changed_keys.has("loot"):
 		_queue_render_layer_redraw(_ground_render_layer)
@@ -4589,31 +4584,15 @@ func _queue_elemental_scene_depth_redraws(previous_tiles: Array, next_tiles: Arr
 func _queue_moving_actor_redraws(
 	moving_actor_keys: Dictionary,
 	previous_unit_render_tiles: Dictionary,
-	previous_unit_obstruction_entries: Dictionary
+	_previous_unit_obstruction_entries: Dictionary
 ) -> void:
 	if moving_actor_keys.is_empty(): return
 	var current_render_tiles: Dictionary = _unit_render_tiles_for_actor_keys(_visible_units(), moving_actor_keys)
-	var current_obstruction_entries: Dictionary = _unit_obstruction_entries_for_actor_keys(_visible_units(), moving_actor_keys)
-	var previous_moving_entries: Array = []
-	var current_moving_entries: Array = []
-	for actor_key_var: Variant in moving_actor_keys:
-		var actor_key: String = str(actor_key_var)
+	for actor_key: String in moving_actor_keys:
 		if previous_unit_render_tiles.has(actor_key):
-			_queue_scene_render_layer_for_tile(previous_unit_render_tiles.get(actor_key, Vector2i(-1, -1)))
+			_queue_scene_render_layer_for_tile(previous_unit_render_tiles[actor_key])
 		if current_render_tiles.has(actor_key):
-			_queue_scene_render_layer_for_tile(current_render_tiles.get(actor_key, Vector2i(-1, -1)))
-		if previous_unit_obstruction_entries.has(actor_key):
-			previous_moving_entries.append(previous_unit_obstruction_entries.get(actor_key))
-		if current_obstruction_entries.has(actor_key):
-			current_moving_entries.append(current_obstruction_entries.get(actor_key))
-	if previous_moving_entries == current_moving_entries: return
-	for candidate_var: Variant in _foreground_obstruction_candidates():
-		var candidate: Dictionary = candidate_var as Dictionary
-		if (
-			_moving_entries_obstruct_candidate(previous_moving_entries, candidate)
-			!= _moving_entries_obstruct_candidate(current_moving_entries, candidate)
-		):
-			_queue_scene_render_layer_for_tile(candidate.get("tile", Vector2i(-1, -1)))
+			_queue_scene_render_layer_for_tile(current_render_tiles[actor_key])
 
 func _foreground_obstruction_candidates() -> Array:
 	if _foreground_obstruction_candidates_cache_valid:
@@ -4656,8 +4635,6 @@ func _foreground_obstruction_candidates() -> Array:
 		var moss: Dictionary = PropMossGeometry.for_tile(self, tile_id, grid, tile)
 		if not moss.is_empty():
 			candidates.append(moss)
-		# Pillar torch fixtures, halos and embers inherit the body rectangle's
-		# tint (then apply their alpha floor); they have no separate tint input.
 		for terrain_var: Variant in _entries_for_tile(_terrain_by_tile, combat_state.get("terrain", []), "pos", tile):
 			if typeof(terrain_var) != TYPE_DICTIONARY:
 				continue
@@ -4677,20 +4654,6 @@ func _foreground_obstruction_candidates() -> Array:
 	_foreground_obstruction_candidates_cache = candidates
 	_foreground_obstruction_candidates_cache_valid = true
 	return _foreground_obstruction_candidates_cache
-
-func _moving_entries_obstruct_candidate(moving_entries: Array, candidate: Dictionary) -> bool:
-	var candidate_tile: Vector2i = candidate.get("tile", Vector2i(-1, -1))
-	var candidate_rect: Rect2 = candidate.get("rect", Rect2())
-	for entry_var: Variant in moving_entries:
-		if typeof(entry_var) != TYPE_DICTIONARY:
-			continue
-		var entry: Dictionary = entry_var as Dictionary
-		var entry_tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
-		if not _tile_draws_before(entry_tile, candidate_tile):
-			continue
-		if _foreground_overlap_coverage(candidate_rect, entry.get("rect", Rect2())) >= FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD:
-			return true
-	return false
 
 func _update_umbra_return_transition(previous_state: Dictionary, previous_presentation: Dictionary, next_state: Dictionary, next_presentation: Dictionary, layout_changed: bool) -> void:
 	if layout_changed or str(next_presentation.get("umbra_stage", "clear")) == "clear":
@@ -5176,6 +5139,13 @@ func _occlusion_reveal_tint(category: String, tile: Vector2i, tint: Color) -> Co
 func _queue_occlusion_reveal_redraw(tile: Vector2i) -> void:
 	_queue_render_layer_redraw(_scene_render_layers_by_tile.get(tile, null) as Control, true)
 
+func _queue_pillar_torch_reveal_redraw() -> void:
+	_queue_render_layer_redraw(_foreground_render_layer, true)
+	if _static_render_cache_enabled:
+		_sync_static_render_cache()
+	else:
+		queue_redraw()
+
 func controller_navigable_tiles(include_visible_doors: bool = false, legal_targets: Variant = null) -> Array[Vector2i]:
 	var result: Array[Vector2i]
 	var grid: Array = combat_state.get("grid", [])
@@ -5565,6 +5535,13 @@ func _draw_board_commands() -> void:
 		_draw_static_board_contents()
 		return
 	if _is_dynamic_render_layer:
+		match _render_layer_kind:
+			"content_show_through", "content_show_through_floor":
+				_draw_content_show_through()
+				return
+			"content_show_through_object":
+				_draw_content_show_through_object()
+				return
 		if _render_layer_kind == "unit_throw_shadow":
 			preload("res://scripts/displacement_throw.gd").draw_ground_shadow(self, _unit_outline_actor)
 			return
@@ -5936,7 +5913,33 @@ func _draw_isolated_chain(threat: Dictionary) -> void:
 func _build_threat_scene_operations() -> void:
 	preload("res://scripts/board_threat_isolation_paint.gd").scene(self)
 
-func _draw_isolated_props(tile: Vector2i) -> void:
+func _draw_content_show_through() -> void:
+	var tile: Vector2i = _render_layer_tile
+	if not _board_tile_is_visible_to_player(tile): return
+	if _render_layer_kind == "content_show_through_floor":
+		_draw_floor_tile(combat_state.get("grid", []), tile)
+		return
+	var owner: Control = _render_instrumentation_owner
+	if _content_floor_kinds.has("surface") and not owner._pixel_ground_enabled:
+		var time: float = float(presentation.get("ambient_time_seconds", preload("res://scripts/presentation_clock.gd").ticks_msec() / 1000.0))
+		BoardSurfacePresentation.draw_tile(self, combat_state, tile, _tile_center(tile), _tile_width(),
+			time, bool(presentation.get("reduced_motion", false)), false)
+	if _content_floor_kinds.has("exit"): _draw_exit_threshold_floor(tile, _tile_polygon(tile))
+	if _content_floor_kinds.has("refuge"): _draw_noctyrax_refuge_tile(tile)
+	_tooltip_regions.clear()
+	_tile_tooltip_regions.clear()
+
+func _draw_content_show_through_object() -> void:
+	if _content_object_draw.is_empty(): return
+	var texture: Texture2D = _content_object_draw["texture"]
+	var rect: Rect2 = _content_object_draw["rect"]
+	if _content_object_source["kind"] == "trap":
+		draw_texture_rect(texture, rect, false, _trap_visual_modulate(_content_object_source["data"]))
+	else:
+		var profile: int = CombatArtTreatment.EMISSIVE if _content_object_source["data"].get("id") == BoardOcclusionSources.DEATH_SITE_ID else CombatArtTreatment.PROP
+		_draw_world_texture(texture, rect, Color.WHITE, profile)
+
+func _draw_isolated_props(tile: Vector2i, include_loot: bool = true) -> void:
 	# Isolation paint can be queued for a tile of a board that has since been
 	# replaced or cleared; only draw tiles inside the current grid.
 	var grid: Array = combat_state.get("grid", [])
@@ -5944,7 +5947,7 @@ func _draw_isolated_props(tile: Vector2i) -> void:
 		return
 	_prop_command_cache.begin_draw()
 	_draw_scene_props_for_tile(tile, _foreground_obstruction_entries_cache)
-	_draw_tile_props(combat_state.get("grid", []), tile, _foreground_obstruction_entries_cache)
+	_draw_tile_props(grid, tile, _foreground_obstruction_entries_cache, include_loot)
 	_prop_command_cache.end_draw()
 
 func _draw_isolated_path(entry: Array, tile: Vector2i) -> void:
@@ -7012,25 +7015,12 @@ func _noctyrax_brazier_tether_hits_rect(start: Vector2, end: Vector2, rect: Rect
 	return enter <= leave
 
 func _draw_noctyrax_refuge_tile(tile: Vector2i) -> void:
-	var snuffed_id: int = -1
-	var has_noctyrax: bool = false
-	for enemy: Dictionary in combat_state.get("enemies", []):
-		if str(enemy.get("type", "")) != "noctyrax" or int(enemy.get("hp", 0)) <= 0: continue
-		has_noctyrax = true
-		for action: Dictionary in (enemy.get("intent", {}) as Dictionary).get("actions", []):
-			if bool(action.get("snuff_brazier",false)): snuffed_id = int(action.get("brazier_id",-1))
-	if not has_noctyrax: return
-	for brazier: Dictionary in combat_state.get("guardian_braziers", []):
-		if not bool(brazier.get("lit", true)) or int(brazier.get("id", -1)) == snuffed_id: continue
-		var center: Vector2i = brazier["pos"]
-		if absi(tile.x - center.x) + absi(tile.y - center.y) > 2: continue
-		if not preload("res://scripts/path_utils.gd").is_passable(combat_state.get("grid", []), tile): continue
-		var polygon: PackedVector2Array = _tile_polygon(tile)
-		var directions: Array[Vector2i] = TypedArrays.vector2i([Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT])
-		for index: int in range(4):
-			var neighbor: Vector2i = tile + directions[index]
-			if absi(neighbor.x - center.x) + absi(neighbor.y - center.y) <= 2: continue
-			draw_line(polygon[index], polygon[(index + 1) % 4], Color(1.0, 0.83, 0.38, 0.88), 2.0, true)
+	var centers: Array[Vector2i] = BoardOcclusionSources.noctyrax_refuge_centers(combat_state)
+	var edges: PackedInt32Array = BoardOcclusionSources.noctyrax_refuge_edges(combat_state.get("grid", []), tile, centers)
+	if edges.is_empty(): return
+	var polygon: PackedVector2Array = _tile_polygon(tile)
+	for index: int in edges:
+		draw_line(polygon[index], polygon[(index + 1) % 4], Color(1.0, 0.83, 0.38, 0.88), 2.0, true)
 
 func _draw_noctyrax_brazier_markers() -> void:
 	var font: Font = get_theme_default_font()
@@ -8439,7 +8429,7 @@ func _draw_floor_tile(grid: Array, tile: Vector2i) -> void:
 		var tile_height: float = _tile_height()
 		var rect := Rect2(_tile_center(tile) - Vector2(tile_width * 0.5, tile_height * 0.5), Vector2(tile_width, tile_height))
 		_draw_world_texture(texture, rect, Color.WHITE, CombatArtTreatment.FLOOR)
-	_draw_floor_moss_overlay(tile)
+	if _render_layer_kind != "content_show_through_floor": _draw_floor_moss_overlay(tile)
 	_draw_pillar_torch_floor_light(grid, tile, polygon)
 	_draw_floor_contact_shading(grid, tile, polygon)
 	draw_polyline(polygon, GRID_OUTLINE, 2.0, true)
@@ -8463,7 +8453,8 @@ func _draw_pillar_torch_floor_light(grid: Array, tile: Vector2i, polygon: Packed
 			var uvs := PackedVector2Array()
 			for point: Vector2 in polygon:
 				uvs.append((point - light_origin) / light_size)
-			draw_polygon(polygon, PackedColorArray([light_color]), uvs, _pillar_torch_light_texture)
+			var source_color := Color(light_color, light_color.a * _pillar_torch_alpha(source_tile))
+			draw_polygon(polygon, PackedColorArray([source_color]), uvs, _pillar_torch_light_texture)
 
 func _draw_floor_tile_depth(tile: Vector2i) -> void:
 	var faces: Array[PackedVector2Array] = _tile_depth_faces(tile)
@@ -8568,12 +8559,7 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	# A Warband's Command glow centres on its captain and the crest names it.
 	if tile == presentation.get("objective_leader_tile", Vector2i(-1, -1)) and not WarbandRules.active(combat_state):
 		_slice_op("_draw_objective_leader_beacon", [tile])
-	if _objective_exit_tiles_lookup_cache.has(tile):
-		LayerSlices.objective_operations(self, tile, polygon)
-	if exit_tiles.has(tile):
-		_slice_op("draw_colored_polygon", [polygon, EXIT_HIGHLIGHT])
-		if bool(presentation.get("pulse_exit_tiles", false)):
-			_slice_op("_draw_exit_tile_pulse", [tile], true)
+	_draw_exit_threshold_floor(tile, polygon)
 	if _confirmation_target_tiles_lookup_cache.has(tile):
 		_slice_op("draw_colored_polygon", [polygon, EXIT_HIGHLIGHT])
 		_slice_op("_draw_exit_tile_pulse", [tile], true)
@@ -8631,6 +8617,14 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		_threat_slice_keys = LayerSlices.tile_keys(self, tile)
 		LayerSlices.lifted_threat_operations(self, tile, polygon, _overlay_draw_sources)
 		_threat_slice_keys.clear()
+
+func _draw_exit_threshold_floor(tile: Vector2i, polygon: PackedVector2Array) -> void:
+	if _objective_exit_tiles_lookup_cache.has(tile):
+		LayerSlices.objective_operations(self, tile, polygon)
+	if exit_tiles.has(tile):
+		_slice_op("draw_colored_polygon", [polygon, EXIT_HIGHLIGHT])
+		if bool(presentation.get("pulse_exit_tiles", false)):
+			_slice_op("_draw_exit_tile_pulse", [tile], true)
 
 func _draw_ground_focus_tile(tile: Vector2i, polygon: PackedVector2Array, hover_tile: Vector2i, controller_tile: Vector2i) -> void:
 	if tile == hover_tile and controller_tile.x < 0:
@@ -8879,26 +8873,29 @@ func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
 	var death_site_embers: Dictionary = presentation.get("death_site_embers", {}) as Dictionary
 	var death_site_tile: Vector2i = death_site_embers.get("tile", Vector2i(-1, -1))
 	for tile: Vector2i in tiles:
-		if tile == death_site_tile:
-			_draw_death_site_embers(tile)
-		if not _board_tile_is_visible_to_player(tile):
+		_draw_ground_items_for_tile(tile, tile == death_site_tile)
+
+func _draw_ground_items_for_tile(tile: Vector2i, has_death_site: bool) -> void:
+	if has_death_site:
+		_draw_death_site_embers(tile)
+	if not _board_tile_is_visible_to_player(tile):
+		return
+	for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
+		if typeof(loot_var) != TYPE_DICTIONARY:
 			continue
-		for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
-			if typeof(loot_var) != TYPE_DICTIONARY:
-				continue
-			var loot: Dictionary = loot_var
-			if bool(loot.get("claimed", false)) or not _loot_renders_below_path(loot):
-				continue
-			var loot_texture: Texture2D = _loot_texture(loot)
-			if loot_texture == null:
-				continue
-			var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture, loot)
-			_draw_loot_contact_shadow(tile, loot_rect, loot_texture, false)
-			_draw_world_texture(loot_texture, loot_rect)
-			_register_tile_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot), tile)
-		for trap_var: Variant in _entries_for_tile(_traps_by_tile, combat_state.get("traps", []), "pos", tile):
-			if typeof(trap_var) == TYPE_DICTIONARY:
-				_draw_trap_marker(trap_var as Dictionary)
+		var loot: Dictionary = loot_var
+		if bool(loot.get("claimed", false)) or not _loot_renders_below_path(loot):
+			continue
+		var loot_texture: Texture2D = _loot_texture(loot)
+		if loot_texture == null:
+			continue
+		var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture, loot)
+		_draw_loot_contact_shadow(tile, loot_rect, loot_texture, false)
+		_draw_world_texture(loot_texture, loot_rect)
+		_register_tile_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot), tile)
+	for trap_var: Variant in _entries_for_tile(_traps_by_tile, combat_state.get("traps", []), "pos", tile):
+		if typeof(trap_var) == TYPE_DICTIONARY:
+			_draw_trap_marker(trap_var as Dictionary)
 
 func _draw_death_site_embers(tile: Vector2i) -> void:
 	var texture: Texture2D = _loot_textures.get("dropped_embers", null) as Texture2D
@@ -9164,13 +9161,13 @@ func _draw_prop_moss_overlay(tile_id: String, grid: Array, tile: Vector2i, obstr
 	var moss_rect: Rect2 = moss["rect"]
 	_draw_world_texture(moss["texture"], moss_rect, _occlusion_reveal_tint(moss["tile_id"], tile, _foreground_blocker_tint(moss["tile_id"], tile, moss_rect, obstruction_entries)), CombatArtTreatment.STONE)
 
-func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = []) -> void:
+func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = [], include_loot: bool = true) -> void:
 	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
 	if tile_id == "wall" and not _is_outer_boundary_tile(grid, tile):
 		tile_id = "pillar"
 	if tile_id in ["pillar", "wall"]:
 		_prop_command_cache.paint(self, "stone", [tile_id, tile, Vector2i((grid[0] as Array).size(), grid.size()), _tile_width(), _board_origin(),
-			obstruction_entries, _moss_signature, combat_state.get("room_coord", Vector2i.ZERO),
+			_moss_signature, combat_state.get("room_coord", Vector2i.ZERO),
 			combat_state.get("room_element", ""), _tile_paint_inputs.stone_textures(self, tile_id, grid, tile),
 			_art_treatment != null, _art_treatment_enabled, _occlusion_reveal_tint(tile_id, tile, Color.WHITE).a], _draw_tile_stone_props.bind(grid, tile, tile_id, obstruction_entries))
 	else:
@@ -9179,7 +9176,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 		var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
 		if pillar_texture != null:
 			var pillar_rect: Rect2 = _prop_draw_rect(pillar_texture, _prop_rect_for_tile(tile))
-			_draw_pillar_torch_fixtures(tile_id, tile, pillar_rect, obstruction_entries)
+			_draw_pillar_torch_fixtures(tile, pillar_rect)
 	for terrain_var: Variant in _entries_for_tile(_terrain_by_tile, combat_state.get("terrain", []), "pos", tile):
 		if typeof(terrain_var) != TYPE_DICTIONARY:
 			continue
@@ -9198,6 +9195,9 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 		if not _board_tile_is_visible_to_player(tile):
 			continue
 		_draw_terrain_destruction(destroyed_terrain, obstruction_entries)
+	if include_loot: _draw_tile_floating_loot(tile)
+
+func _draw_tile_floating_loot(tile: Vector2i) -> void:
 	for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
 		if typeof(loot_var) != TYPE_DICTIONARY:
 			continue
@@ -9287,14 +9287,12 @@ func _draw_pillar_body(texture: Texture2D, rect: Rect2, tint: Color) -> void:
 		else:
 			CombatArtTreatment.draw_polygon(self, points, PackedColorArray([top_color, top_color, bottom_color, bottom_color]), uvs, draw_texture, CombatArtTreatment.STONE)
 
-func _pillar_torch_tint(tint: Color) -> Color:
-	# Flame, fixture, halo and embers share one floor; floor lighting already
-	# persists independently. Do not wash out the small warm light with the shaft.
-	return Color(tint, maxf(tint.a, PILLAR_OBSTRUCTION_TORCH_ALPHA))
+func _pillar_torch_alpha(tile: Vector2i) -> float:
+	# The shaft, fixture, flame and emitted light share the reveal multiplier.
+	return _occlusion_reveal_tint("pillar", tile, Color.WHITE).a
 
-func _draw_pillar_torch_fixtures(tile_id: String, tile: Vector2i, pillar_rect: Rect2, obstruction_entries: Array) -> void:
-	# Like the cap band, torches keep their readable floor on a revealed shaft.
-	var tint: Color = _pillar_torch_tint(_occlusion_reveal_tint("pillar", tile, _torch_placements.tint(self, tile, pillar_rect, obstruction_entries)))
+func _draw_pillar_torch_fixtures(tile: Vector2i, pillar_rect: Rect2) -> void:
+	var tint := Color(Color.WHITE, _pillar_torch_alpha(tile))
 	var left_texture: Texture2D = _pillar_torch_texture("left")
 	var right_texture: Texture2D = _pillar_torch_texture("right")
 	if left_texture != null:
@@ -9350,24 +9348,18 @@ func _pillar_torch_rect(pillar_rect: Rect2, texture: Texture2D, side_sign: float
 		return Rect2(Vector2(anchor_x - draw_width * 0.84, top_y), Vector2(draw_width, draw_height))
 	return Rect2(Vector2(anchor_x - draw_width * 0.16, top_y), Vector2(draw_width, draw_height))
 
-func _draw_pillar_torch_ember_motes(tiles: Array[Vector2i], units_to_draw: Array[Dictionary]) -> void:
+func _draw_pillar_torch_ember_motes(tiles: Array[Vector2i], _units_to_draw: Array[Dictionary]) -> void:
 	if tiles.is_empty() or not _pillar_torch_ember_motes_active():
 		return
 	var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
 	if pillar_texture == null:
 		return
 	var time_seconds: float = float(presentation.get("torch_mote_proof_seconds", float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0))
-	# Content bindings alone do not validate geometry: a fit/UI-scale change
-	# can retain the same actors and props. Fall back to the original draw-time
-	# calculation until the shared cache is rebuilt for this resolved layout.
-	var reuse_obstructions: bool = _submission_cache_valid and _foreground_obstruction_geometry_inputs == _foreground_obstruction_layout_inputs()
-	var obstruction_entries: Array[Dictionary] = _foreground_obstruction_entries_cache if reuse_obstructions else _foreground_obstruction_entries(units_to_draw)
 	_torch_mote_materials_for_draw = _torch_mote_materials()
 	for placement: Dictionary in _torch_placements.resolve(self, tiles, pillar_texture):
 		var tile: Vector2i = placement["tile"]
 		var pillar_rect: Rect2 = placement["rect"]
-		var tint: Color = _torch_placements.tint(self, tile, pillar_rect, obstruction_entries)
-		var tint_alpha: float = clampf(tint.a, 0.0, 1.0)
+		var tint_alpha: float = _pillar_torch_alpha(tile)
 		_draw_pillar_torch_ember_motes_for_side(tile, pillar_rect, "left", -1.0, tint_alpha, time_seconds)
 		_draw_pillar_torch_ember_motes_for_side(tile, pillar_rect, "right", 1.0, tint_alpha, time_seconds)
 	_torch_mote_materials_for_draw = []
@@ -9470,54 +9462,11 @@ func _tile_renders_as_pillar(grid: Array, tile: Vector2i) -> bool:
 	return tile_id == "pillar"
 
 func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2, obstruction_entries: Array) -> Color:
-	if _is_dynamic_render_layer and _render_layer_kind == RENDER_LAYER_SCENE_TILE:
-		return _scene_tile_preparation.tint(self, tile_id, tile, prop_rect, obstruction_entries)
 	return _foreground_blocker_tint_uncached(tile_id, tile, prop_rect, obstruction_entries)
 
-func _foreground_blocker_tint_uncached(tile_id: String, tile: Vector2i, prop_rect: Rect2, obstruction_entries: Array) -> Color:
-	if not _is_tall_obstructive_tile(tile_id):
-		return Color.WHITE
-	var tint: Color = Color.WHITE
-	for entry_var: Variant in obstruction_entries:
-		if typeof(entry_var) != TYPE_DICTIONARY:
-			continue
-		var entry: Dictionary = entry_var
-		var entry_tile: Vector2i = entry.get("tile", entry.get("pos", Vector2i(-1, -1)))
-		if entry_tile.x < 0 or entry_tile.y < 0:
-			continue
-		if not _tile_draws_before(entry_tile, tile):
-			continue
-		var entry_rect: Rect2 = entry.get("rect", Rect2())
-		if entry_rect == Rect2() and not entry.has("rect"):
-			entry_rect = _unit_draw_rect(entry)
-		if _foreground_overlap_coverage(prop_rect, entry_rect) >= FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD:
-			# Several translucent foreground props can still bury a character.
-			# Preserve more of the actor silhouette while keeping ordinary object
-			# obstruction at its established opacity and retaining board depth.
-			if not str(entry.get("actor_key", entry.get("key", ""))).is_empty():
-				return PILLAR_ACTOR_OBSTRUCTION_TINT if tile_id == "pillar" else FOREGROUND_ACTOR_OBSTRUCTION_TINT
-			tint = FOREGROUND_OBSTRUCTION_TINT
-	return tint
-
-func _foreground_overlap_coverage(foreground_rect: Rect2, covered_rect: Rect2) -> float:
-	if foreground_rect.size.x <= 0.0 or foreground_rect.size.y <= 0.0:
-		return 0.0
-	if covered_rect.size.x <= 0.0 or covered_rect.size.y <= 0.0:
-		return 0.0
-	if not foreground_rect.intersects(covered_rect, true):
-		return 0.0
-	var left: float = maxf(foreground_rect.position.x, covered_rect.position.x)
-	var top: float = maxf(foreground_rect.position.y, covered_rect.position.y)
-	var right: float = minf(foreground_rect.position.x + foreground_rect.size.x, covered_rect.position.x + covered_rect.size.x)
-	var bottom: float = minf(foreground_rect.position.y + foreground_rect.size.y, covered_rect.position.y + covered_rect.size.y)
-	var intersection_size: Vector2 = Vector2(maxf(0.0, right - left), maxf(0.0, bottom - top))
-	var covered_area: float = covered_rect.size.x * covered_rect.size.y
-	if covered_area <= 0.0:
-		return 0.0
-	return (intersection_size.x * intersection_size.y) / covered_area
-
-func _is_tall_obstructive_tile(tile_id: String) -> bool:
-	return tile_id in ["pillar", "wall", "door", "scene_prop", "terrain"]
+func _foreground_blocker_tint_uncached(_tile_id: String, _tile: Vector2i, _prop_rect: Rect2, _obstruction_entries: Array) -> Color:
+	# Overlap changes the x-ray ink, while the regular painter pass stays solid.
+	return Color.WHITE
 
 func _prop_rect_for_tile(tile: Vector2i) -> Rect2:
 	var center: Vector2 = _tile_center(tile)
@@ -9931,8 +9880,8 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 			[tile, texture, terrain_rect, tint, _tile_width(), _tile_center(tile), _art_treatment != null, _art_treatment_enabled],
 			_draw_ordinary_terrain_body.bind(tile, texture, terrain_rect, tint))
 	if terrain_kind in ["crag_outcrop","dragon_spire"]:
-		tint.a = maxf(tint.a,0.58)
-		var rise: float = preload("res://scripts/combat_outcome_feedback.gd").outcrop_progress(presentation.get("surface_feedback_events",[]),str(terrain.get("id","")),float(((presentation.get("throw_surface_frames", presentation.get("combat_feel_surface_frames",{})) as Dictionary).get(terrain.get("pos",Vector2i(-1,-1)),{}) as Dictionary).get("progress",presentation.get("surface_feedback_progress",1.0))),bool(presentation.get("reduced_motion",false)))
+		tint.a = maxf(tint.a, PROCEDURAL_TERRAIN_REVEAL_FLOOR)
+		var rise: float = _procedural_terrain_rise(terrain)
 		_prop_command_cache.paint(self, "terrain:" + str(terrain.get("id", tile)),
 			[tile, terrain_rect, terrain_kind, rise, tint.a, _tile_width(), _tile_center(tile), _art_treatment != null, _art_treatment_enabled],
 			_draw_procedural_terrain_body.bind(tile, terrain_rect, terrain_kind, rise, tint.a))
@@ -9942,6 +9891,14 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 
 func _capture_prop_command(command: Array) -> void:
 	_prop_command_cache.commands.append(command)
+
+func _procedural_terrain_rise(terrain: Dictionary) -> float:
+	var frames: Dictionary = presentation.get("throw_surface_frames", presentation.get("combat_feel_surface_frames", {}))
+	var frame: Dictionary = frames.get(terrain.get("pos", Vector2i(-1, -1)), {})
+	return preload("res://scripts/combat_outcome_feedback.gd").outcrop_progress(
+		presentation.get("surface_feedback_events", []), str(terrain.get("id", "")),
+		float(frame.get("progress", presentation.get("surface_feedback_progress", 1.0))),
+		bool(presentation.get("reduced_motion", false)))
 
 func _draw_procedural_terrain_body(tile: Vector2i, rect: Rect2, kind: String, rise: float, opacity: float) -> void:
 	_draw_rect_ground_shadow(tile, rect, 0.70, 0.24, 0.16)
@@ -9978,7 +9935,7 @@ func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array =
 	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
 	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
 	var progress: float = clampf(float(terrain.get("destruction_progress", 0.0)), 0.0, 1.0)
-	if terrain_kind in ["crag_outcrop","dragon_spire"]: tint.a = maxf(tint.a,0.58)
+	if terrain_kind in ["crag_outcrop","dragon_spire"]: tint.a = maxf(tint.a, PROCEDURAL_TERRAIN_REVEAL_FLOOR)
 	tint.a *= 1.0 - smoothstep(0.84, 1.0, progress)
 	if progress < 0.84:
 		_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
@@ -12560,7 +12517,7 @@ func _draw_impact_decal(tile: Vector2i, element_id: String, kind: String, seed: 
 		ElementData.EARTH:
 			_draw_earth_impact_decal(center, seed, scale, alpha, progress)
 		_:
-			_draw_neutral_impact_decal(center, seed, scale, alpha)
+			pass
 
 func _draw_fire_impact_decal(center: Vector2, _seed: int, scale: float, alpha: float, phase: float = 0.0) -> void:
 	ElementalSpellFx.ground(self, "fire", center, _tile_width() * scale, 0.38 if bool(presentation.get("reduced_motion", false)) else phase, alpha)
@@ -12576,37 +12533,6 @@ func _draw_air_impact_decal(center: Vector2, _seed: int, scale: float, alpha: fl
 
 func _draw_earth_impact_decal(center: Vector2, _seed: int, scale: float, alpha: float, phase: float = 0.0) -> void:
 	ElementalSpellFx.ground(self, "earth", center, _tile_width() * scale, 0.38 if bool(presentation.get("reduced_motion", false)) else phase, alpha)
-
-func _draw_neutral_impact_decal(center: Vector2, seed: int, scale: float, alpha: float) -> void:
-	var tile_width: float = _tile_width()
-	var tile_height: float = _tile_height()
-	_draw_impact_ellipse(center, tile_width * 0.44 * scale, tile_height * 0.52 * scale, tile_width * 0.04, Color(0.09, 0.07, 0.05, 0.34 * alpha))
-	_draw_impact_ellipse_outline(center, tile_width * 0.54 * scale, tile_height * 0.62 * scale, tile_width * 0.05, Color(0.72, 0.56, 0.35, 0.34 * alpha), 1.5)
-	_draw_impact_radial_marks(center, seed, 7, Color(0.78, 0.62, 0.42, 0.46 * alpha), tile_width * 0.07 * scale, tile_width * 0.25 * scale, 0.44, 1.7)
-
-func _draw_impact_ellipse(center: Vector2, width: float, height: float, skew: float, color: Color) -> void:
-	draw_colored_polygon(_impact_ellipse_points(center, width, height, skew), color)
-
-func _draw_impact_ellipse_outline(center: Vector2, width: float, height: float, skew: float, color: Color, line_width: float) -> void:
-	draw_polyline(_impact_ellipse_points(center, width, height, skew), color, line_width, true)
-
-func _impact_ellipse_points(center: Vector2, width: float, height: float, skew: float) -> PackedVector2Array:
-	var points := PackedVector2Array()
-	var segments: int = 28
-	for idx: int in range(segments + 1):
-		var angle: float = TAU * float(idx) / float(segments)
-		var unit_y: float = sin(angle)
-		points.append(center + Vector2(cos(angle) * width * 0.5 + unit_y * skew, unit_y * height * 0.5))
-	return points
-
-func _draw_impact_radial_marks(center: Vector2, seed: int, count: int, color: Color, inner_radius: float, outer_radius: float, y_scale: float, line_width: float) -> void:
-	for idx: int in range(count):
-		var angle: float = _ambient_hash01(seed + idx * 13) * TAU
-		var direction := Vector2(cos(angle), sin(angle) * y_scale)
-		if direction.length_squared() <= 0.001:
-			continue
-		direction = direction.normalized()
-		draw_line(center + direction * inner_radius, center + direction * outer_radius, color, line_width, true)
 
 func _impact_decal_seed(tile: Vector2i, element_id: String, kind: String) -> int:
 	return tile.x * 92821 + tile.y * 68917 + _impact_element_seed(element_id) * 3571 + kind.length() * 197

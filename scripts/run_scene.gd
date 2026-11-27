@@ -22864,6 +22864,8 @@ func _animate_floating_text_presentation(
 	var base_decals: Array = (base_presentation.get("impact_decals", []) as Array).duplicate(true)
 	var trap_effects: Array = (base_presentation.get("trap_effects", []) as Array).duplicate(true)
 	var terrain_destruction_units: Array = (base_presentation.get("terrain_destruction_units", []) as Array).duplicate(true)
+	var reduced_motion: bool = _reduced_motion_enabled()
+	var surface_feedback_seconds: float = 0.36
 	var use_player_timeline: bool = (
 		overlap_with_next_action
 		and _player_popup_timeline_active
@@ -22878,14 +22880,22 @@ func _animate_floating_text_presentation(
 	)
 	if hold_effect_beat:
 		duration_seconds = FloatingCombatText.ACTION_ADVANCE_SECONDS if use_player_timeline else FloatingCombatText.ANIMATION_DURATION_SECONDS
-	duration_seconds = _combat_pacing.feedback_duration(base_texts, duration_seconds, initial_elapsed_seconds)
+	if not hold_effect_beat and base_decals.is_empty() and trap_effects.is_empty() and terrain_destruction_units.is_empty():
+		var number_duration: float = _combat_pacing.feedback_duration(base_texts, duration_seconds, initial_elapsed_seconds)
+		# Inline ground changes keep their existing completion point.
+		var surface_duration: float = 0.0
+		if base_presentation.has("surface_feedback_events"):
+			surface_duration = duration_seconds if reduced_motion else minf(duration_seconds, surface_feedback_seconds)
+		duration_seconds = maxf(number_duration, surface_duration)
 	duration_seconds = preload("res://scripts/enemy_mechanics/burst_fx.gd").feedback_duration(base_presentation, duration_seconds)
 	if base_texts.is_empty() and not hold_effect_beat and base_decals.is_empty() and trap_effects.is_empty() and not base_presentation.has("surface_feedback_events") and not base_presentation.has("en01_burst"):
 		_render_board_state(display_state, base_presentation)
 		if on_contact.is_valid(): on_contact.call()
 		await get_tree().create_timer(duration_seconds).timeout
 		return
-	var reduced_motion: bool = _reduced_motion_enabled()
+	if _combat_pacing.enemies_active:
+		var visible_texts: Array = _visible_umbra_floating_texts(display_state, base_texts) if display_state.has("umbra") else base_texts
+		await _combat_pacing.wait_for_number_contact(_combat_pacing.number_contact_deadline(visible_texts, display_state))
 	var started_usec: int = _combat_pacing.presentation_usec()
 	var state_validated_for_animation: bool = false
 	while true:
@@ -22893,7 +22903,7 @@ func _animate_floating_text_presentation(
 		var t: float = clampf(elapsed_seconds / maxf(0.001, FloatingCombatText.ANIMATION_DURATION_SECONDS), 0.0, 1.0)
 		var presentation: Dictionary = base_presentation.duplicate(true)
 		if presentation.has("surface_feedback_events"):
-			presentation["surface_feedback_progress"] = 0.38 if reduced_motion else clampf(elapsed_seconds/0.36,0.0,1.0)
+			presentation["surface_feedback_progress"] = 0.38 if reduced_motion else clampf(elapsed_seconds/surface_feedback_seconds,0.0,1.0)
 		preload("res://scripts/enemy_mechanics/burst_fx.gd").decorate(presentation, elapsed_seconds)
 		preload("res://scripts/enemy_mechanics/kindle_view.gd").decorate(presentation, elapsed_seconds)
 		presentation["impact_progress"] = 0.18 if reduced_motion else t
@@ -23071,6 +23081,7 @@ func _play_timed_animation_frames(frame_count: int, frame_seconds: float, render
 	await _play_sampled_animation_frames(frame_count, frame_seconds, render_frame, cue, strike)
 
 func _play_sampled_animation_frames(frame_count: int, frame_seconds: float, render_frame: Callable, sample_clock: Callable, strike: TileBurstFx.StrikeCue = null) -> void:
+	var number_contact: Dictionary = _combat_pacing.take_sampled_number_contact() if _combat_pacing.enemies_active else {}
 	var safe_frame_count: int = maxi(0, frame_count)
 	if safe_frame_count == 0 or not render_frame.is_valid():
 		return
@@ -23079,6 +23090,7 @@ func _play_sampled_animation_frames(frame_count: int, frame_seconds: float, rend
 	if strike != null: strike.begin(presentation_started_usec, _combat_pacing.presentation_usec)
 	var rendered_frames: int = 0
 	if frame_seconds <= 0.0:
+		if not number_contact.is_empty(): await _combat_pacing.wait_for_number_contact(int(number_contact["deadline"]))
 		if sample_clock.is_valid(): sample_clock.call(0.0)
 		render_frame.call(safe_frame_count)
 		rendered_frames = 1
@@ -23095,8 +23107,14 @@ func _play_sampled_animation_frames(frame_count: int, frame_seconds: float, rend
 	var last_rendered_frame: int = 0
 	while true:
 		var elapsed_usec: int = _combat_pacing.presentation_usec() - presentation_started_usec
-		var resubmit: bool = sample_clock.is_valid() and sample_clock.call(float(elapsed_usec) / 1000000.0) == true
 		var due_frame: int = clampi(1 + int(elapsed_usec / frame_duration_usec), 1, safe_frame_count)
+		if not number_contact.is_empty() and due_frame >= int(number_contact["frame"]):
+			var held_at: int = _combat_pacing.presentation_usec()
+			if int(number_contact["deadline"]) > held_at:
+				await _combat_pacing.wait_for_number_contact(int(number_contact["deadline"]))
+				presentation_started_usec += _combat_pacing.presentation_usec() - held_at
+			number_contact = {}
+		var resubmit: bool = sample_clock.is_valid() and sample_clock.call(float(elapsed_usec) / 1000000.0) == true
 		if due_frame > last_rendered_frame or resubmit:
 			render_frame.call(due_frame)
 			if due_frame > last_rendered_frame:
@@ -24600,6 +24618,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 			await IntentCallouts.play(self, animated_state, step)
 			continue
 		if bool(step.get("battlefield_rule_step", false)):
+			if _combat_pacing.enemies_active: _combat_pacing.begin_number_action()
 			var transits: Array[Dictionary] = _queue_shadowstep_transits(step)
 			await preload("res://scripts/battlefield_rules/playback.gd").animate(self, animated_state, step)
 			for transit: Dictionary in transits: _blink_transits.erase(transit)
@@ -24882,6 +24901,8 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 					attack_feedback_state
 				)
 				var text_birth: Dictionary = {"seconds": -1.0}
+				var visible_texts: Array = _visible_umbra_floating_texts(attack_feedback_state, attack_floating_texts) if attack_feedback_state.has("umbra") else attack_floating_texts
+				_combat_pacing.plan_sampled_number_contact(maxi(1, strike_contact_frame), visible_texts, attack_feedback_state)
 				await _play_strike_animation_frames(attack_frame_count, attack_frame_seconds, func(frame_number: int) -> void:
 					var t: float = float(frame_number) / float(attack_frame_count)
 					var feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
@@ -26451,6 +26472,16 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			merged_floating_texts.append_array(rendered_presentation.get("floating_texts", []) as Array)
 			rendered_presentation["floating_texts"] = merged_floating_texts
 	rendered_presentation["isolated_enemy_actor_keys"] = []
+	if _combat_pacing.enemies_active and rendered_presentation.has("burst_floating_texts"):
+		var new_burst_texts: Array = rendered_presentation["burst_floating_texts"]
+		if display_state.has("umbra"): new_burst_texts = _visible_umbra_floating_texts(display_state, new_burst_texts)
+		var texts: Array = (rendered_presentation.get("floating_texts", []) as Array).duplicate()
+		for entry: Dictionary in new_burst_texts:
+			var popup: Dictionary = entry.duplicate(false)
+			popup[FloatingCombatText.POPUP_ONLY_KEY] = true
+			texts.append(popup)
+		rendered_presentation["floating_texts"] = texts
+		rendered_presentation.erase("burst_floating_texts")
 	_combat_pacing.decorate(display_state, rendered_presentation)
 	if rendered_presentation.has("burst_floating_texts"):
 		var burst_texts: Array = (rendered_presentation.get("floating_texts", []) as Array).duplicate()
@@ -28704,34 +28735,95 @@ func _animate_loadout_acquisition_ray(source_global: Vector2, accent: Color, des
 		if destination.is_empty()
 		else destination.get("arrival_control", null) as Control
 	)
-	var destination_kind: String = str(destination.get("kind", "loadout"))
 	var local_start: Vector2 = source_global - _card_fx_layer.global_position
 	var local_target: Vector2 = target_global - _card_fx_layer.global_position
-	var beam := RelicAcquisitionBeam.new()
-	beam.name = "LoadoutAcquisitionBeam"
-	beam.texture = AssetLoader.load_texture(RELIC_ACQUISITION_BEAM_PATH)
-	beam.accent = accent
-	beam.start = local_start
-	beam.target = local_target
-	beam.modulate = Color(1.0, 1.0, 1.0, 0.92 if pickup_icon != null else 0.76)
-	beam.set_meta("acquisition_destination", destination_kind)
-	beam.set_meta("acquisition_target_global", target_global)
-	beam.z_index = 1600
-	_card_fx_layer.add_child(beam)
-	# Carry the actual pickup identity along the ray. A stationary source icon
-	# plus a brief low-contrast streak did not clearly show where the item went.
+	var reward_beam: RelicAcquisitionBeam
+	var trail_tween: Tween
 	if _node_is_alive(pickup_icon):
 		var icon_tween: Tween = create_tween().set_parallel(true)
 		icon_tween.tween_property(pickup_icon, "position", local_target - pickup_icon.size * 0.5, LOADOUT_ACQUISITION_RAY_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		icon_tween.tween_property(pickup_icon, "scale", Vector2.ONE * 0.42, LOADOUT_ACQUISITION_RAY_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	var beam_tween: Tween = create_tween().set_parallel(true)
-	beam_tween.tween_property(beam, "progress", 1.0, LOADOUT_ACQUISITION_RAY_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	beam_tween.tween_property(beam, "modulate:a", 0.0, 0.16).set_delay(LOADOUT_ACQUISITION_RAY_SECONDS * 0.72)
+		if not _reduced_motion_enabled():
+			const CELL_PX: int = 2
+			const TRAIL_LENGTH_PX: float = 56.0
+			const RETRACT_SECONDS: float = 0.10
+			const BAYER: PackedInt32Array = preload("res://scripts/pixel_fx_layer.gd").BAYER
+			var trail := Node2D.new()
+			trail.name = "LoadoutAcquisitionTrail"
+			trail.z_index = 1600
+			trail.set_meta("acquisition_destination", str(destination.get("kind", "loadout")))
+			trail.set_meta("acquisition_target_global", target_global)
+			trail.set_meta("acquisition_source_global", source_global)
+			trail.set_meta("acquisition_progress", 0.0)
+			_card_fx_layer.add_child(trail)
+			var head_color := Color(accent.lightened(0.55), 1.0)
+			var tail_color := Color(accent, 1.0)
+			var flight_delta: Vector2 = local_target - local_start
+			var flight_length_squared: float = flight_delta.length_squared()
+			var update_trail := func(remaining: float) -> void:
+				if not _node_is_alive(trail): return
+				trail.set_meta("remaining_length", remaining)
+				if _node_is_alive(pickup_icon):
+					var travelled: Vector2 = pickup_icon.position + pickup_icon.size * 0.5 - local_start
+					var progress: float = clampf(travelled.dot(flight_delta) / flight_length_squared, 0.0, 1.0) if flight_length_squared > 0.0 else 1.0
+					trail.set_meta("acquisition_progress", progress)
+				trail.queue_redraw()
+			trail.draw.connect(func() -> void:
+				if not _node_is_alive(pickup_icon): return
+				# Sample whole cells in physical viewport pixels before mapping them to the canvas.
+				var stretch: Transform2D = trail.get_viewport().get_stretch_transform()
+				var screen: Transform2D = stretch * trail.get_global_transform_with_canvas()
+				var start: Vector2 = screen * local_start
+				var direction: Vector2 = (screen * local_target - start).normalized()
+				var lead: Vector2 = stretch * pickup_icon.get_global_transform_with_canvas() * (pickup_icon.size * 0.5)
+				var length: float = minf(TRAIL_LENGTH_PX, (lead - start).dot(direction)) * float(trail.get_meta("remaining_length", 1.0))
+				if length <= 0.0: return
+				var bounds: Rect2 = Rect2(lead, Vector2.ZERO).expand(lead - direction * length).grow(CELL_PX)
+				var first := Vector2i((bounds.position / CELL_PX).floor())
+				var end := Vector2i((bounds.end / CELL_PX).ceil())
+				trail.draw_set_transform_matrix(screen.affine_inverse())
+				for y: int in range(first.y, end.y):
+					for x: int in range(first.x, end.x):
+						var corner := Vector2(x, y) * CELL_PX
+						var relative: Vector2 = lead - (corner + Vector2.ONE * (CELL_PX * 0.5))
+						var along: float = relative.dot(direction) / length
+						if along < 0.0 or along >= 1.0: continue
+						var bright: bool = along < 1.0 / 3.0
+						var half_width: float = 2.0 if bright else 1.0
+						var across: float = relative.cross(direction)
+						if across < -half_width or across >= half_width: continue
+						var threshold: float = (float(BAYER[posmod(y, 4) * 4 + posmod(x, 4)]) + 0.5) / 16.0
+						if 1.0 - along <= threshold: continue
+						trail.draw_rect(Rect2(corner, Vector2.ONE * CELL_PX), head_color if bright else tail_color)
+			)
+			trail_tween = create_tween()
+			trail_tween.tween_method(update_trail, 1.0, 1.0, LOADOUT_ACQUISITION_RAY_SECONDS)
+			trail_tween.tween_method(update_trail, 1.0, 0.0, RETRACT_SECONDS)
+			trail_tween.finished.connect(_queue_free_node_now.bind(trail))
+	elif pickup_icon == null:
+		# Learned magic rewards use this delivery without a flying pickup icon.
+		reward_beam = RelicAcquisitionBeam.new()
+		reward_beam.name = "LoadoutAcquisitionBeam"
+		reward_beam.texture = AssetLoader.load_texture(RELIC_ACQUISITION_BEAM_PATH)
+		reward_beam.accent = accent
+		reward_beam.start = local_start
+		reward_beam.target = local_target
+		reward_beam.modulate = Color(1.0, 1.0, 1.0, 0.76)
+		reward_beam.set_meta("acquisition_destination", str(destination.get("kind", "loadout")))
+		reward_beam.set_meta("acquisition_target_global", target_global)
+		reward_beam.z_index = 1600
+		_card_fx_layer.add_child(reward_beam)
+		var beam_tween: Tween = create_tween().set_parallel(true)
+		beam_tween.tween_property(reward_beam, "progress", 1.0, LOADOUT_ACQUISITION_RAY_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		beam_tween.tween_property(reward_beam, "modulate:a", 0.0, 0.16).set_delay(LOADOUT_ACQUISITION_RAY_SECONDS * 0.72)
 	for mote_index: int in range(LOADOUT_ACQUISITION_MOTES):
 		_spawn_loadout_acquisition_mote(local_start, local_target, accent, mote_index)
 	await get_tree().create_timer(LOADOUT_ACQUISITION_RAY_SECONDS + 0.04).timeout
-	_queue_free_node_now(beam)
+	_queue_free_node_now(reward_beam)
 	await _animate_acquisition_destination_arrival(arrival_control, accent)
+	# Hand pickups have no button pulse. Keep their icon until the tail retracts.
+	if trail_tween != null and trail_tween.is_running():
+		await trail_tween.finished
 
 func _spawn_loadout_acquisition_mote(local_start: Vector2, local_target: Vector2, accent: Color, mote_index: int) -> void:
 	if _card_fx_layer == null:

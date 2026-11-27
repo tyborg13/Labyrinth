@@ -135,11 +135,11 @@ static func _expect_one_settle(pacing: Node, expect: Callable, message: String) 
 	expect.call(not samples.is_empty() and samples.all(func(scale: float) -> bool: return is_equal_approx(scale,action_scale)),message + " renders at 0.80 times the selected combat speed")
 	var settles: Array[Dictionary] = _rows(pacing, "post-action settle")
 	expect.call(settles.size() == 1, message + " has exactly one settle")
-	if settles.size() == 1: _expect_clock_duration(settles[0], 0.15, expect, message + " settles for 0.15 s")
+	if settles.size() == 1: _expect_clock_duration(settles[0], 0.08, expect, message + " settles for 0.08 s")
 
 static func _expect_clock_duration(row: Dictionary, seconds: float, expect: Callable, message: String) -> void:
 	# Timeline seconds serialize an integer-microsecond clock. Recover that
-	# precision before comparing exact authored boundaries (e.g. 0.15 s).
+	# precision before comparing exact authored boundaries.
 	var duration_usec: int = roundi((float(row["clock_end"]) - float(row["clock_start"])) * USEC_PER_SECOND)
 	var minimum_usec: int = roundi(seconds * USEC_PER_SECOND)
 	var maximum_usec: int = roundi((seconds + CLOCK_TOLERANCE_SECONDS) * USEC_PER_SECOND)

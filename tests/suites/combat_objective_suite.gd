@@ -333,12 +333,11 @@ static func _test_boss_live_detail_keeps_facts_without_repeating_name(expect: Ca
 	expect.call((hud.find_child("ObjectiveLiveDetail", true, false) as Label).text == "Before it escapes · 1/2 Health", "Hoarder live detail keeps its existing non-name copy")
 	var dragon: Dictionary = {"type": CombatObjectiveRules.KILL_LEADER, "leader_id": 1, "leader_type": "zekarion"}
 	var dragon_state: Dictionary = {"objective": dragon, "enemies": []}
-	var dragon_title: String = "Defeat Zekarion"
 	hud.set_combat_state(dragon_state)
-	expect.call(hud.tooltip_text == dragon_title, "Named leader hover with no description ends at the title")
+	expect.call(hud.tooltip_text.is_empty() and hud.focus_mode == Control.FOCUS_NONE, "Named leader has no hover or focus tooltip")
 	dragon["objective_description"] = "An authored objective sentence."
 	hud.set_combat_state(dragon_state)
-	expect.call(hud.tooltip_text == dragon_title + "\nAn authored objective sentence.", "Named leader hover includes its authored description")
+	expect.call(hud.tooltip_text.is_empty() and hud.focus_mode == Control.FOCUS_NONE, "Authored objective copy does not add a combat hover or focus tooltip")
 	for count: int in [0, 1, 2]:
 		var enemies: Array = [{"id": 1, "hp": 1}, {"id": 2, "hp": 1}]
 		hud.set_combat_state({"objective": {"type": CombatObjectiveRules.KILL_ALL}, "enemies": enemies, "visible_enemy_ids": range(1, count + 1)})

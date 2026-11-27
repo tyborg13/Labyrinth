@@ -7,8 +7,8 @@ extends Node
 # change; the tile's own contents, anything behind it and the HUD stay opaque.
 # Coverage reuses the x-ray rest masks (25% resolution) and the silhouettes'
 # painter-order sources, and runs only when the focus tile or the board
-# geometry changes. Fades touch only the occluders' own canvases, and nothing
-# runs once every fade has settled.
+# geometry changes. Fades repaint the affected props, and a pillar also
+# updates the light it casts. Nothing runs once every fade has settled.
 const Alpha = preload("res://scripts/board_occlusion_alpha.gd")
 const REVEAL_ALPHA: float = 0.30
 const MIN_COVERAGE: float = 0.15
@@ -22,6 +22,7 @@ var focus_tile := Vector2i(-1, -1)
 # id -> {"id", "category", "key", "tile", "coverage", "on", "progress"}
 var targets: Dictionary = {}
 var coverage_builds: int = 0
+var pillar_alpha_revision: int = 0
 var _occluders: Dictionary = {}
 var _order: Dictionary = {}
 var _retarget_pending: bool = false
@@ -141,7 +142,13 @@ func _process(delta: float) -> void:
 		if progress != goal: settled = false
 		elif not on: finished.append(id)
 	for id: String in finished: targets.erase(id)
-	for tile: Vector2i in tiles: board.call("_queue_occlusion_reveal_redraw", tile)
+	var pillar_changed: bool = false
+	for tile: Vector2i in tiles:
+		board.call("_queue_occlusion_reveal_redraw", tile)
+		pillar_changed = pillar_changed or bool(tiles[tile])
+	if pillar_changed:
+		pillar_alpha_revision += 1
+		board.call("_queue_pillar_torch_reveal_redraw")
 	if changed:
 		var silhouettes: Node = board.get("_occlusion_silhouettes")
 		if is_instance_valid(silhouettes): silhouettes.call("reveal_changed")
@@ -157,7 +164,8 @@ func _apply(target: Dictionary, tiles: Dictionary) -> void:
 		return
 	if alpha >= 1.0: _prop_alphas.erase(target["id"])
 	else: _prop_alphas[target["id"]] = alpha
-	tiles[target["tile"]] = true
+	var tile: Vector2i = target["tile"]
+	tiles[tile] = bool(tiles.get(tile, false)) or target["category"] == "pillar"
 
 # Body alpha of a unit (1.0 when not revealed through).
 func unit_alpha(key: String) -> float:

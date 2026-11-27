@@ -1,0 +1,234 @@
+{
+  "covered_tiles": 8,
+  "covered_units": 1,
+  "fight": "1-5_3",
+  "focus": {
+    "count": 2,
+    "fraction": 0.51171875,
+    "tile": [
+      2,
+      3
+    ]
+  },
+  "kind": "guardian",
+  "objective": "kill_leader",
+  "room_kind": "guardian",
+  "section": 1,
+  "seed": 12,
+  "stacked": 3,
+  "tiles": [
+    {
+      "contents": [
+        "surface fire",
+        "surface rubble"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.19140625,
+          "id": "pillar:3,5",
+          "tile": [
+            3,
+            5
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        1,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "surface fire",
+        "surface rubble"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.30078125,
+          "id": "pillar:3,5",
+          "tile": [
+            3,
+            5
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        1,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "surface fire",
+        "surface rubble"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.51171875,
+          "id": "unit:player",
+          "tile": [
+            3,
+            4
+          ]
+        },
+        {
+          "fraction": 0.3046875,
+          "id": "pillar:3,5",
+          "tile": [
+            3,
+            5
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        2,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.953125,
+          "id": "pillar:3,5",
+          "tile": [
+            3,
+            5
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        2,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "Ash Hound [enemy_2]",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.1875,
+          "id": "unit:player",
+          "tile": [
+            3,
+            4
+          ]
+        },
+        {
+          "fraction": 0.25390625,
+          "id": "unit:enemy_3",
+          "tile": [
+            4,
+            4
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        3,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "player [player]",
+        "battlefield hazard"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:3,5",
+          "tile": [
+            3,
+            5
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        3,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:5,3",
+          "tile": [
+            5,
+            3
+          ]
+        },
+        {
+          "fraction": 0.640625,
+          "id": "unit:enemy_1",
+          "tile": [
+            5,
+            4
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        4,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "Ash Hound [enemy_3]",
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.234375,
+          "id": "unit:enemy_1",
+          "tile": [
+            5,
+            4
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        4,
+        4
+      ]
+    }
+  ],
+  "turn": 2,
+  "units": [
+    {
+      "fraction": 0.387096774193548,
+      "tile": [
+        3,
+        4
+      ],
+      "unit": "player [player]"
+    }
+  ],
+  "old_stacked": 6,
+  "old_score": 16,
+  "new_score": 14,
+  "campaign": {
+    "id": "fel01-round0-diagnostic-9999",
+    "seed_directory": "fel01-census-seed12"
+  },
+  "composition": {
+    "boss_id": "ashen_reaver",
+    "enemies_on_board": 3,
+    "visible_pillars": 2
+  }
+}

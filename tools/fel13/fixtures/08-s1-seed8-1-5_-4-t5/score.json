@@ -1,0 +1,321 @@
+{
+  "covered_tiles": 13,
+  "covered_units": 2,
+  "fight": "1-5_-4",
+  "focus": {
+    "count": 2,
+    "fraction": 0.31640625,
+    "tile": [
+      5,
+      5
+    ]
+  },
+  "kind": "normal",
+  "objective": "kill_all",
+  "room_kind": "combat",
+  "section": 1,
+  "seed": 8,
+  "stacked": 1,
+  "tiles": [
+    {
+      "contents": [
+        "terrain terrain_3_2"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:3,3",
+          "tile": [
+            3,
+            3
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        2
+      ]
+    },
+    {
+      "contents": [
+        "loot loot_item_0_5_1"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:5,2",
+          "tile": [
+            5,
+            2
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        5,
+        1
+      ]
+    },
+    {
+      "contents": [
+        "terrain terrain_4_3"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.19140625,
+          "id": "pillar:6,5",
+          "tile": [
+            6,
+            5
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        4,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "surface ice"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:3,6",
+          "tile": [
+            3,
+            6
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.51171875,
+          "id": "unit:player",
+          "tile": [
+            5,
+            5
+          ]
+        },
+        {
+          "fraction": 0.30078125,
+          "id": "pillar:6,5",
+          "tile": [
+            6,
+            5
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        4,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.3046875,
+          "id": "pillar:6,5",
+          "tile": [
+            6,
+            5
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        5,
+        3
+      ]
+    },
+    {
+      "contents": [
+        "trap trap_2_7"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.1796875,
+          "id": "door:4,8",
+          "tile": [
+            4,
+            8
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        2,
+        7
+      ]
+    },
+    {
+      "contents": [
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.1875,
+          "id": "unit:player",
+          "tile": [
+            5,
+            5
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        4,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.953125,
+          "id": "pillar:6,5",
+          "tile": [
+            6,
+            5
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        5,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "terrain terrain_3_7"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.59375,
+          "id": "door:4,8",
+          "tile": [
+            4,
+            8
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        3,
+        7
+      ]
+    },
+    {
+      "contents": [
+        "player [player]",
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:6,5",
+          "tile": [
+            6,
+            5
+          ]
+        }
+      ],
+      "stacked": true,
+      "tile": [
+        5,
+        5
+      ]
+    },
+    {
+      "contents": [
+        "surface fire"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.31640625,
+          "id": "pillar:6,5",
+          "tile": [
+            6,
+            5
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        6,
+        4
+      ]
+    },
+    {
+      "contents": [
+        "Cinder Ooze [enemy_1]"
+      ],
+      "occluders": [
+        {
+          "fraction": 0.59375,
+          "id": "door:8,4",
+          "tile": [
+            8,
+            4
+          ]
+        }
+      ],
+      "stacked": false,
+      "tile": [
+        7,
+        3
+      ]
+    }
+  ],
+  "turn": 5,
+  "units": [
+    {
+      "fraction": 0.297912713472486,
+      "tile": [
+        5,
+        5
+      ],
+      "unit": "player [player]"
+    },
+    {
+      "fraction": 0.333930704898447,
+      "tile": [
+        7,
+        3
+      ],
+      "unit": "Cinder Ooze [enemy_1]"
+    }
+  ],
+  "old_stacked": 1,
+  "old_score": 18,
+  "new_score": 20,
+  "campaign": {
+    "id": "fel01-round0-diagnostic-9999",
+    "seed_directory": "fel01-census-seed8"
+  },
+  "composition": {
+    "boss_id": "",
+    "enemies_on_board": 1,
+    "visible_pillars": 4
+  }
+}

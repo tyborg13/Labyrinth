@@ -14,7 +14,8 @@ const BANNER_LEAD_SECONDS: float = 0.35
 const ENEMY_TILE_SECONDS: float = 0.20
 const ENEMY_ACTION_SPEED_SCALE: float = 0.80
 const ENEMY_HURRY_SPEED_SCALE: float = 2.0
-const ENEMY_ACTION_SETTLE_SECONDS: float = 0.15
+const ENEMY_ACTION_SETTLE_SECONDS: float = 0.08
+const NUMBER_LIFETIME_USEC: int = int(FloatingText.ANIMATION_DURATION_SECONDS * 1000000.0)
 const ENEMY_ACTION_LEAD_SECONDS: float = 0.25
 const ENEMY_ACTION_KINDS: Array = ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "heal", "stoneskin", "status", "status_damage", "surface", "summon", "burrow", "erupt"]
 const FLASH_SECONDS: float = 0.140
@@ -58,6 +59,10 @@ var _seen_hits: Dictionary = {}
 var _flashes: Dictionary = {}
 var _flash_draw_keys: Array = []
 var _popups: Dictionary = {}
+var _enemy_number_ids: Dictionary = {}
+var _number_action: int = 0
+var _number_contact_delay: int = 0
+var _sampled_number_contact: Dictionary = {}
 var _deaths: Array[Dictionary]
 var _surfaces: Array[Dictionary]
 var _order_serial: int = 0
@@ -257,10 +262,13 @@ func finish_enemies() -> void:
 	_refresh_overlays()
 	end_scope()
 
-func _overlay_deadline(clock: int) -> int:
+func _overlay_deadline(clock: int, numbers_fading: bool = false) -> int:
 	var deadline: int = clock
 	for popup: Dictionary in _popups.values():
-		deadline = maxi(deadline, int(popup["start"]) + int(FloatingText.ANIMATION_DURATION_SECONDS * 1000000.0))
+		var lifetime: int = NUMBER_LIFETIME_USEC
+		if numbers_fading and popup.has("reduced"):
+			lifetime = ceili(FloatingText.number_fade_start_seconds(bool(popup["reduced"])) * 1000000.0)
+		deadline = maxi(deadline, int(popup["start"]) + lifetime)
 	for entries: Array[Dictionary] in [_deaths, _surfaces]:
 		for entry: Dictionary in entries:
 			deadline = maxi(deadline, int(entry["start"]) + int(entry["duration"]))
@@ -289,6 +297,10 @@ func end_scope() -> void:
 	_close_phase()
 	_flashes.clear()
 	_popups.clear()
+	_enemy_number_ids.clear()
+	_number_action = 0
+	_number_contact_delay = 0
+	_sampled_number_contact.clear()
 	_deaths.clear()
 	_surfaces.clear()
 	_last_state = {}
@@ -402,6 +414,8 @@ func before_step(step: Dictionary, activation_steps: Array = []) -> void:
 	if kind == "commit":
 		return
 	if enemies_active: _set_enemy_action_active(false)
+	if enemies_active and (is_action_step(step) or kind in ["move", "worldspine_pulse", "reinforcement_spawn"]):
+		begin_number_action()
 	var actor: String = action_actor_key(step)
 	_caption_target_prefix = str(step.get("actor_name", "")) if step.has("source_actor_key") else ""
 	if actor != _actor:
@@ -448,7 +462,7 @@ func after_step(step: Dictionary) -> void:
 	if enemies_active and is_action_step(step):
 		# A view may retain feedback beyond its own coroutine (including a
 		# staggered popup or hit-stop release). Settle starts after that deadline.
-		await _wait_until(_overlay_deadline(presentation_usec()))
+		await _wait_until(_overlay_deadline(presentation_usec(), true))
 		_mark("feedback complete")
 		_set_enemy_action_active(false)
 		_change_phase("post-action settle")
@@ -486,18 +500,74 @@ func walk_finished() -> void:
 func present_initial_order(before: Dictionary, after: Dictionary) -> void:
 	present_turn_order(scene.call("_turn_order_entries_from_state", before), scene.call("_turn_order_entries_from_state", after))
 
-func feedback_duration(_texts: Array, authored: float, _initial_elapsed: float) -> float:
-	# The caller already accounts for elapsed attack frames and popup stagger.
-	# Enemy hand-off must retain the same complete authored feedback as cards.
-	return authored
+func feedback_duration(texts: Array, authored: float, _initial_elapsed: float) -> float:
+	if not enemies_active or texts.is_empty(): return authored
+	var reduced: bool = Settings.reduced_motion_enabled(scene.get("_settings")) if scene != null else false
+	return authored + FloatingText.total_duration(texts, true, reduced) - FloatingText.total_duration(texts)
+
+func begin_number_action() -> void:
+	_number_action += 1
+	_number_contact_delay = 0
+
+func number_contact_deadline(texts: Array, state: Dictionary) -> int:
+	if not enemies_active or _popups.is_empty(): return 0
+	var targets: Dictionary = {}
+	for entry: Dictionary in texts:
+		if FloatingText.is_number_entry(entry) and not _enemy_number_ids.has(str(entry.get("screen_layout_id", ""))):
+			for target: Variant in _number_targets(entry, state): targets[target] = true
+	if targets.is_empty(): return 0
+	var deadline: int = 0
+	for popup: Dictionary in _popups.values():
+		if int(popup.get("action", _number_action)) == _number_action: continue
+		for target: Variant in popup.get("targets", []):
+			if targets.has(target): deadline = maxi(deadline, int(popup["start"]) + NUMBER_LIFETIME_USEC)
+	return deadline
+
+func wait_for_number_contact(deadline: int) -> void:
+	if deadline <= presentation_usec(): return
+	var previous_phase: String = _phase
+	_change_phase("number contact wait")
+	await _wait_until(deadline)
+	if enemies_active: _change_phase(previous_phase)
+
+func plan_sampled_number_contact(frame: int, texts: Array, state: Dictionary) -> void:
+	var deadline: int = number_contact_deadline(texts, state)
+	if deadline > presentation_usec(): _sampled_number_contact = {"frame": frame, "deadline": deadline}
+
+func take_sampled_number_contact() -> Dictionary:
+	var contact: Dictionary = _sampled_number_contact
+	_sampled_number_contact = {}
+	return contact
+
+func _number_targets(entry: Dictionary, state: Dictionary) -> Array:
+	var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
+	var targets: Array = [tile]
+	var actor_key: String = str(entry.get("reaction_actor_key", ""))
+	if actor_key.is_empty() and str(entry.get("resource_kind", "")) in ["heal", "block", "stoneskin", "draw", "card_play"]:
+		if state.get("player", {}).get("pos") == tile: actor_key = "player"
+		else:
+			for unit: Dictionary in state.get("enemies", []):
+				if int(unit.get("hp", 0)) > 0 and (scene.call("_enemy_footprint_tiles", unit) as Array).has(tile):
+					actor_key = scene.call("_enemy_key", unit)
+					break
+	if not actor_key.is_empty(): targets.append(actor_key)
+	return targets
 
 func decorate(state: Dictionary, presentation: Dictionary) -> void:
 	_last_render_frame = Engine.get_process_frames()
 	_last_state = state
 	_last_presentation = presentation.duplicate(false)
 	var clock: int = presentation_usec()
+	var source_texts: Array = presentation.get("floating_texts", [])
+	var contacts: Array = source_texts
+	if enemies_active:
+		_register_enemy_numbers(source_texts, state, clock, bool(presentation.get("reduced_motion", false)))
+		contacts = source_texts.filter(func(entry: Dictionary) -> bool: return not FloatingText.is_number_entry(entry))
+		for popup: Dictionary in _popups.values():
+			if popup.has("action") and clock >= int(popup["start"]) and clock < int(popup["start"]) + NUMBER_LIFETIME_USEC:
+				contacts.append(popup["entry"])
 	var hits: Array[Dictionary]
-	for entry: Dictionary in presentation.get("floating_texts", []):
+	for entry: Dictionary in contacts:
 		var key: String = str(entry.get("reaction_actor_key", ""))
 		if bool(entry.get(FloatingText.POPUP_ONLY_KEY, false)) or (str(entry.get("reaction", "")) not in ["hit", "block"] and not FloatingText.is_damage_entry(entry)):
 			continue
@@ -512,11 +582,12 @@ func decorate(state: Dictionary, presentation: Dictionary) -> void:
 				killed = true
 		var damage: int = absi(str(entry.get("text", "0")).to_int()) if str(entry.get("reaction", "")) == "hit" or (FloatingText.is_damage_entry(entry) and str(entry.get("reaction","")) != "block") else 0
 		hits.append({"id": id, "actor_key": key, "damage": int(entry.get(FloatingText.IMPACT_DAMAGE_KEY, damage)), "killed": killed})
-		_retain_popup(entry, id, clock)
+		if not enemies_active or not FloatingText.is_number_entry(entry): _retain_popup(entry, id, clock)
 	presentation["combat_feel_owner"] = self
 	presentation["combat_feel_hits"] = hits
 	var texts: Array = []
-	for entry: Dictionary in presentation.get("floating_texts", []):
+	for entry: Dictionary in source_texts:
+		if enemies_active and FloatingText.is_number_entry(entry): continue
 		if bool(entry.get(FloatingText.POPUP_ONLY_KEY, false)) or (str(entry.get("reaction", "")) not in ["hit", "block"] and not FloatingText.is_damage_entry(entry)):
 			texts.append(entry)
 	for id: String in _popups.keys():
@@ -524,15 +595,17 @@ func decorate(state: Dictionary, presentation: Dictionary) -> void:
 		var elapsed: float = float(clock - int(popup["start"])) / 1000000.0
 		if elapsed >= FloatingText.ANIMATION_DURATION_SECONDS:
 			_popups.erase(id)
-		else:
-			var animated: Array[Dictionary] = FloatingText.animate_entries([popup["entry"]], elapsed, bool(presentation.get("reduced_motion", false)))
-			for entry: Dictionary in animated:
-				entry["sequence_index"] = popup["sequence"]
-				if bool(presentation.get("reduced_motion", false)):
-					var offset: Vector2 = entry.get("motion_offset", Vector2.ZERO)
-					offset.y -= float(popup["sequence"]) * FloatingText.REDUCED_STACK_STEP_Y
-					entry["motion_offset"] = offset
-			texts.append_array(animated)
+		elif elapsed >= 0.0:
+			# Resample the retained entry as a single glyph, preserving its original
+			# gain batch and stagger metadata for the board's contact effects.
+			var reduced: bool = bool(presentation.get("reduced_motion", false))
+			var entry: Dictionary = FloatingText.animate_entry(popup["entry"], elapsed / FloatingText.ANIMATION_DURATION_SECONDS, reduced)
+			entry["screen_layout_key"] = id
+			if reduced:
+				var offset: Vector2 = entry.get("motion_offset", Vector2.ZERO)
+				offset.y -= float(popup["sequence"]) * FloatingText.REDUCED_STACK_STEP_Y
+				entry["motion_offset"] = offset
+			texts.append(entry)
 	presentation["floating_texts"] = texts
 	var strengths: Dictionary = {}
 	for key: String in _flashes.keys():
@@ -580,11 +653,30 @@ func decorate(state: Dictionary, presentation: Dictionary) -> void:
 	presentation["surface_feedback_progress"] = progress
 	presentation["combat_feel_surface_frames"] = frames
 
+func _register_enemy_numbers(entries: Array, state: Dictionary, clock: int, reduced: bool) -> void:
+	# Custom sampled clips submit at their authored contact. A conflicting old
+	# number delays the new number batch while the clip keeps its own clock.
+	var deadline: int = number_contact_deadline(entries, state)
+	_number_contact_delay = maxi(_number_contact_delay, deadline - clock)
+	for entry: Dictionary in entries:
+		if not FloatingText.is_number_entry(entry) or float(entry.get("alpha", 1.0)) <= 0.0: continue
+		var id: String = FloatingText.ensure_screen_layout_id(entry)
+		if _enemy_number_ids.has(id): continue
+		_enemy_number_ids[id] = true
+		_retain_popup(entry, id, clock)
+		var popup: Dictionary = _popups[id]
+		popup["start"] = maxi(int(popup["start"]) + _number_contact_delay, deadline)
+		popup["action"] = _number_action
+		popup["targets"] = _number_targets(entry, state)
+		popup["reduced"] = reduced
+
 func _retain_popup(entry: Dictionary, id: String, clock: int) -> void:
 	var base: Dictionary = entry.duplicate(true)
 	base["screen_layout_id"] = id
 	# Retained text starts from the library base glyph size.
-	if FloatingText.is_damage_entry(base): base["font_size"] = FloatingText.DAMAGE_BASE_FONT_SIZE
+	if enemies_active and base.has(FloatingText.NUMBER_BASE_FONT_SIZE_KEY):
+		base["font_size"] = base[FloatingText.NUMBER_BASE_FONT_SIZE_KEY]
+	elif FloatingText.is_damage_entry(base): base["font_size"] = FloatingText.DAMAGE_BASE_FONT_SIZE
 	elif FloatingText.is_effect_entry(base): base["font_size"] = FloatingText.EFFECT_BASE_FONT_SIZE
 	if FloatingText.is_popup_entry(base): base.erase("motion_offset")
 	var elapsed: float = float(entry.get("animation_progress", 0.0)) * FloatingText.ANIMATION_DURATION_SECONDS
@@ -721,9 +813,11 @@ func overlap_surface(before: Dictionary, after: Dictionary, base: Dictionary) ->
 	if not fire_ticks.is_empty():
 		fire_ticks.assign(scene.call("_visible_umbra_floating_texts", before, fire_ticks, true))
 		var clock: int = presentation_usec()
-		for entry: Dictionary in FloatingText.animate_entries(fire_ticks, 0.0, reduced):
+		var numbers: Array[Dictionary] = FloatingText.animate_entries(fire_ticks, 0.0, reduced)
+		for entry: Dictionary in numbers:
 			# The ground beat already owns contact feedback.
-			_retain_popup(entry, FloatingText.ensure_screen_layout_id(entry), clock)
+			entry[FloatingText.POPUP_ONLY_KEY] = true
+		_register_enemy_numbers(numbers, after, clock, reduced)
 	scene.call("_render_board_state", after, shown)
 	return true
 

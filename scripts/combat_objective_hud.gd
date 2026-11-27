@@ -47,7 +47,6 @@ var _intro_kicker: Label
 var _intro_title: Label
 var _panel_style: StyleBoxFlat
 var _presentation_signature: String = ""
-var _objective_type: String = ""
 var intro_active: bool = false
 var intro_phase: String = ""
 var intro_chrome_progress: float = 1.0
@@ -58,9 +57,6 @@ var _intro_tween: Tween
 func _ready() -> void:
 	_build()
 
-func _make_custom_tooltip(text: String) -> Object:
-	return preload("res://scripts/ui_tooltip_panel.gd").make_text(text, {"kind": "objective", "id": _objective_type})
-
 func set_combat_state(state: Dictionary) -> bool:
 	if _icon == null:
 		_build()
@@ -69,18 +65,12 @@ func set_combat_state(state: Dictionary) -> bool:
 		var changed: bool = visible or not _presentation_signature.is_empty()
 		visible = false
 		_presentation_signature = ""
-		_objective_type = ""
 		return changed
-	_objective_type = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
-	var icon_path: String = CombatObjectiveRules.icon_path(_objective_type)
-	var title: String = CombatObjectiveRules.hud_title_for_objective(objective)
-	var title_text: String = title.to_upper()
+	var objective_type: String = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
+	var icon_path: String = CombatObjectiveRules.icon_path(objective_type)
+	var title_text: String = CombatObjectiveRules.hud_title_for_objective(objective).to_upper()
 	var detail_text: String = _live_detail(state, objective)
-	var next_tooltip: String = title
-	var description: String = CombatObjectiveRules.description_for_objective(objective, false).strip_edges()
-	if not description.is_empty():
-		next_tooltip += "\n" + description
-	var next_signature: String = "%s|%s|%s|%s" % [icon_path, title_text, detail_text, next_tooltip]
+	var next_signature: String = "%s|%s|%s" % [icon_path, title_text, detail_text]
 	if visible and next_signature == _presentation_signature:
 		return false
 	_presentation_signature = next_signature
@@ -90,7 +80,6 @@ func set_combat_state(state: Dictionary) -> bool:
 	_detail.text = detail_text
 	_detail.visible = not detail_text.is_empty()
 	_intro_title.text = title_text
-	tooltip_text = next_tooltip
 	return true
 
 func _build() -> void:
@@ -99,7 +88,7 @@ func _build() -> void:
 	name = "CombatObjectiveHud"
 	custom_minimum_size = Vector2(350.0, 68.0)
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	mouse_default_cursor_shape = Control.CURSOR_HELP
+	focus_mode = Control.FOCUS_NONE
 	var style := StyleBoxFlat.new()
 	style.bg_color = PANEL_BACKGROUND_COLOR
 	style.border_color = PANEL_BORDER_COLOR
