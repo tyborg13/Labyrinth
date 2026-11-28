@@ -136,14 +136,15 @@ static func killer_text(killer: Dictionary, outcome: String) -> String:
 			if trap_name.is_empty() and Elements.is_elemental(str(killer.get("element", ""))):
 				trap_name = "%s Trap" % Elements.name(str(killer["element"]))
 			return "Slain by %s" % (trap_name if not trap_name.is_empty() else "a trap")
-	var enemy: Dictionary = GameData.enemy_def(str(killer.get("enemy_type", "")))
+	var enemy_type: String = str(killer.get("enemy_type", ""))
+	var enemy: Dictionary = GameData.enemy_def(enemy_type)
 	if enemy.is_empty():
 		return UNKNOWN_KILLER_TEXT
 	var intent_name: String = ""
 	for intent: Dictionary in enemy.get("intents", []):
 		if str(intent.get("id", "")) == str(killer.get("intent_id", "")):
 			intent_name = str(intent.get("name", intent_name))
-	var enemy_text: String = "Felled by %s" % Glossary.with_article(str(enemy["name"]))
+	var enemy_text: String = "Felled by %s" % Glossary.enemy_name_in_prose(enemy_type, str(enemy["name"]), not intent_name.is_empty())
 	return enemy_text if intent_name.is_empty() else "%s's %s" % [enemy_text, intent_name]
 
 # Old Chronicle records store their printed text, not the original killer.

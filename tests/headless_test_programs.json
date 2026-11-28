@@ -151,6 +151,9 @@
     "path": "tests/save_resume_boundary_test.gd"
   },
   {
+    "path": "tests/save_failure_recovery_test.gd"
+  },
+  {
     "path": "tests/hoarder_test.gd"
   },
   {

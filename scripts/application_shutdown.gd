@@ -32,6 +32,9 @@ class QuitState extends RefCounted:
 	var deadline_usec: int
 	var deadline_mutex := Mutex.new()
 	var saving_to_title: bool = false
+	var title_handoff_pending: bool = false
+	var title_handoff_recovery: Callable
+	var title_input_was_disabled: bool = false
 	var drain_completed: bool = false
 
 	func arm() -> void:
@@ -112,6 +115,7 @@ static func begin_save_to_title(tree: SceneTree) -> bool:
 	state.arm()
 	state.saving_to_title = true
 	tree.call_group(CanvasPrewarm.ACTIVE_GROUP, "cancel")
+	state.title_input_was_disabled = tree.root.gui_disable_input
 	tree.root.gui_disable_input = true
 	return true
 
@@ -125,14 +129,46 @@ static func quit_requested(tree: SceneTree) -> bool:
 	var state: QuitState = tree.root.get_meta(STATE_META)
 	return state.requested_usec > 0
 
-static func finish_save_to_title(tree: SceneTree) -> bool:
+static func title_save_pending(tree: SceneTree) -> bool:
+	if not tree.root.has_meta(STATE_META): return false
 	var state: QuitState = tree.root.get_meta(STATE_META)
-	state.saving_to_title = false
-	if state.requested_usec > 0: return false
+	return state.saving_to_title and not state.title_handoff_pending and state.requested_usec == 0
+
+static func finish_save_to_title(tree: SceneTree, recover: Callable) -> bool:
+	var state: QuitState = tree.root.get_meta(STATE_META)
+	if state.requested_usec > 0:
+		state.saving_to_title = false
+		return false
+	state.title_handoff_pending = true
+	state.title_handoff_recovery = recover
 	tree.scene_changed.connect(_release_title_guard.bind(tree, state), CONNECT_ONE_SHOT)
 	return true
 
+static func cancel_save_to_title(tree: SceneTree) -> bool:
+	var state: QuitState = tree.root.get_meta(STATE_META)
+	if state.title_handoff_pending:
+		tree.scene_changed.disconnect(_release_title_guard.bind(tree, state))
+		state.title_handoff_pending = false
+		state.title_handoff_recovery = Callable()
+	state.saving_to_title = false
+	# A window close can join an in-flight title save. Its drain still owns
+	# the input lock and watchdog.
+	if state.requested_usec > 0: return false
+	state.disarm()
+	tree.root.gui_disable_input = state.title_input_was_disabled
+	return true
+
+static func fail_title_handoff(tree: SceneTree) -> void:
+	if not tree.root.has_meta(STATE_META): return
+	var state: QuitState = tree.root.get_meta(STATE_META)
+	if not state.title_handoff_pending: return
+	var recover := state.title_handoff_recovery
+	if cancel_save_to_title(tree) and recover.is_valid(): recover.call()
+
 static func _release_title_guard(tree: SceneTree, state: QuitState) -> void:
+	state.saving_to_title = false
+	state.title_handoff_pending = false
+	state.title_handoff_recovery = Callable()
 	if state.requested_usec > 0: return
 	state.disarm()
 	tree.root.gui_disable_input = false
@@ -163,7 +199,7 @@ static func _drain(tree: SceneTree, state: QuitState, scene: Node, reason: Strin
 	var previous_mix := stopped_usec
 	var mixes: int = 0
 	if joining_title_save:
-		while state.saving_to_title: await tree.process_frame
+		while state.saving_to_title and not state.title_handoff_pending: await tree.process_frame
 	elif is_instance_valid(scene) and scene.has_method("prepare_application_quit"):
 		await scene.prepare_application_quit(reason)
 	if is_instance_valid(scene): scene.process_mode = Node.PROCESS_MODE_DISABLED

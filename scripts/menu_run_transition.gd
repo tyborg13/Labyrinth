@@ -58,7 +58,8 @@ var hitch_wait: String = "first_loading_presentation"
 
 func begin(menu: Control, path: String, prepare_run: Callable, new_run_depth: int = -1, previous_seed: Variant = null) -> void:
 	name = "MenuRunTransition"
-	layer = 100
+	# A resumed section transition has its own canvas at layer 100.
+	layer = 101
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_menu = menu
 	PipelinePrewarm.stop(menu)
@@ -270,6 +271,14 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 			return
 	performance_started = transition._record_performance_phase("initial_ui_preparation", performance_started)
 	transition._release_audio_preparation()
+	var duration := SettingsStore.motion_duration(REVEAL_SECONDS, transition._settings)
+	if duration > 0.0:
+		# Composite the menu, shade and message at full opacity first. Fading
+		# their inherited alpha separately darkens the destination underneath.
+		# CanvasGroup's render mode also works on the existing Control. Keep
+		# the live menu attached so its resize and focus signals stay valid.
+		RenderingServer.canvas_item_set_canvas_group_mode(transition._surface.get_canvas_item(),
+			RenderingServer.CANVAS_GROUP_MODE_TRANSPARENT, 5.0, true)
 	# RunScene._ready builds the room synchronously, then its hand layout waits
 	# two process frames before scheduling additional hand/dock fitting. Allow
 	# that first refresh to run, then use the room's live readiness contract;
@@ -287,14 +296,14 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 		if not _loading_is_active(transition): return
 	transition._record_performance_phase("presentation_ready_wait", performance_started)
 	PipelinePrewarm.stop(transition)
+	transition.set_process(false)
 	transition._set_phase(&"revealing")
 	if _hitch_trace_enabled: transition.hitch_wait = "reveal_tween"
 	if not _loading_is_active(transition): return
-	var duration := SettingsStore.motion_duration(REVEAL_SECONDS, transition._settings)
 	if duration > 0.0:
 		var tween := transition.create_tween().set_ignore_time_scale(true)
 		tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		tween.tween_property(transition._surface, "modulate:a", 0.0, duration)
+		tween.tween_property(transition._surface, "self_modulate:a", 0.0, duration)
 		# A bound tween is killed without a finished signal when its owner leaves.
 		# Frame pulses let the operation release its suspended state on teardown.
 		while tween.is_valid() and tween.is_running():

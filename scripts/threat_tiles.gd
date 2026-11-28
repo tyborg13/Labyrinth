@@ -8,6 +8,9 @@ const OUTLINE_ALPHA: float = 0.75
 # see it on mid-tone earth floors, where DANGER turned the floor's olive-brown
 # (pol-53 audit). The fill stays DANGER.
 const OUTLINE_COLOR: Color = Palette.DANGER_BRIGHT
+const OUTLINE_BAND_WIDTH: float = 5.0
+const OUTLINE_BAND_ALPHA: float = 0.8
+const OUTLINE_BAND_COLOR: Color = Palette.PREVIEW_INK
 const FILL_ALPHA: float = 0.12
 const HERO_FILL_ALPHA: float = 0.24
 const PULSE_MIN: float = 0.18
@@ -103,23 +106,50 @@ static func hero_tile(presentation: Dictionary, targeting: bool = false) -> Vect
 	var release: Vector2i = presentation.get(REST_KEY, {}).get("hero_tile", Vector2i(-1, -1))
 	return release if targeting else presentation.get(FLOOR_HERO_KEY, release)
 
+static func tile_geometry(board: Control, tile: Vector2i, polygon: PackedVector2Array) -> Dictionary:
+	var center: Vector2 = board.call("_tile_center", tile)
+	var width: float = float(board.call("_tile_width"))
+	var height: float = float(board.call("_tile_height"))
+	var edge_distance: float = (width * height * 0.5) / sqrt(width * width + height * height)
+	return {
+		"center": center,
+		"inner": _inset_diamond(polygon, center, edge_distance, OUTLINE_WIDTH),
+		"band": _inset_diamond(polygon, center, edge_distance, OUTLINE_BAND_WIDTH),
+	}
+
+static func _inset_diamond(polygon: PackedVector2Array, center: Vector2, edge_distance: float, stroke_width: float) -> PackedVector2Array:
+	# Offset each edge by half the stroke so the paint stays inside the tile.
+	var scale: float = maxf(0.0, 1.0 - stroke_width * 0.5 / edge_distance)
+	var inset := PackedVector2Array()
+	for point: Vector2 in polygon:
+		inset.append(center + (point - center) * scale)
+	return inset
+
+static func outline_operations(paint: Dictionary) -> Array[Array]:
+	var alpha: float = float(paint["alpha"])
+	var outline: PackedVector2Array = (paint["inner"] as PackedVector2Array).duplicate()
+	outline.append(outline[0])
+	var band: PackedVector2Array = (paint["band"] as PackedVector2Array).duplicate()
+	if band[0] != band[-1]: band.append(band[0])
+	# A fringe on the outside of the band would cross into adjacent tiles.
+	var operations: Array[Array]
+	operations.append([band, Color(OUTLINE_BAND_COLOR, OUTLINE_BAND_ALPHA * alpha), OUTLINE_BAND_WIDTH, false])
+	operations.append([outline, Color(OUTLINE_COLOR, OUTLINE_ALPHA * alpha), OUTLINE_WIDTH, true])
+	return operations
+
+static func draw_tile_outline(canvas: CanvasItem, paint: Dictionary) -> void:
+	for arguments: Array in outline_operations(paint):
+		canvas.callv("draw_polyline", arguments)
+
 static func draw_tile(board: Control, tile: Vector2i, polygon: PackedVector2Array, threats: Dictionary, hero_tile: Vector2i, reduced_motion: bool, draw_tags: Variant = null) -> void:
 	if not threats.has(tile) or not visible_at(board, tile):
 		return
 	var alpha: float = float(threats[tile])
-	var center: Vector2 = board.call("_tile_center", tile)
-	# Offset each diamond edge by half the stroke so the outline stays inside.
-	var inset: float = OUTLINE_WIDTH * 0.5
-	var width: float = float(board.call("_tile_width"))
-	var height: float = float(board.call("_tile_height"))
-	var edge_distance: float = (width * height * 0.5) / sqrt(width * width + height * height)
-	var inner := PackedVector2Array()
-	for point: Vector2 in polygon:
-		inner.append(center + (point - center) * maxf(0.0, 1.0 - inset / edge_distance))
+	var paint: Dictionary = tile_geometry(board, tile, polygon)
+	paint["alpha"] = alpha
 	var fill: float = hero_fill_alpha(float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0, reduced_motion) if tile == hero_tile else FILL_ALPHA
-	board.draw_colored_polygon(inner, Color(Palette.DANGER, fill * alpha))
-	inner.append(inner[0])
-	board.draw_polyline(inner, Color(OUTLINE_COLOR, OUTLINE_ALPHA * alpha), OUTLINE_WIDTH, true)
+	board.draw_colored_polygon(paint["inner"], Color(Palette.DANGER, fill * alpha))
+	draw_tile_outline(board, paint)
 
 static func draw_zone_tag(_board: Control, _tag: Dictionary, _center: Vector2) -> void:
 	pass

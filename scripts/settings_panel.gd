@@ -186,7 +186,11 @@ func _ready() -> void:
 	if not _defer_initial_refresh: refresh_from_disk()
 	_build_demo_links()
 	visibility_changed.connect(_on_panel_visibility_changed)
-	preload("res://scripts/controller_gui_navigation.gd").install(self, func() -> bool: return _listening_action.is_empty())
+	preload("res://scripts/controller_gui_navigation.gd").install(
+		self,
+		func() -> bool: return _listening_action.is_empty(),
+		func() -> Control: return _confirmation_panel if is_instance_valid(_confirmation_panel) and _confirmation_panel.visible else self
+	)
 
 func defer_initial_refresh() -> void:
 	_defer_initial_refresh = true
@@ -1077,6 +1081,7 @@ func _build_demo_links() -> void:
 		_demo_links.append(link)
 	var audio: Control = _controls["master_volume"]["slider"] as Control
 	audio.focus_neighbor_top = audio.get_path_to(_demo_links[0])
+	preload("res://scripts/controller_axis_repeat.gd").mark_region(_demo_links, &"settings_demo_links")
 	for index: int in range(_demo_links.size()):
 		var link: Button = _demo_links[index]
 		var other: Button = _demo_links[1 - index]

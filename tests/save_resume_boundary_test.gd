@@ -121,6 +121,7 @@ func _initialize() -> void:
 		_test_completion_ids_survive_revision_reconciliation(base_run)
 	await _test_failed_terminal_profile_then_departure()
 	await _test_confirmed_heirloom_departure(base_run)
+	if not base_run.is_empty(): await _test_interrupted_win_receipts(base_run)
 	await _test_cancelled_room_travel()
 	await _test_cancelled_loading_preparation()
 	if not base_run.is_empty(): await _test_reward_continue_board_fit(base_run)
@@ -708,6 +709,82 @@ func _test_reward_continue_board_fit(base_run: Dictionary) -> void:
 		"Continue should restore the live post-combat reward fit, got %s" % fit.size)
 	viewport.queue_free()
 	await process_frame
+
+func _test_interrupted_win_receipts(base_run: Dictionary) -> void:
+	const Analytics = TerminalCrash.Analytics
+	const Round1 = preload("res://tools/qa147/round1.gd")
+	const RECEIPT_DIRECTORY := "user://save_resume_won_receipts"
+	const REASON := "card_play"
+	const NEWER_PROFILE_REVISION := 1
+	var previous_directory := Analytics.storage_dir()
+	Analytics.set_storage_dir(RECEIPT_DIRECTORY)
+	Analytics.clear_storage()
+	for cut: String in ["save_quit_at_victory", "kill_after_write"]:
+		var run_id := "run_fixture_won_" + cut
+		var combat_id := run_id + "_c001"
+		var state := base_run.duplicate(true)
+		var profile := ProgressionStore.default_data()
+		state["progression"] = profile
+		state["analytics"] = {"run_id": run_id, "combat_counter": 1}
+		var won_combat: Dictionary = state["combat_state"].duplicate(true)
+		won_combat["analytics"] = {"combat_id": combat_id}
+		for enemy: Dictionary in won_combat["enemies"]: enemy["hp"] = 0
+		_assert(ProgressionStore.save_data(profile), cut + " should reset the profile")
+		var instance: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+		instance.set_script(DepartureHost)
+		var host := instance as DepartureHost
+		host._progression = profile
+		host._run_state = state
+		root.add_child(host)
+		# First VICTORY still presents combat while departure owns the held reward.
+		var reward := host._run_state_for_combat_checkpoint(state, won_combat, REASON)
+		host._hold_committed_run_state(reward, "player_card")
+		var saved := ProgressionStore.load_saved_run()
+		var expected: Array[String]
+		expected.assign([Analytics.combat_ended_key(combat_id), Analytics.reward_offered_key(combat_id)])
+		var staged := ProgressionStore.progression_analytics_outbox(saved.get("progression", {}))
+		_assert(saved.get("mode") == "reward" and saved.get("pending_reward", {}).get("intro_pending", false)
+			and staged.map(func(row: Dictionary) -> String: return row["idempotency_key"]) == expected,
+			cut + " should stage both receipts in the first reward checkpoint")
+		_assert(Analytics._read_all_events().all(func(row: Dictionary) -> bool: return row.get("combat_id") != combat_id),
+			cut + " should interrupt before the first live append")
+		if cut == "save_quit_at_victory":
+			await host._save_for_quit()
+			saved = ProgressionStore.load_saved_run()
+		host.free()
+		# Without the live transition, title startup can only use the disk snapshot.
+		if cut == "kill_after_write":
+			var newer_profile := ProgressionStore.load_data()
+			newer_profile["progression_revision"] = int(saved["progression"]["progression_revision"]) + NEWER_PROFILE_REVISION
+			_assert(ProgressionStore.save_data(newer_profile), "Direct Continue should have a newer profile")
+			var viewport := SubViewport.new()
+			viewport.size = REWARD_VIEWPORT
+			root.add_child(viewport)
+			root.set_meta("labyrinth_resume_saved_run", true)
+			var resumed := (load("res://scenes/run_scene.tscn") as PackedScene).instantiate() as RunScene
+			viewport.add_child(resumed)
+			for frame: int in range(REWARD_LAYOUT_FRAMES): await process_frame
+			_assert(resumed._run_state.get("mode") == "reward" and Analytics.has_durable_rows(expected),
+				"Direct Continue should recover both receipts even when a newer profile supplies progression")
+			viewport.queue_free()
+			await process_frame
+		for attempt: int in range(2):
+			Persistence.replay_run_closing_receipts(ProgressionStore.load_data(), saved)
+		var records := Analytics.load_all_events().filter(func(row: Dictionary) -> bool:
+			return row.get("combat_id") == combat_id and row["event_type"] in ["combat_ended", "reward_offered"]
+		)
+		var keys := records.map(func(row: Dictionary) -> String: return row.get("idempotency_key", ""))
+		_assert(keys == expected and records.all(func(row: Dictionary) -> bool: return row["payload"]["reason"] == REASON),
+			cut + " should retain one combat end followed by one reward offer")
+		print("WON CHECKPOINT RECEIPTS: ", cut, " ", records.map(func(row: Dictionary) -> String: return row["event_type"]))
+		ProgressionStore.clear_saved_run()
+	Analytics.clear_storage()
+	Analytics.set_storage_dir(previous_directory)
+	for finding: String in Round1.FINDINGS:
+		var result := await Round1.exercise(self, finding)
+		_assert(result["passed"], "Interrupted win should retain both receipts for " + finding)
+		print("WON RECEIPT DELIVERY: " + JSON.stringify(result))
+	_matrix_rows.append("reward/interrupted_win_receipts")
 
 func _test_terminal_boundaries(base_run: Dictionary) -> void:
 	var defeat_combat: Dictionary = (base_run.get("combat_state", {}) as Dictionary).duplicate(true)

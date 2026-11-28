@@ -200,3 +200,38 @@ static func opaque_at(source: Dictionary, point: Vector2) -> bool:
 	var x: int = clampi(int(uv.x * dimensions.x), 0, dimensions.x - 1)
 	var y: int = clampi(int(uv.y * dimensions.y), 0, dimensions.y - 1)
 	return (mask["bits"] as PackedByteArray)[y * dimensions.x + x] != 0
+
+# The edge is baked in the source sprite's texel grid. Transparent padding
+# gives pixels at a trimmed texture boundary the same eight neighbours.
+const EDGE_INK_RGB8 := Vector3i(15, 11, 10) # #0F0B0A
+const EDGE_TEXELS := Vector2i.ONE
+
+static func occluder_edge_image(image: Image) -> Image:
+	var size: Vector2i = image.get_size()
+	var padded: Vector2i = size + EDGE_TEXELS * 2
+	var source: PackedByteArray = image.get_data()
+	var result := PackedByteArray()
+	result.resize(padded.x * padded.y * 4)
+	# Stamp the 8-neighbour dilation using alpha 1 as a temporary marker
+	# for the solid body. A later stamp cannot overwrite a body marker.
+	for y: int in size.y:
+		for x: int in size.x:
+			if source[(y * size.x + x) * 4 + 3] < 128: continue
+			var center: int = ((y + 1) * padded.x + x + 1) * 4 + 3
+			result[center] = 1
+			for dy: int in range(-1, 2):
+				for dx: int in range(-1, 2):
+					var neighbor: int = center + (dy * padded.x + dx) * 4
+					if result[neighbor] == 0: result[neighbor] = 255
+	for alpha: int in range(3, result.size(), 4):
+		if result[alpha] == 1:
+			result[alpha] = 0
+		elif result[alpha] == 255:
+			result[alpha - 3] = EDGE_INK_RGB8.x
+			result[alpha - 2] = EDGE_INK_RGB8.y
+			result[alpha - 1] = EDGE_INK_RGB8.z
+	return Image.create_from_data(padded.x, padded.y, false, Image.FORMAT_RGBA8, result)
+
+static func occluder_edge_rect(rect: Rect2, padded_size: Vector2i) -> Rect2:
+	var padding: Vector2 = rect.size / Vector2(padded_size - EDGE_TEXELS * 2)
+	return Rect2(rect.position - padding, rect.size + 2.0 * padding)

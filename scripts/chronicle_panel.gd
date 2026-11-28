@@ -212,6 +212,7 @@ func _draw_frame() -> void:
 	Frame.draw_corner_brackets(_panel, rect.grow(2), Palette.GOLD, 46, 4, 0)
 
 func open(profile: Dictionary = {}, log_event: bool = true) -> void:
+	_stick_repeat.stop_dpad()
 	var data: Dictionary = Store.load_data() if profile.is_empty() else profile
 	records = Store.chronicle_records(data)
 	# Both menu and recap enter here; capture their last drawn frame before showing.
@@ -301,6 +302,7 @@ static func _record_art_active(panel: Variant, revision: int) -> bool:
 	return is_instance_valid(panel) and revision == panel._art_revision and panel.is_inside_tree() and panel.is_visible_in_tree()
 
 func close() -> void:
+	_stick_repeat.stop_dpad()
 	_art_revision += 1
 	ScreenCrossfade.play(self, 0.12 if Settings.applied_reduced_motion_enabled() else 0.20)
 	_clear_focus_tooltip()
@@ -661,6 +663,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	var focused: Control = get_viewport().gui_get_focus_owner()
+	_stick_repeat.observe_dpad(event, get_viewport(), _can_repeat_dpad.bind(focused != null and _detail.is_ancestor_of(focused)))
 	if focused != null and _detail.is_ancestor_of(focused): return
 	var direction: int = 0
 	if event.is_action_pressed("ui_up", true):
@@ -691,6 +694,23 @@ func _process(delta: float) -> void:
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router == null or bool(router.call("using_controller")):
 		_stick_repeat.advance(delta)
+	else:
+		_stick_repeat.stop_dpad()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+		_stick_repeat.stop_dpad()
+
+func _can_repeat_dpad(button: int, detail: bool) -> bool:
+	if not is_visible_in_tree(): return false
+	var focused: Control = get_viewport().gui_get_focus_owner()
+	if focused == null: return false
+	if detail:
+		if not _detail.is_ancestor_of(focused): return false
+		var target: Control = focused.find_valid_focus_neighbor(_stick_repeat.dpad_side(button) as Side)
+		return target != null and target != focused and _detail.is_ancestor_of(target)
+	var direction: int = int(_stick_repeat.dpad_direction(button).y)
+	return _rows.is_ancestor_of(focused) and direction != 0 and selected_index + direction >= 0 and selected_index + direction < records.size()
 
 func _column(parent: Node, heading: String) -> VBoxContainer:
 	var column := VBoxContainer.new()

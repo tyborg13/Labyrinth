@@ -375,6 +375,7 @@ func build() -> void:
 	preload("res://scripts/grimoire_search_keyboard.gd").attach(_grimoire_search_input)
 	_grimoire_search_input.focus_neighbor_top = _grimoire_search_input.get_path_to(close_button)
 	close_button.focus_neighbor_bottom = close_button.get_path_to(_grimoire_search_input)
+	search_row.set_meta("controller_repeat_region", &"grimoire_search")
 
 	_grimoire_search_clear_button = UiTooltipButton.new()
 	_grimoire_search_clear_button.name = "GrimoireSearchClear"
@@ -399,6 +400,7 @@ func build() -> void:
 	left_stack.add_child(_grimoire_search_status)
 
 	_grimoire_entry_scroll = ScrollContainer.new()
+	_grimoire_entry_scroll.set_meta("controller_repeat_region", &"grimoire_list")
 	_grimoire_entry_scroll.name = "GrimoireNavScroll"
 	_grimoire_entry_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_grimoire_entry_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -492,6 +494,7 @@ func build() -> void:
 	_grimoire_detail_content.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	_grimoire_detail_stack.add_child(_grimoire_detail_content)
 	_grimoire_detail_scroll = ScrollContainer.new()
+	_grimoire_detail_scroll.set_meta("controller_repeat_region", &"grimoire_detail")
 	_grimoire_detail_scroll.name = "GrimoireDetailScroll"
 	_grimoire_detail_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_grimoire_detail_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL

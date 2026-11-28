@@ -1,0 +1,12 @@
+{
+  "min_images": 6,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*LegendItem_empty_1920x1080.png"},
+    {"pattern": "*LegendItem_normal_1920x1080.png", "regions": [{"rect": [480, 360, 420, 190], "min_luma_range": 12}]},
+    {"pattern": "*CardTile_empty_1920x1080.png"},
+    {"pattern": "*CardTile_normal_1920x1080.png", "regions": [{"rect": [480, 360, 420, 190], "min_luma_range": 12}]},
+    {"pattern": "*EmpowerSeal_empty_1920x1080.png"},
+    {"pattern": "*EmpowerSeal_normal_1920x1080.png", "regions": [{"rect": [480, 360, 420, 220], "min_luma_range": 12}]}
+  ]
+}

@@ -96,11 +96,15 @@ static func _read_all_events() -> Array[Dictionary]:
 # parse. Older row shapes are not matched; callers then use the full writer.
 static func has_durable_rows(keys: Array) -> bool:
 	if not flush_pending_events(): return false
+	return has_durable_rows_at(keys, ProjectSettings.globalize_path(_storage_dir))
+
+# Checkpoint transactions already run on the disk worker. This reader only
+# inspects complete lines and never dispatches or waits on the analytics queue.
+static func has_durable_rows_at(keys: Array, absolute_dir: String, accept_combat_aliases: bool = false) -> bool:
 	var remaining: Dictionary = {}
 	for key: Variant in keys:
 		if not str(key).is_empty(): remaining[str(key)] = true
 	if remaining.is_empty(): return true
-	var absolute_dir: String = ProjectSettings.globalize_path(_storage_dir)
 	if not DirAccess.dir_exists_absolute(absolute_dir): return false
 	var filenames: Array[String]
 	for name: String in DirAccess.get_files_at(absolute_dir):
@@ -109,19 +113,30 @@ static func has_durable_rows(keys: Array) -> bool:
 	for index: int in range(filenames.size() - 1, -1, -1):
 		var text: String = FileAccess.get_file_as_string(absolute_dir.path_join(filenames[index]))
 		for key: String in remaining.keys():
-			var needle: String = "\"idempotency_key\":" + JSON.stringify(key)
-			var at: int = text.find(needle)
-			while at >= 0:
-				var end: int = text.find("\n", at)
-				# An interrupted tail has no newline and is not a durable row.
-				if end < 0: break
-				var start: int = text.rfind("\n", at) + 1
-				var parser := JSON.new()
-				if parser.parse(text.substr(start, end - start)) == OK and parser.data is Dictionary and parser.data.get("idempotency_key") == key:
+			if _has_complete_row(text, "\"idempotency_key\":" + JSON.stringify(key), key):
+				remaining.erase(key)
+			elif accept_combat_aliases and (key.begins_with("combat_ended|") or key.begins_with("reward_offered|")):
+				var combat_id: String = key.substr(key.find("|") + 1)
+				if _has_complete_row(text, "\"combat_id\":" + JSON.stringify(combat_id), key, combat_id):
 					remaining.erase(key)
-					break
-				at = text.find(needle, end)
 		if remaining.is_empty(): return true
+	return false
+
+static func _has_complete_row(text: String, needle: String, key: String, combat_id: String = "") -> bool:
+	var at := text.find(needle)
+	while at >= 0:
+		var end := text.find("\n", at)
+		# An interrupted tail has no newline and is not a durable row.
+		if end < 0: return false
+		var start := text.rfind("\n", at) + 1
+		var parser := JSON.new()
+		if parser.parse(text.substr(start, end - start)) == OK and parser.data is Dictionary:
+			var row: Dictionary = parser.data
+			if combat_id.is_empty():
+				if row.get("idempotency_key") == key: return true
+			elif row.get("event_type") == key.get_slice("|", 0) and row.get("combat_id") == combat_id:
+				return true
+		at = text.find(needle, end)
 	return false
 
 func _init() -> void:
@@ -286,6 +301,9 @@ static func run_ended_key(run_id: String) -> String:
 static func combat_ended_key(combat_id: String) -> String:
 	return "combat_ended|%s" % combat_id
 
+static func reward_offered_key(combat_id: String) -> String:
+	return "reward_offered|%s" % combat_id
+
 static func dragon_claim_key(milestone: String, run_id: String) -> String:
 	var suffix: int = milestone.find(":dragon:")
 	if not run_id.is_empty() and milestone.begins_with("run:") and suffix >= 0:
@@ -308,6 +326,8 @@ func _reload_known_idempotency_keys() -> void:
 		var combat_id: String = str(existing_event.get("combat_id", ""))
 		if existing_event.get("event_type") == "combat_ended" and not combat_id.is_empty():
 			_known_idempotency_keys[combat_ended_key(combat_id)] = true
+		if existing_event.get("event_type") == "reward_offered" and not combat_id.is_empty():
+			_known_idempotency_keys[reward_offered_key(combat_id)] = true
 		if existing_event.get("event_type") == "reward_claimed" and existing_key.begins_with("reward_claimed|"):
 			_known_idempotency_keys[dragon_claim_key(existing_key.trim_prefix("reward_claimed|"), run_id)] = true
 	# Failed batches still own their reservations. A replay cannot manufacture a

@@ -33,7 +33,7 @@ static func stage_receipt(progression: Dictionary, receipt: Dictionary) -> Dicti
 		progression, receipt["event_type"], receipt["idempotency_key"], AnalyticsStore._sanitize_variant(receipt["context"]), AnalyticsStore._sanitize_variant(receipt["payload"])
 	)
 
-static func stage_combat_end(combat_engine: RefCounted, run_engine: RefCounted, state: Dictionary, combat: Dictionary, reason: String) -> void:
+static func stage_combat_end(combat_engine: RefCounted, run_engine: RefCounted, state: Dictionary, combat: Dictionary, reason: String) -> String:
 	var combat_context: Dictionary = context(combat_engine, run_engine, {}, state, combat)
 	var combat_id: String = combat_context["combat_id"]
 	if combat_id.is_empty():
@@ -45,6 +45,31 @@ static func stage_combat_end(combat_engine: RefCounted, run_engine: RefCounted, 
 		"context": combat_context, "payload": combat_ended(combat_engine, combat, reason, state),
 	}
 	state["progression"] = stage_receipt(state.get("progression", {}), combat_receipt)
+	return combat_id
+
+static func stage_combat_win(combat_engine: RefCounted, run_engine: RefCounted, state: Dictionary,
+		combat: Dictionary, reason: String, salvaged_equipment: Array[String]) -> void:
+	var reward: Dictionary = state.get("pending_reward", {})
+	var board: Dictionary = reward.get("board_state", {})
+	var preserves_board: bool = combat.get("objective", {}).get("type") == CombatObjectiveRules.REACH_EXIT
+	var live_board: Dictionary
+	if board.is_empty() or preserves_board:
+		live_board = combat_engine.resolve_missed_equipment_after_victory(combat_engine.post_combat_board_state(combat))
+		if not preserves_board:
+			for item_id: String in salvaged_equipment:
+				live_board["missed_equipment"].erase(item_id)
+	else:
+		# The live transition removes the Salvager item from missed loot.
+		# Only the saved reward board adds that item to collected equipment.
+		live_board = board.duplicate(false)
+		live_board["collected_equipment"] = combat.get("collected_equipment", [])
+	var ending_board: Dictionary = board if reward.get("final_boss", false) else live_board
+	var combat_id := stage_combat_end(combat_engine, run_engine, state, ending_board, reason)
+	state["progression"] = stage_receipt(state["progression"], {
+		"event_type": "reward_offered", "idempotency_key": AnalyticsStore.reward_offered_key(combat_id),
+		"context": context(combat_engine, run_engine, {}, state, live_board),
+		"payload": reward_offered(run_engine, state, reason),
+	})
 
 static func stage_defeat(combat_engine: RefCounted, run_engine: RefCounted, state: Dictionary, combat: Dictionary, reason: String) -> void:
 	stage_combat_end(combat_engine, run_engine, state, combat, reason)
@@ -270,8 +295,8 @@ static func _combat_reward_equipment(run_state: Dictionary) -> Array:
 	return (run_state.get(reward_key, {}).get(RunEngineScript.AWARDED_EQUIPMENT_KEY, []) as Array).duplicate()
 
 static func reward_offered(_run_engine: RefCounted, _run_state: Dictionary, reason: String) -> Dictionary:
-	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
-	var offered_cards: Array = reward_state.get("cards", [])
+	var reward_state: Dictionary = _run_state.get("pending_reward", {})
+	var offered_cards: Array = reward_state.get("cards", []).duplicate()
 	var deck_element: String = RunDeck.element(_run_state)
 	var deck_match: Array[bool]
 	for card_id: String in offered_cards:

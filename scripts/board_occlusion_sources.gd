@@ -246,6 +246,10 @@ static func drawing(board: Control, entry: Dictionary) -> Dictionary:
 	return {"texture": texture, "rect": rect}
 
 
+static func gets_occluder_edge(source: Dictionary) -> bool:
+	return source.get("prop_kind") in ["pillar", "door"] or (
+		source["kind"] == "terrain" and (source.get("data", {}) as Dictionary).get("kind") == "wooden_crate")
+
 static func opening_door_mask(board: Control, grid: Array, source: Dictionary) -> Dictionary:
 	if source.get("prop_kind") != "door": return {}
 	var tile: Vector2i = source["tile"]

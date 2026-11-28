@@ -331,6 +331,8 @@ static func _finish_foes(host: Node, state: Dictionary, foes: Control, header: C
 	hint.offset_top = -hint_height
 	foes.add_child(hint_slot)
 	var actions := build_actions(host, state)
+	flow.set_meta("controller_repeat_region", true)
+	actions.set_meta("controller_repeat_region", true)
 	foes.add_child(actions)
 	if flow.get_child_count() > 0:
 		var focus_foe := flow.get_child(mini(1, flow.get_child_count() - 1)) as Control

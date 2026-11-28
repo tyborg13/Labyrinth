@@ -122,6 +122,8 @@ func _build() -> void:
 	_begin = _button("DepthBegin", "Begin Descent", Rect2(389, FOOTER_TOP, 222, 56), true)
 	_back.pressed.connect(cancel)
 	_begin.pressed.connect(begin)
+	preload("res://scripts/controller_axis_repeat.gd").mark_region([_left, _right], &"descent_depth")
+	preload("res://scripts/controller_axis_repeat.gd").mark_region([_back, _begin], &"descent_footer")
 	_back.focus_neighbor_right = _back.get_path_to(_begin)
 	_begin.focus_neighbor_left = _begin.get_path_to(_back)
 	_back.focus_neighbor_top = _back.get_path_to(_left)

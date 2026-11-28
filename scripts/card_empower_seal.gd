@@ -125,4 +125,5 @@ func _draw_slash() -> void:
 	_slash.draw_line(center + Vector2(-extent, extent), center + Vector2(extent, -extent), Color.from_string(SLASH_COLOR, Color.WHITE), size.x / SOCKET_SIZE * 3.0, true)
 
 func _make_custom_tooltip(for_text: String) -> Object:
+	if for_text.strip_edges().is_empty(): return null
 	return Tooltip.make_text(for_text, {}, "empower")

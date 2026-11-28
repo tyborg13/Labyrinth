@@ -68,6 +68,7 @@ const EnemyCutoutFacing = preload("res://scripts/enemy_cutout_facing.gd")
 const StaticEnemyFacing = preload("res://scripts/static_enemy_facing.gd")
 var _warden_renderers: Dictionary = {}
 const CrawlerCutout = preload("res://scripts/crawler_cutout/renderer.gd")
+enum CrawlerDeathHandoff { WAITING, PRESENTED }
 var _crawler_renderers: Dictionary = {}
 var _prepared_unit_renderers: Dictionary = {}
 const GuardianCutout = preload("res://scripts/guardian_cutout/renderer.gd")
@@ -1549,15 +1550,47 @@ func _sync_crawler_renderers() -> void:
 			renderer.name = "CrawlerCutout_%d" % int(unit.get("id", -1))
 			if renderer.get_parent() == null: add_child(renderer)
 			_crawler_renderers[actor_key] = renderer
-		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+		var dying: bool = bool(unit.get("death_animation", false))
+		if not dying and not (combat_state.get("player", {}) as Dictionary).is_empty():
 			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		if dying:
+			renderer.set_meta(&"crawler_death_handoff", CrawlerDeathHandoff.PRESENTED)
+		elif renderer.has_meta(&"crawler_death_handoff"):
+			renderer.remove_meta(&"crawler_death_handoff")
 		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
-		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not dying)
+	# Enemy status playback can submit the committed roster before the death
+	# overlay reaches the board. Keep the rig dormant across that gap so the
+	# first dissolve can reuse its viewport and assembled pose.
+	var pacing: Variant = presentation.get("combat_feel_owner")
+	var retained: Dictionary = {}
+	if is_instance_valid(pacing) and pacing.enemies_active:
+		for enemy: Dictionary in combat_state.get("enemies", []):
+			if str(enemy.get("type", "")) == "crawler" and int(enemy.get("hp", 0)) <= 0:
+				retained["enemy_%d" % int(enemy.get("id", -1))] = true
 	for actor_key: String in _crawler_renderers.keys():
 		if not actors.has(actor_key):
 			var renderer: Node = _crawler_renderers[actor_key]
-			_crawler_renderers.erase(actor_key)
-			renderer.queue_free()
+			if retained.has(actor_key) and renderer.get_meta(&"crawler_death_handoff", -1) != CrawlerDeathHandoff.PRESENTED:
+				if not renderer.has_meta(&"crawler_death_handoff"):
+					# The release path recreated the rig in its neutral front
+					# pose here. Keep that pose as the death blend's source.
+					_reset_prepared_unit_pose(renderer, "crawler")
+					renderer.call("present", {}, bool(presentation.get("reduced_motion", false)), false)
+					renderer.set_meta(&"crawler_death_handoff", CrawlerDeathHandoff.WAITING)
+				continue
+			_release_crawler_renderer(actor_key)
+
+func release_waiting_crawler_rigs() -> void:
+	for actor_key: String in _crawler_renderers.keys():
+		var renderer: Node = _crawler_renderers[actor_key]
+		if renderer.get_meta(&"crawler_death_handoff", -1) == CrawlerDeathHandoff.WAITING:
+			_release_crawler_renderer(actor_key)
+
+func _release_crawler_renderer(actor_key: String) -> void:
+	var renderer: Node = _crawler_renderers[actor_key]
+	_crawler_renderers.erase(actor_key)
+	renderer.queue_free()
 
 func acolyte_animation_snapshot(actor_key: String) -> Dictionary:
 	var renderer: Node = _acolyte_renderers.get(actor_key, null) as Node
@@ -15781,22 +15814,24 @@ func _take_prepared_unit_renderer(type: String, unit_id: int, script: Script) ->
 			renderer.reset_prepared_state()
 			renderer.set_process(true)
 			return renderer
-		# Adoption starts with the same state and neutral front pose as new().
-		# Reaction-first callers preserve that pose rather than the warm facing.
-		renderer.set("facing", "front")
-		renderer.set("mirrored", false)
-		renderer.set("clip", "idle")
-		renderer.set("phase", 0.0)
-		renderer.set("reduced_motion", false)
-		renderer.set("active", true)
-		if type == "crawler": renderer.set("attack_variant", "attack")
-		renderer.set("_idle_seconds", 0.0)
-		renderer.set("_pose_signature", [])
-		renderer.call("_apply_pose")
+		_reset_prepared_unit_pose(renderer, type)
 		renderer.set_process(true)
 		return renderer
 	if is_instance_valid(renderer): renderer.queue_free()
 	return script.new()
+
+func _reset_prepared_unit_pose(renderer: Node, type: String) -> void:
+	# Reaction-first callers start from the constructor's neutral front pose.
+	renderer.set("facing", "front")
+	renderer.set("mirrored", false)
+	renderer.set("clip", "idle")
+	renderer.set("phase", 0.0)
+	renderer.set("reduced_motion", false)
+	renderer.set("active", true)
+	if type == "crawler": renderer.set("attack_variant", "attack")
+	renderer.set("_idle_seconds", 0.0)
+	renderer.set("_pose_signature", [])
+	renderer.call("_apply_pose")
 
 var _prepared_opening_tile_layers: Array[WeakRef]
 
@@ -16841,6 +16876,108 @@ func rendered_visual_rects(include_unit_hud: bool = true, include_units: bool = 
 		if _board_tile_is_visible_to_player(trap.get("pos", Vector2i(-1, -1))):
 			rects.append(_trap_visual_draw_rect(trap))
 	return rects
+
+func action_caption_rects(tiles: Array, destinations: Dictionary = {}) -> Dictionary:
+	var bodies: Array[Rect2]
+	var health: Array[Rect2]
+	var intents: Array[Rect2]
+	var diamonds: Array[Rect2]
+	var units: Array[Dictionary] = _visible_units()
+	var by_key: Dictionary = _units_by_key(units)
+	var grid: Array = combat_state.get("grid", [])
+	var offsets: Dictionary = {}
+	for unit: Dictionary in units:
+		var actor: String = str(unit.get("key", ""))
+		var origin: Vector2i = unit.get("pos", Vector2i(-1, -1))
+		var destination: Vector2i = destinations.get(actor, origin)
+		var offset := Vector2.ZERO
+		if destination != origin and _tile_in_grid(grid, origin) and _tile_in_grid(grid, destination):
+			offset = _tile_center(destination) - _tile_center(origin)
+			offsets[actor] = offset
+		var body: Rect2 = _action_caption_body_rect(unit)
+		if body.has_area():
+			bodies.append(body)
+			if offset != Vector2.ZERO: bodies.append(Rect2(body.position + offset, body.size))
+	for entry: Dictionary in _hud_layout_entries_cache:
+		var actor: String = str(entry.get("actor_key", ""))
+		var unit: Dictionary = by_key.get(actor, {})
+		if unit.is_empty() or not _umbra_actor_clip_for_unit(unit).is_empty():
+			continue
+		var layout: Dictionary = entry.get("layout", {})
+		var frame: Rect2 = entry.get("health_rect", Rect2())
+		if frame.has_area():
+			var plates: Dictionary = _status_plate_layout.resolve(self, HudForecast.unit(unit, presentation), frame)
+			var visible: Array[Rect2] = _action_caption_visible_plates(unit, plates)
+			var crest: Rect2 = _leader_marker_rect(unit, frame, layout.get("intent_rect", Rect2()))
+			if crest.has_area(): visible.append(crest)
+			health.append_array(visible)
+			if offsets.has(actor):
+				for rect: Rect2 in visible: health.append(Rect2(rect.position + (offsets[actor] as Vector2), rect.size))
+		intents.append_array(layout.get("line_rects", []))
+	if not offsets.is_empty():
+		_action_caption_projected_plates(health, destinations)
+	for badge: Dictionary in IntentBadges.layouts(self, (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", [])):
+		if float(badge.get("alpha", 1.0)) > 0.0: intents.append(badge["rect"])
+	for tile: Vector2i in tiles:
+		if _tile_in_grid(grid, tile):
+			var diamond: PackedVector2Array = _tile_polygon(tile)
+			var bounds := Rect2(diamond[0], Vector2.ZERO)
+			for point: Vector2 in diamond:
+				bounds = bounds.expand(point)
+			if not diamonds.has(bounds):
+				diamonds.append(bounds)
+	return {"body": bodies, "health": health, "intent": intents, "tiles": diamonds}
+
+func _action_caption_visible_plates(unit: Dictionary, plates: Dictionary) -> Array[Rect2]:
+	var rects: Array[Rect2]
+	if _health_bar_owner_alpha(unit) * _plate_opacity(unit) > 0.0:
+		rects.append(plates["frame"])
+	# The badges have their own draw path and remain painted when a
+	# Contextual health frame is hidden.
+	rects.append_array(plates["defense_rects"])
+	rects.append_array(plates["status_rects"])
+	rects.append_array(plates["pip_rects"])
+	return rects
+
+func _action_caption_projected_plates(health: Array[Rect2], destinations: Dictionary) -> void:
+	# A mover can displace a standing actor's visible badge when the groups
+	# settle at the destination. Solve that arrangement in a private cache.
+	var units: Array[Dictionary] = _hud_layout_units().duplicate(true)
+	var grid: Array = combat_state.get("grid", [])
+	for unit: Dictionary in units:
+		var destination: Vector2i = destinations.get(str(unit.get("key", "")), Vector2i(-1, -1))
+		if _tile_in_grid(grid, destination): unit["pos"] = destination
+	units.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return _tile_draws_before(a["pos"], b["pos"]))
+	var projected = preload("res://scripts/board_status_layout_cache.gd").new()
+	var discs: Dictionary = IntentBadges.fixed_order_by_key(self, units)
+	projected.fixed_order_rects = TypedArrays.rects(discs.values())
+	projected.prepare_groups(self, units)
+	projected.protect_hero(units, discs, _tile_width() * 0.5, IntentBadges.MEDALLION_DIAMETER)
+	for unit: Dictionary in units:
+		var plates: Dictionary = projected.cached_group(str(unit.get("key", "")))
+		if plates.is_empty() or not _umbra_actor_clip_for_unit(unit).is_empty(): continue
+		for rect: Rect2 in _action_caption_visible_plates(unit, plates):
+			if not health.has(rect): health.append(rect)
+
+func _action_caption_body_rect(unit: Dictionary) -> Rect2:
+	if bool(unit.get("burrowed", false)):
+		var mound: CanvasTexture = BurrowView.mound_texture()
+		if mound == null: return Rect2()
+		var clock: int = preload("res://scripts/presentation_clock.gd").ticks_msec()
+		var pulse: float = BurrowView.breath_scale(clock, bool(presentation.get("reduced_motion", false)))
+		return _texture_used_draw_rect(mound.diffuse_texture, BurrowView.mound_draw_rect(self, unit["pos"], mound, pulse))
+	var center: Vector2 = _unit_center(unit)
+	var texture: Texture2D = _texture_for_unit(unit)
+	if texture == null: return Rect2()
+	if not texture is ViewportTexture:
+		return _texture_used_draw_rect(texture, _unit_texture_draw_rect(unit, center))
+	# The live rig viewport has transparent travel padding. Use the
+	# registered art extent and the existing authored alpha bounds.
+	var rest: Dictionary = preload("res://scripts/board_occlusion_sources.gd")._unit_mask(self, unit)
+	var draw_rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	var used: Rect2 = _texture_used_draw_rect(rest["mask_texture"], draw_rect)
+	if bool(rest["mask_flip"]): used.position.x = draw_rect.position.x + draw_rect.end.x - used.end.x
+	return used
 
 func enemy_intent_visual_global_rect(actor_key: String) -> Rect2:
 	if actor_key.is_empty() or not is_inside_tree():

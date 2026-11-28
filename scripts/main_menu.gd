@@ -315,8 +315,15 @@ func _activate_menu() -> void:
 	SceneLoads.watch_menu(self)
 	_warm_grimoire_after_first_frame.call_deferred()
 
-	preload("res://scripts/controller_gui_navigation.gd").install(self)
+	preload("res://scripts/controller_gui_navigation.gd").install(self, Callable(), _controller_repeat_scope)
 	preload("res://scripts/play_stats.gd").notify("menu_loaded")
+
+func _controller_repeat_scope() -> Control:
+	if is_instance_valid(_new_descent_panel): return _new_descent_panel
+	if is_instance_valid(_grimoire) and _grimoire.visible: return _grimoire
+	if _replacement_confirmation_open: return replacement_panel
+	if _loading_run or _boot_preparing: return null
+	return self
 
 func _boot_trace(label: String) -> RefCounted:
 	if not _hitch_trace_enabled: return null
@@ -764,7 +771,7 @@ func _refresh_saved_run_preview(replay_closing_receipts: bool = false) -> void:
 		var receipt_source: Dictionary = saved_run
 		if checkpoint["status"] == ProgressionStore.RunFile.TERMINAL:
 			receipt_source = ProgressionStore.read_resumable_checkpoint(false, true).get("state", {})
-		RunPersistence.replay_run_closing_receipts(_progression, receipt_source)
+		RunPersistence.replay_run_closing_receipts(_progression, receipt_source, checkpoint.get(ProgressionStore.HIDDEN_WIN_RECEIPTS_KEY, []))
 	_saved_run_preview = _build_saved_run_preview(saved_run, checkpoint.get("summary", {}))
 	_saved_seed = saved_run.get("seed")
 	_saved_run_unavailable = checkpoint["status"] == ProgressionStore.RunFile.UNAVAILABLE
@@ -1382,6 +1389,7 @@ func _build_demo_links() -> void:
 	quit_button.resized.connect(_layout_demo_links)
 	quit_button.item_rect_changed.connect(_layout_demo_links)
 	quit_button.focus_neighbor_bottom = quit_button.get_path_to(_demo_links[0])
+	preload("res://scripts/controller_axis_repeat.gd").mark_region(_demo_links, &"title_demo_links")
 	for index: int in range(_demo_links.size()):
 		var link: Button = _demo_links[index]
 		link.focus_neighbor_top = link.get_path_to(quit_button if index == 0 else _demo_links[0])

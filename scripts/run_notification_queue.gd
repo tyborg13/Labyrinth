@@ -2,6 +2,7 @@ extends Node
 
 ## The shared run-log surface is the game's toast/notification presenter.
 ## Hold requests synchronously, then replay FIFO at its existing 3s duration.
+const NoticePlacement = preload("res://scripts/run_notice_placement.gd")
 const NODE_NAME: String = "DeferredRunNotifications"
 const FULL_PANEL_FIELDS: Array = [
 	"_event_view", "_magic_purge_overlay", "_pre_battle_scrim",
@@ -10,6 +11,8 @@ const FULL_PANEL_FIELDS: Array = [
 	"_skill_reset_confirmation_scrim", "_pinned_tooltip_scrim",
 	"_graftwright_view", "_scavenger_shop_view", "_run_end_recap",
 ]
+# Event art is above the recap when both overlays are still visible.
+const DEPARTURE_TOAST_OVERLAYS := ["_event_view", "_run_end_recap"]
 var fixed_clock: bool = false
 var queued: Array[Dictionary]
 var _owners: Dictionary = {}
@@ -20,6 +23,13 @@ var _last_persistent: String = ""
 var _last_requested: String = ""
 var _departed: bool = false
 var _watched_panels: Array[Control]
+var _recap_actions: Array[Control]
+var _departure_notice: String = ""
+var _departure_remaining: float = 0.0
+var _departure_layer_raised: bool = false
+var _notice_z_index: int
+var _notice_z_relative: bool
+var _notice_mouse_behavior: Control.MouseBehaviorRecursive
 
 static func _ensure(host: Node) -> Node:
 	var queue: Node = host.get_node_or_null(NODE_NAME)
@@ -46,6 +56,28 @@ static func release(host: Node, owner: Node) -> void:
 	queue._owners.erase(owner.get_instance_id())
 	if queue._owners.is_empty() and host.is_inside_tree() and not host.is_queued_for_deletion(): queue._show_next()
 
+static func replace_persistent(host: Node, message: String) -> void:
+	var queue: Node = _ensure(host)
+	var previous: String = queue._last_persistent
+	if previous != message:
+		# A held or currently painted copy of the old persistent notice must
+		# not outlive the state that produced it.
+		for index: int in range(queue.queued.size() - 1, -1, -1):
+			var notice: Dictionary = queue.queued[index]
+			if not notice["transient"] and notice["text"] == previous:
+				queue.queued.remove_at(index)
+		if queue._current.get("text") == previous and not queue._current.get("transient", false):
+			queue._current = {}
+		queue._last_persistent = message
+		if queue._last_requested == previous: queue._last_requested = message
+	queue._show_next()
+
+static func show_departure_failure(host: Node, message: String) -> void:
+	var queue: Node = _ensure(host)
+	queue._departure_notice = message
+	queue._departure_remaining = float(host.COMBAT_LOG_TRANSIENT_SECONDS)
+	queue._paint_departure_notice()
+
 static func refresh(host: Node, transient: bool = false) -> void:
 	var panel: Control = host.get("log_overlay")
 	var label: RichTextLabel = host.get("log_label")
@@ -53,6 +85,11 @@ static func refresh(host: Node, transient: bool = false) -> void:
 	var queue: Node = host.get_node_or_null(NODE_NAME)
 	if queue == null or not queue._departed:
 		queue = _ensure(host)
+	if queue != null and not queue._departure_notice.is_empty():
+		if label != null and label.text != queue._departure_notice:
+			queue._capture(label.text, transient)
+		queue._paint_departure_notice()
+		return
 	if queue != null and not queue._departed and (not queue._owners.is_empty() or not queue._current.is_empty() or not queue.queued.is_empty()):
 		queue._capture("" if label == null else label.text, transient)
 		if not queue._owners.is_empty() or _full_panel_open(host): panel.hide()
@@ -67,9 +104,10 @@ static func refresh(host: Node, transient: bool = false) -> void:
 		queue._last_requested = queue._last_persistent
 	panel.visible = not _full_panel_open(host) and label != null and not label.text.is_empty() and (transient or str(host.get("_run_state").get("mode", "room")) != "combat")
 
-static func _full_panel_open(host: Node) -> bool:
-	if str(host.get("_run_state").get("mode", "room")) == "event": return true
+static func _full_panel_open(host: Node, allow_departure_toast: bool = false) -> bool:
+	if not allow_departure_toast and str(host.get("_run_state").get("mode", "room")) == "event": return true
 	for field: String in FULL_PANEL_FIELDS:
+		if allow_departure_toast and field in DEPARTURE_TOAST_OVERLAYS: continue
 		var panel: Control = host.get(field) as Control
 		if is_instance_valid(panel) and panel.is_visible_in_tree(): return true
 	return false
@@ -80,9 +118,17 @@ func _watch_panels() -> void:
 		if not is_instance_valid(panel) or panel.visibility_changed.is_connected(_panel_visibility_changed): continue
 		panel.visibility_changed.connect(_panel_visibility_changed)
 		_watched_panels.append(panel)
+		if field == "_run_end_recap":
+			_recap_actions = NoticePlacement.recap_actions(panel)
+			for action in _recap_actions:
+				action.visibility_changed.connect(_panel_visibility_changed)
+				_watched_panels.append(action)
 
 func _panel_visibility_changed() -> void:
 	if _departed or not _host.is_inside_tree(): return
+	if not _departure_notice.is_empty():
+		_paint_departure_notice()
+		return
 	if _full_panel_open(_host):
 		if _current.is_empty() and _host.get("log_overlay").visible:
 			_capture(str(_host.get("log_label").text), false, true)
@@ -106,6 +152,14 @@ func _process(delta: float) -> void:
 	if not fixed_clock: advance(delta)
 
 func advance(seconds: float) -> void:
+	if not _departure_notice.is_empty():
+		if not _owners.is_empty() or _full_panel_open(_host, true): return
+		_departure_remaining -= seconds
+		if _departure_remaining <= 0.0:
+			_departure_notice = ""
+			_restore_departure_layer()
+			_show_next()
+		return
 	if not _owners.is_empty() or _current.is_empty() or _full_panel_open(_host): return
 	_remaining -= seconds
 	if _remaining > 0.0: return
@@ -114,6 +168,9 @@ func advance(seconds: float) -> void:
 
 func _show_next() -> void:
 	if not _owners.is_empty(): return
+	if not _departure_notice.is_empty():
+		_paint_departure_notice()
+		return
 	# With no new notices, resuming persistent paint needs no timed replay.
 	if _current.is_empty() and queued.size() == 1 and bool(queued[0].get("resume_visible", false)):
 		queued.clear()
@@ -128,6 +185,48 @@ func _paint_current() -> void:
 	_host.get("log_label").text = str(_current["text"])
 	_host.get("log_overlay").visible = not _full_panel_open(_host)
 
+func _paint_departure_notice() -> void:
+	var panel: Control = _host.get("log_overlay")
+	var overlay := _departure_toast_overlay()
+	_host.get("log_label").text = _departure_notice
+	if overlay != null:
+		if not _departure_layer_raised:
+			_notice_z_index = panel.z_index
+			_notice_z_relative = panel.z_as_relative
+			_notice_mouse_behavior = panel.mouse_behavior_recursive
+			_departure_layer_raised = true
+		panel.z_as_relative = overlay.z_as_relative
+		panel.z_index = overlay.z_index + 1
+		panel.mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_DISABLED
+		_set_departure_recap(overlay if overlay == _host.get("_run_end_recap") else null)
+	else:
+		_restore_departure_layer()
+	panel.visible = _owners.is_empty() and not _full_panel_open(_host, true)
+
+func _departure_toast_overlay() -> Control:
+	for field: String in DEPARTURE_TOAST_OVERLAYS:
+		var overlay: Control = _host.get(field)
+		if not is_instance_valid(overlay) or not overlay.is_visible_in_tree(): continue
+		if field != "_run_end_recap": return overlay
+		# The recap root stays visible while the Chronicle replaces its actions.
+		for action in _recap_actions:
+			if is_instance_valid(action) and action.is_visible_in_tree(): return overlay
+	return null
+
+func _restore_departure_layer() -> void:
+	if not _departure_layer_raised: return
+	_departure_layer_raised = false
+	var panel: Control = _host.get("log_overlay")
+	if is_instance_valid(panel):
+		panel.z_index = _notice_z_index
+		panel.z_as_relative = _notice_z_relative
+		panel.mouse_behavior_recursive = _notice_mouse_behavior
+	_set_departure_recap(null)
+
+func _set_departure_recap(recap: Control) -> void:
+	var placement: RefCounted = _host.get("_notice_placement")
+	if placement != null: placement.set_departure_recap(recap)
+
 func _restore_persistent() -> void:
 	# A completed transient is no longer a notice. Leaving it in the label
 	# would make the next hold mistake stale paint for a fresh request.
@@ -137,6 +236,8 @@ func _restore_persistent() -> void:
 
 func _exit_tree() -> void:
 	_departed = true
+	_departure_notice = ""
+	_restore_departure_layer()
 	set_process(false)
 	for panel: Control in _watched_panels:
 		if is_instance_valid(panel) and panel.visibility_changed.is_connected(_panel_visibility_changed):

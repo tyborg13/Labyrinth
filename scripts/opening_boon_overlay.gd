@@ -324,6 +324,7 @@ func _contain_focus() -> void:
 	if _controls.is_empty(): return
 	var last: Control = _controls.back()
 	var count: int = _controls.size() - 1
+	preload("res://scripts/controller_axis_repeat.gd").mark_region(_controls.slice(0, count), &"opening_boon_cards", Vector2.AXIS_X)
 	for index: int in range(_controls.size()):
 		var control: Control = _controls[index]
 		control.focus_previous = control.get_path_to(_controls[posmod(index - 1, _controls.size())])

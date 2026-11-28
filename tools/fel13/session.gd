@@ -4,7 +4,7 @@ extends SceneTree
 const Runtime = preload("res://scripts/parallel_runtime.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Settings = preload("res://scripts/settings_store.gd")
-const RunScene = preload("res://scenes/run_scene.tscn")
+const RUN_SCENE := "res://scenes/run_scene.tscn"
 const SIZE := Vector2i(1920, 1080)
 const SETTLE_SECONDS := 0.35
 const INPUT_TIMEOUT_MSEC := 25000
@@ -20,6 +20,8 @@ var dry: bool
 var tool_dir: String
 var fixture_root: String
 var run_path: String
+var _run_scene: PackedScene
+var _release_overlay: GDScript
 
 func _initialize() -> void:
 	Runtime.apply_from_environment()
@@ -32,6 +34,15 @@ func _run() -> void:
 	if tool_dir.is_empty(): tool_dir = ProjectSettings.globalize_path("res://tools/fel13")
 	fixture_root = tool_dir.path_join("fixtures")
 	var mode: String = OS.get_environment("FEL13_MODE")
+	var release_source: String = OS.get_environment("FEL26_BASELINE_SOURCE")
+	if not release_source.is_empty():
+		_release_overlay = GDScript.new()
+		_release_overlay.source_code = FileAccess.get_file_as_string(release_source)
+		_release_overlay.take_over_path("res://scripts/board_occlusion_silhouettes.gd")
+		if _release_overlay.source_code.is_empty() or _release_overlay.reload() != OK:
+			fail("could not load frozen fel-16 baseline")
+			return
+	_run_scene = load(RUN_SCENE)
 	# Still and timing probes use their own 1920×1080 SubViewport, as in
 	# fel-01. Only the native movie records the root window.
 	if mode == "motion" and not dry:
@@ -40,6 +51,9 @@ func _run() -> void:
 	Settings.set_storage_path("user://fel13-settings.json")
 	var options: Dictionary = Settings.default_settings()
 	options["ui_scale"] = 1.0
+	# The parity witness compares the same pickup geometry in different
+	# processes. The motion movie uses the ordinary presentation settings.
+	if OS.get_environment("FEL26_PARITY") == "1": options["reduced_motion"] = true
 	if mode == "play": options["display_mode"] = Settings.DISPLAY_WINDOWED
 	if not Settings.save_settings(options):
 		fail("could not create isolated settings")
@@ -48,6 +62,8 @@ func _run() -> void:
 		await load(tool_dir.path_join("native_grid.gd")).new().run(self)
 		return
 	match mode:
+		"fel26_still":
+			await load(tool_dir.path_join("../fel26/edge_probe.gd").simplify_path()).new().stills(self)
 		"finish":
 			await load(tool_dir.path_join("finish.gd")).new().run(self)
 		"focused":
@@ -90,7 +106,7 @@ func open_fixture(id: String, interactive: bool = false) -> bool:
 	# before Continue installs the HUD. No root-window resize for offscreen runs.
 	if not dry: await RenderingServer.frame_post_draw
 	root.set_meta("labyrinth_resume_saved_run", true)
-	scene = RunScene.instantiate()
+	scene = _run_scene.instantiate()
 	viewport.add_child(scene)
 	if interactive: current_scene = scene
 	if not interactive: await point(NO_POINTER)
@@ -147,6 +163,17 @@ func point(position: Vector2) -> void:
 	event.global_position = position
 	event.relative = position - viewport.get_mouse_position()
 	viewport.push_input(event, true)
+	await process_frame
+
+func click(position: Vector2) -> void:
+	await point(position)
+	for pressed: bool in [true, false]:
+		var event := InputEventMouseButton.new()
+		event.button_index = MOUSE_BUTTON_LEFT
+		event.pressed = pressed
+		event.position = position
+		event.global_position = position
+		viewport.push_input(event, true)
 	await process_frame
 
 func tile_point(tile: Vector2i) -> Vector2:

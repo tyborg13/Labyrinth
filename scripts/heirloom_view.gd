@@ -25,8 +25,10 @@ var _last_card: int = 0
 var _host: Node
 var _tooltip: Control
 var _committing: bool = false
+var _dpad_repeat := preload("res://scripts/controller_axis_repeat.gd").new()
 
 func configure(host: Node, state: Dictionary) -> void:
+	set_meta("controller_custom_dpad_navigation", true)
 	_host = host
 	Notifications.hold(host, self)
 	name = "HeirloomView"
@@ -116,6 +118,11 @@ func contain_input(event: InputEvent) -> bool:
 		if event.is_pressed() or event is InputEventMouseMotion or (event is InputEventJoypadMotion and absf(event.axis_value) > Router.JOYSTICK_ACTIVITY_THRESHOLD): ceremony.skip()
 		return true
 	if _committing: return true
+	if event is InputEventJoypadMotion and event.axis in [JOY_AXIS_LEFT_X, JOY_AXIS_LEFT_Y] and absf(event.axis_value) >= Router.JOYSTICK_ACTIVITY_THRESHOLD:
+		_dpad_repeat.stop_dpad()
+	if event.has_meta(_dpad_repeat.SYNTHETIC_PRESS) and not event.has_meta(_dpad_repeat.DPAD_REPEAT):
+		_dpad_repeat.stop_dpad()
+	_dpad_repeat.observe_dpad(event, get_viewport(), _can_repeat_dpad)
 	if event.is_action_pressed("ui_cancel") or event.is_action_pressed(Router.ACTION_CANCEL): _focus(cards.size())
 	elif event.is_action_pressed("ui_down"): _focus(cards.size())
 	elif event.is_action_pressed("ui_up"): _focus(_last_card)
@@ -124,6 +131,18 @@ func contain_input(event: InputEvent) -> bool:
 	elif event.is_action_pressed("ui_accept") or event.is_action_pressed(Router.ACTION_ACCEPT): _choose(selected_index)
 	else: return false
 	return true
+
+func _process(delta: float) -> void:
+	_dpad_repeat.advance(delta)
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_WINDOW_FOCUS_OUT: _dpad_repeat.stop_dpad()
+
+func _can_repeat_dpad(button: int) -> bool:
+	if not is_visible_in_tree() or _committing or is_instance_valid(ceremony) or selected_index >= cards.size(): return false
+	if not cards[selected_index].has_focus(): return false
+	var direction: int = int(_dpad_repeat.dpad_direction(button).x)
+	return direction != 0 and selected_index + direction >= 0 and selected_index + direction < cards.size()
 
 func _choose(index: int) -> void:
 	if _committing: return

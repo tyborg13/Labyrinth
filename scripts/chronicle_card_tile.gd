@@ -136,8 +136,10 @@ static func tile_art(path: String) -> Texture2D:
 
 func _make_custom_tooltip(_for_text: String) -> Object:
 	if missing_card:
+		var title: String = str(card_definition["name"])
+		if title.strip_edges().is_empty(): return null
 		# make_lines uppercases its title; a single body line preserves Title Case.
-		return Tooltip.make_lines("", PackedStringArray([str(card_definition["name"])]))
+		return Tooltip.make_lines("", PackedStringArray([title]))
 	if not remaining.is_empty():
 		var lines := PackedStringArray()
 		for entry: Dictionary in remaining:

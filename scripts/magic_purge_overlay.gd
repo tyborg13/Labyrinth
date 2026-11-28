@@ -466,6 +466,7 @@ func focus_scope() -> Control:
 func _contain_list_focus() -> void:
 	var controls: Array[Control]
 	for row: Control in _rows.values(): controls.append(row)
+	preload("res://scripts/controller_axis_repeat.gd").mark_region(controls, &"purge_cards")
 	controls.append(_list_cancel)
 	for index: int in range(controls.size()):
 		var control: Control = controls[index]

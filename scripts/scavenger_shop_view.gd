@@ -1580,6 +1580,11 @@ func _configure_focus_neighbors() -> void:
 	var gear: Array[Control] = _buy_offer_controls(GEAR)
 	var items: Array[Control] = _buy_offer_controls(ITEM)
 	var pack: Array[Control] = _visible_sell_offer_controls()
+	const Repeat = preload("res://scripts/controller_axis_repeat.gd")
+	Repeat.mark_region(magic + gear + items + pack, &"shop_offers")
+	Repeat.mark_region(_filter_buttons, &"shop_filters")
+	Repeat.mark_region([_sell_previous, _sell_next], &"shop_pages")
+	Repeat.mark_region([_detail_card_previous, _detail_card_next], &"shop_card_navigation")
 	var entry: Control = _detail_card_previous if _detail_card_nav.visible and _detail_panel.visible else _detail_action if _detail_panel.visible and not _detail_action.disabled else _leave_button
 	var last: Control = _mode_sell if _pack_mode else _mode_buy
 	if _pack_mode:

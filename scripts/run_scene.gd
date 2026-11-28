@@ -22,6 +22,7 @@ const PushContactFeedback = preload("res://scripts/push_contact_feedback.gd")
 const GuardianCutout = preload("res://scripts/guardian_cutout/renderer.gd")
 const BileBloomerCutout = preload("res://scripts/bile_bloomer_cutout/renderer.gd")
 const ActorPresentation = preload("res://scripts/actor_presentation.gd")
+const WarbandView = preload("res://scripts/warband_view.gd")
 const MaquetteAction = preload("res://scripts/maquette_cutout_runtime/action.gd")
 const GustShrikeAction = preload("res://scripts/gust_shrike_cutout/action.gd")
 const CinderDropletCutout = preload("res://scripts/cinder_droplet_cutout/renderer.gd")
@@ -66,6 +67,7 @@ const UiPalette = preload("res://scripts/ui_palette.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const HudSeatScrimScript = preload("res://scripts/hud_seat_scrim.gd")
 const ActionCaptionScrimScript = preload("res://scripts/action_caption_scrim.gd")
+const CaptionPlacement = preload("res://scripts/action_caption_placement.gd")
 const TurnBannerScript = preload("res://scripts/turn_banner.gd")
 var _board_plate_aim = preload("res://scripts/board_plate_aim.gd").new()
 
@@ -1886,6 +1888,9 @@ var _controller_board_tile: Vector2i = INVALID_TARGET_TILE
 var _controller_hand_focused: bool = true
 var _pointer_hand_tucked: bool = false
 var _controller_stick: Vector2 = Vector2.ZERO
+var _controller_dpad := preload("res://scripts/controller_axis_repeat.gd").new()
+var _controller_dpad_region: String
+var _controller_dpad_room: Vector2i
 var _controller_repeat_direction: Vector2 = Vector2.ZERO
 var _controller_next_repeat_msec: int = 0
 var _controller_virtual_board_position: Vector2 = Vector2.INF
@@ -1914,6 +1919,8 @@ var _nonfight_room_preparation := preload("res://scripts/nonfight_room_preparati
 var _choice_refresh := preload("res://scripts/choice_refresh.gd").new()
 var _refreshing_noncombat_choice: bool = false
 var _hud_refresh_layout := preload("res://scripts/hud_refresh_layout.gd").new()
+var _suppress_final_kill_rail: bool = false
+var _settled_playback_combat_state: Dictionary = {}
 var _victory_reward_preparation := preload("res://scripts/prepared_victory_reward.gd").new()
 var _reward_reroll_preparation := preload("res://scripts/prepared_reward_choices.gd").new()
 var _opening_query_preparation := preload("res://scripts/opening_query_preparation.gd").new()
@@ -1954,6 +1961,10 @@ var _blink_transits: Array[Dictionary]
 var _animation_step_requires_submission_validation: bool = false
 var _defer_initial_run_presentation: bool = false
 var _leaving_tree: bool = false
+var _loading_saved_checkpoint: bool = false
+var _reward_save_key: String = ""
+var _reward_checkpoint_saved: bool = false
+var _victory_checkpoint_failed: bool = false
 var _run_abandoned: bool = false
 
 # Legacy proof scripts read these values by name. The retired selector has no
@@ -1986,7 +1997,7 @@ func _enter_tree() -> void:
 	add_to_group(preload("res://scripts/run_section_art.gd").RUN_GROUP)
 
 func _ready() -> void:
-	preload("res://scripts/controller_gui_navigation.gd").install(self, _controller_uses_gui_focus)
+	preload("res://scripts/controller_gui_navigation.gd").install(self, _controller_uses_gui_focus, _controller_focus_scope)
 	preload("res://scripts/run_persistence.gd").attach(self)
 	var prefix_started: int = Time.get_ticks_usec()
 	ParallelRuntime.apply_from_environment()
@@ -2069,6 +2080,24 @@ func cancel_initial_run_loading() -> void:
 
 static func prepare_initial_ui_for(scene: Node, present_frame: Callable, still_active: Callable) -> void:
 	await preload("res://scripts/maquette_cutout_runtime/preparation.gd").prepare_initial_ui_for(scene, present_frame, still_active)
+	if not bool(still_active.call()) or not is_instance_valid(scene) or not scene._initial_ui_complete:
+		return
+	scene._settle_initial_room_presentation()
+
+func _settle_initial_room_presentation() -> void:
+	# Finish the saved screen's entrance tweens under the cover while the run
+	# cannot process. Dialogue and section travel keep their own entrances.
+	if _pre_battle_entry_tween != null and _pre_battle_entry_tween.is_valid():
+		_pre_battle_entry_tween.custom_step(INF)
+	if _visible_control(_event_view):
+		if _event_view._opening != null and _event_view._opening.is_valid():
+			_event_view._opening.custom_step(INF)
+		var event_art_tweens: Array[Tween] = [_event_view._painting, _event_view._zoom]
+		for tween: Tween in event_art_tweens:
+			if tween != null and tween.is_valid(): tween.custom_step(INF)
+	if _treasure_reveal_active:
+		for tween: Tween in _treasure_sequence_tweens:
+			if tween.is_valid(): tween.custom_step(INF)
 
 func _initial_ui_jobs() -> Array[Callable]:
 	var jobs: Array[Callable]
@@ -2134,7 +2163,8 @@ func initial_presentation_is_ready() -> bool:
 	# Initial viewport/hand refreshes schedule further container fitting. The
 	# menu must cover that work even when reduced motion omits its reveal fade.
 	return is_node_ready() and _initial_ui_complete and has_installed_run() and (
-		str(_run_state.get("mode", "")) != "combat" or _hand_layout_pending_revision < 0
+		(str(_run_state.get("mode", "")) != "combat" or _hand_layout_pending_revision < 0)
+		and not _treasure_reveal_active
 	)
 
 func has_installed_run() -> bool:
@@ -2212,6 +2242,7 @@ func play_stats_run_clock() -> Array:
 	]
 
 func _physics_process(delta: float) -> void:
+	_advance_controller_dpad(delta)
 	_run_play_clock.sample_scene_play_time(self)
 	if not _controller_is_active():
 		_controller_stick = Vector2.ZERO
@@ -2246,6 +2277,8 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventJoypadButton and (not event.pressed or not _controller_custom_navigation_available()):
+		_controller_dpad.observe_dpad(event, get_viewport(), Callable(), false)
 	_combat_pacing.observe_hurry_input(event)
 	var _hitch_continuation: RefCounted
 	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("input:run_scene:_input")
@@ -2346,6 +2379,7 @@ func _input(event: InputEvent) -> void:
 	if InputRouterScript.is_controller_event(event):
 		if _hitch_trace_enabled: _hitch_continuation = null
 		var controller_handled: bool = await _handle_controller_input(event)
+		if _leaving_tree: return
 		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("input:run_scene:_input:1")
 		if controller_handled:
 			get_viewport().set_input_as_handled()
@@ -2490,6 +2524,7 @@ func _input(event: InputEvent) -> void:
 			var drag_release_position: Vector2 = _mouse_event_position(event)
 			if _hitch_trace_enabled: _hitch_continuation = null
 			await _commit_drag_drop(_drag_zone_at(drag_release_position), drag_release_position)
+			if _leaving_tree: return
 			if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("input:run_scene:_input:10")
 			get_viewport().set_input_as_handled()
 			return
@@ -2516,6 +2551,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if _hitch_trace_enabled: _hitch_continuation = null
 	var _hitch_input_handled: bool = await preload("res://scripts/movement_target_keyboard.gd").handle(self, event)
+	if _leaving_tree: return
 	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("input:run_scene:_input:13")
 	if _hitch_input_handled:
 		get_viewport().set_input_as_handled()
@@ -2655,6 +2691,8 @@ func _handle_controller_input(event: InputEvent) -> bool:
 	# it must not steal pointer modality or cancel a live mouse drag.
 	if not controller_activity and not _controller_is_active():
 		return false
+	if event is InputEventJoypadButton and not event.has_meta(_controller_dpad.SYNTHETIC_PRESS):
+		_controller_dpad.stop_dpad()
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if controller_activity and router != null and router.has_method("mark_controller_device"):
 		router.call("mark_controller_device", event.device, event)
@@ -2729,7 +2767,7 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		var room_direction: Vector2 = ControllerNavigationScript.direction_from_event(event)
 		if room_direction == Vector2.ZERO:
 			return false
-		_controller_move_board(room_direction)
+		_controller_route_dpad(event, room_direction)
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_EMPOWER):
 		if EmpowerUi.can_attempt(self, EmpowerUi.index_for_input(self, true)):
@@ -2799,8 +2837,61 @@ func _handle_controller_input(event: InputEvent) -> bool:
 	var direction: Vector2 = ControllerNavigationScript.direction_from_event(event)
 	if direction == Vector2.ZERO:
 		return false
-	_controller_move(direction)
+	_controller_route_dpad(event, direction)
 	return true
+
+func _controller_route_dpad(event: InputEvent, direction: Vector2) -> void:
+	if event.has_meta(_controller_dpad.SYNTHETIC_PRESS):
+		_controller_move(direction)
+		return
+	_controller_stick = Vector2.ZERO
+	_controller_reset_stick_repeat()
+	var region_before: String = _controller_region
+	var candidate_region_before: Node = _controller_board_repeat_region(_controller_focus_candidate)
+	var index_before: int = _controller_hand_index
+	var had_candidate: bool = not _controller_focus_candidate.is_empty()
+	var staying_in_hand: bool = region_before == "hand" and _controller_can_repeat_hand(direction)
+	_controller_move(direction)
+	if _controller_region != region_before: return
+	if region_before == "hand" and (not staying_in_hand or _controller_hand_index == index_before): return
+	if region_before == "board" and had_candidate and _controller_board_repeat_region(_controller_focus_candidate) != candidate_region_before: return
+	_controller_dpad_region = _controller_region
+	_controller_dpad_room = _run_state.get("current_room", Vector2i.ZERO)
+	_controller_dpad.observe_dpad(event, get_viewport(), _controller_can_repeat_dpad)
+
+func _advance_controller_dpad(delta: float) -> void:
+	if not _controller_dpad.dpad_active(): return
+	# The run only enables idle processing for active dialogue text.
+	if _controller_is_active() and not _controller_uses_gui_focus() and not is_instance_valid(_section_transition):
+		_controller_dpad.advance(delta)
+	else:
+		_controller_dpad.stop_dpad()
+
+func _controller_can_repeat_dpad(button: int) -> bool:
+	if not _controller_custom_navigation_available() or _controller_region != _controller_dpad_region:
+		return false
+	if _run_state.get("current_room", Vector2i.ZERO) != _controller_dpad_room: return false
+	var direction: Vector2 = _controller_dpad.dpad_direction(button)
+	if _controller_region == "hand": return _controller_can_repeat_hand(direction)
+	if _controller_region != "board" or _controller_focus_candidate.is_empty(): return false
+	if _controller_focus_candidate.has("control") and preload("res://scripts/controller_focus_candidates.gd").live_control(_controller_focus_candidate) == null: return false
+	var next: Dictionary = _controller_next_board_candidate(direction, _controller_navigation_candidates())
+	return not next.is_empty() and _controller_board_repeat_region(next) == _controller_board_repeat_region(_controller_focus_candidate)
+
+func _controller_can_repeat_hand(direction: Vector2) -> bool:
+	if direction.x == 0.0 or _selected_card_index >= 0: return false
+	var hand: Array = _combat_state.get("deck", {}).get("hand", [])
+	var index: int = _controller_hand_index
+	var count: int = hand.size()
+	if _guided_tutorial_hard_gate_active() and _guided_tutorial_card_selection_phases().has(_guided_tutorial_phase_id):
+		var playable: Array[int] = _guided_tutorial_playable_card_indices()
+		index = playable.find(index)
+		count = playable.size()
+	return index >= 0 and index + int(direction.x) >= 0 and index + int(direction.x) < count
+
+func _controller_board_repeat_region(candidate: Dictionary) -> Node:
+	var control: Variant = candidate.get("control")
+	return control.get_parent() if is_instance_valid(control) else board_view
 
 func _controller_is_active() -> bool:
 	if not is_inside_tree(): return false
@@ -2812,6 +2903,9 @@ func _controller_update_stick_axis(event: InputEventJoypadMotion) -> void:
 		_controller_stick.x = event.axis_value
 	elif event.axis == JOY_AXIS_LEFT_Y:
 		_controller_stick.y = event.axis_value
+	var takeover_threshold: float = ControllerNavigationScript.CURSOR_DEADZONE if _controller_region == "board" else ControllerNavigationScript.REPEAT_ENTER_THRESHOLD
+	if _controller_stick.length() >= takeover_threshold:
+		_controller_dpad.stop_dpad()
 
 func _controller_reset_stick_repeat() -> void:
 	_controller_repeat_direction = Vector2.ZERO
@@ -3024,13 +3118,7 @@ func _controller_move_board(direction: Vector2) -> void:
 		else:
 			_controller_enter_board(true)
 		return
-	var origin: Vector2 = _controller_focus_candidate.get("point", _controller_virtual_board_position)
-	var next_candidate: Dictionary = ControllerNavigationScript.best_candidate_in_direction(
-		origin,
-		direction,
-		candidates,
-		str(_controller_focus_candidate.get("key", ""))
-	)
+	var next_candidate: Dictionary = _controller_next_board_candidate(direction, candidates)
 	if next_candidate.is_empty():
 		if direction.y > 0.0 and _selected_card_index < 0 and _controller_custom_combat_available():
 			_controller_region = "hand"
@@ -3038,6 +3126,12 @@ func _controller_move_board(direction: Vector2) -> void:
 			_controller_set_hand_index(maxi(0, _controller_hand_index))
 		return
 	_controller_set_focus_candidate(next_candidate, true)
+
+func _controller_next_board_candidate(direction: Vector2, candidates: Array[Dictionary]) -> Dictionary:
+	return ControllerNavigationScript.best_candidate_in_direction(
+		_controller_focus_candidate.get("point", _controller_virtual_board_position),
+		direction, candidates, str(_controller_focus_candidate.get("key", ""))
+	)
 
 func _controller_process_board_cursor(delta: float) -> void:
 	if preload("res://scripts/controller_focus_candidates.gd").recover_invalid(self): return
@@ -3419,6 +3513,7 @@ func _controller_activate_current() -> void:
 			_controller_hand_index = 0
 		var defer_forecast: bool = _controller_selects_uncommitted_card()
 		await _on_card_pressed(_controller_hand_index, defer_forecast)
+		if _leaving_tree: return
 		if _selected_card_index >= 0:
 			if not defer_forecast or _controller_region == "hand": _controller_enter_board(true)
 			if defer_forecast: _selected_pass_work.schedule_initial_aim(self)
@@ -3427,6 +3522,7 @@ func _controller_activate_current() -> void:
 		return
 	if _controller_region == "board" and _controller_board_tile != INVALID_TARGET_TILE:
 		await _on_board_tile_clicked(_controller_board_tile)
+		if _leaving_tree: return
 		if _focused_intent_enemy_id >= 0:
 			_controller_set_board_tile(_controller_board_tile)
 		elif _selected_card_index < 0 and not _player_movement_selected and not _surface_aim.active():
@@ -3876,6 +3972,8 @@ func _legacy_board_fit_rect() -> Rect2:
 		maxf(1.0, viewport_size.y - DESKTOP_HAND_ROW_HEIGHT - 18.0 - header_bottom)))
 
 func _notification(what: int) -> void:
+	if what in [NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED]:
+		_controller_dpad.stop_dpad()
 	# Native cursor restoration can reenter this callback during tree finalize,
 	# after our children have lost their viewports. A valid Object is not enough.
 	if not _window_notifications_allowed():
@@ -3930,6 +4028,7 @@ func _window_notifications_allowed() -> bool:
 
 func _exit_tree() -> void:
 	_leaving_tree = true
+	PostCombatRewardSequence.cancel_victory(_post_combat_victory_overlay)
 	_reset_combat_objective_dock()
 	var encounter: Dictionary = _combat_state
 	if str(_run_state.get("mode", "")) == "pre_battle":
@@ -6238,6 +6337,7 @@ func _build_pile_overlay() -> void:
 	vbox.add_child(_pile_dialog_scroll)
 
 	_pile_dialog_cards = HFlowContainer.new()
+	_pile_dialog_cards.set_meta("controller_repeat_region", true)
 	_pile_dialog_cards.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_pile_dialog_cards.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_pile_dialog_cards.alignment = FlowContainer.ALIGNMENT_CENTER
@@ -7109,6 +7209,7 @@ func _set_clicked_card_selection_pose() -> void:
 		_card_focus_tooltip_stack.hide_stack()
 
 func _sync_click_targeting_arrow(mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
+	if _leaving_tree: return
 	if _clicked_card_selection_pose_active():
 		_set_clicked_card_selection_pose()
 	if _sync_controller_card_targeting_arrow():
@@ -9585,13 +9686,17 @@ func _boot_initial_run(stage_graph: bool) -> Dictionary:
 		_start_debug_boss_run()
 		return {}
 	if should_resume:
+		_loading_saved_checkpoint = true
 		_load_run_state(saved_run)
+		_loading_saved_checkpoint = false
 		if has_installed_run(): _analytics_log_run_resumed()
 		else: root.set_meta("play_stats_checkpoint_load_failed", true)
 		return {}
 	return _start_run(stage_graph)
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_controller_dpad.stop_dpad()
+	_track_reward_checkpoint({})
 	_umbra_tutorial_checked_turn.clear()
 	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_UMBRA:
 		_guided_tutorial_phase_id = ""
@@ -9674,6 +9779,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	var migrated_run_state: Dictionary = _run_engine.migrate_renamed_content_ids(next_run_state) if content_migration_required else next_run_state
 	var merged_run_state: Dictionary = preload("res://scripts/loaded_room_state.gd").merge_profile(migrated_run_state, _progression)
 	GrimoireLibrary.retain_unknown_profile_ids(merged_run_state.get("progression", {}), _progression)
+	var checkpoint_progression: Dictionary = merged_run_state.get("progression", {})
 	merged_run_state = _run_engine.reconcile_progression_revision(merged_run_state, _progression)
 	_run_state = preload("res://scripts/loaded_room_state.gd").finish_repair(self, _run_engine.repair_loaded_run_state(merged_run_state))
 	if has_installed_run(): InitialGraph.remember_installed_seed(_run_state["seed"])
@@ -9685,6 +9791,9 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_character_inventory_rows.prune(_current_character_row_keys(), _prepare_node_for_immediate_free)
 	_baseline_run_skill_event_cursors()
 	_sync_progression_from_run()
+	# Profile or wallet recovery can replace progression in any mode. The
+	# checkpoint still owns undelivered receipts after a reward is claimed.
+	_progression = ProgressionStore.merge_combat_win_receipts(_progression, checkpoint_progression)
 	_repair_profile_progression_from_run()
 	# An unsettled terminal checkpoint staged its closing receipts before the
 	# wallet settled. Delivering them first must not stand in for settlement.
@@ -9698,13 +9807,13 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_sync_combat_state_from_run()
 	_baseline_card_draw_sfx_revision(_combat_state)
 	_repair_legacy_empty_actor_transition()
-	if (
-		(content_migration_required or combat_units_migration_required or surface_migration_required)
-		and has_installed_run()
-		and not bool(_run_state.get("debug_boss_run", false))
-		and not ProgressionStore.save_run_state(_run_state)
-	):
-		push_error("Failed to persist migrated run content, combat units, or surface rules.")
+	const Persistence = preload("res://scripts/run_persistence.gd")
+	_track_reward_checkpoint(_run_state)
+	if (content_migration_required or combat_units_migration_required or surface_migration_required) and has_installed_run() and not _is_debug_boss_run():
+		if not Persistence.save_loaded_checkpoint(self, _run_state):
+			push_error("Failed to persist migrated run content, combat units, or surface rules.")
+	elif _loading_saved_checkpoint and not _reward_save_key.is_empty() and Persistence.reward_checkpoint_key(next_run_state) == _reward_save_key:
+		_record_reward_checkpoint(_reward_save_key, true, false)
 	_sync_analytics_combat_tracker()
 	_reset_card_resolution()
 	_victory_carry_processed = false
@@ -9809,7 +9918,8 @@ func _commit_new_run(request: Dictionary, graph: Dictionary) -> bool:
 		# durable. Its embedded outbox survives a crash before startup delivery.
 		var context: Dictionary = _analytics_context_from_states(previous, previous.get("combat_state", {}))
 		var receipt: Dictionary = Snapshots.run_ended_receipt(_run_engine, previous, "abandoned", context)
-		new_run_state["progression"] = Snapshots.stage_receipt(ProgressionStore.record_run_completion(new_run_state["progression"], previous), receipt)
+		var retained := ProgressionStore.merge_combat_win_receipts(new_run_state["progression"], previous.get("progression", {}))
+		new_run_state["progression"] = Snapshots.stage_receipt(ProgressionStore.record_run_completion(retained, previous), receipt)
 	var preserved_marker: Dictionary = request.get("recovery_marker", {})
 	var installing_profile: Dictionary = _progression
 	if not preserved_marker.is_empty():
@@ -9824,6 +9934,8 @@ func _commit_new_run(request: Dictionary, graph: Dictionary) -> bool:
 	):
 		_restore_after_failed_new_run(previous, "The new run could not be saved. Your previous run is available.")
 		return false
+	# Installing can carry an outbox from a hidden checkpoint into the profile.
+	_progression = ProgressionStore.merge_combat_win_receipts(_progression, ProgressionStore.load_data())
 	if replaces_active:
 		_progression = ProgressionStore.record_run_completion(_progression, previous)
 	if (replaces_active or not preserved_marker.is_empty()) and not ProgressionStore.save_data(_progression):
@@ -9869,16 +9981,36 @@ func _refresh_ui(
 	var slice_telemetry_overhead_started: int = _runtime_performance_record_overhead_live_usec
 	var sliced_wait_occurred: bool = false
 	var unlock_before_choices: bool = unlock_animation_after_slices and not frame_sliced and queue_hand_ready_wave_on_unlock
-	for job: Callable in [_refresh_ui_header, _refresh_ui_navigation, _refresh_ui_choices, _refresh_ui_stage, _refresh_ui_hand]:
+	var jobs: Array[Callable]
+	jobs.assign([_refresh_ui_header, _refresh_ui_navigation, _refresh_ui_choices, _refresh_ui_stage, _refresh_ui_hand])
+	if frame_sliced and _reward_reveal_pending:
+		# Grimoire and relic receipts each keep their original durability
+		# barrier. Give the frame budget a boundary between those writes.
+		jobs[0] = _refresh_ui_header_chrome
+		jobs.insert(1, _refresh_reward_relic_bar_in_tree)
+	for job: Callable in jobs:
 		if unlock_before_choices and job == _refresh_ui_choices:
 			# This enemy-round handoff is synchronous. The board, Pass and hand
 			# can go straight to the final player-turn presentation.
 			_unlock_after_ui_refresh(true)
-		job.call()
-		if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
+		if job == _refresh_reward_relic_bar_in_tree:
+			var before_frame: int = Engine.get_process_frames()
+			var before_usec: int = Time.get_ticks_usec()
+			await _refresh_reward_relic_bar_in_tree()
+			if await _combat_departure_interrupts():
+				_frame_sliced_ui_refresh_active = false
+				return
+			if Engine.get_process_frames() != before_frame:
+				sliced_wait_occurred = true
+				slice_cpu_started = Time.get_ticks_usec()
+				slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
+				if _runtime_performance_instrumentation_enabled: performance_total_started += slice_cpu_started - before_usec
+		else:
+			job.call()
+		if frame_sliced and (job == _refresh_ui_header_chrome or _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec):
 			var wait_started: int = Time.get_ticks_usec()
 			if _hitch_trace_enabled: _hitch_continuation = null
-			await RenderingServer.frame_post_draw
+			await preload("res://scripts/encounter_asset_preparation.gd").present_frame(get_tree())
 			if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:run_scene:_refresh_ui:1")
 			var resumed: int = Time.get_ticks_usec()
 			sliced_wait_occurred = true
@@ -9928,6 +10060,10 @@ func _prepare_reward_reroll_choices() -> void:
 	_reward_reroll_preparation.schedule(self)
 
 func _refresh_ui_header() -> void:
+	_refresh_ui_header_chrome()
+	_refresh_ui_relic_bar()
+
+func _refresh_ui_header_chrome() -> void:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	if _dialogue_active and str(_run_state.get("mode", "room")) != "room":
 		_close_dialogue()
@@ -9975,8 +10111,15 @@ func _refresh_ui_header() -> void:
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_room_header", performance_phase_started)
 	_refresh_umbra_subtitle()
 	_set_stats_label_text(_displayed_ember_count())
-	performance_phase_started = _record_runtime_performance_phase("refresh_ui_umbra_and_stats", performance_phase_started)
-	_refresh_relic_bar()
+	_record_runtime_performance_phase("refresh_ui_umbra_and_stats", performance_phase_started)
+
+func _refresh_reward_relic_bar_in_tree() -> void:
+	await _reconcile_reward_skill_analytics_in_tree()
+	if not await _combat_departure_interrupts(): _refresh_ui_relic_bar(false)
+
+func _refresh_ui_relic_bar(reconcile_combat_events: bool = true) -> void:
+	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_refresh_relic_bar(reconcile_combat_events)
 	_omen_badges.sync(_relic_icon_grid, _run_state, _reduced_motion_enabled(), str(_run_state.get("mode", "")) != "event")
 	relic_bar.visible = relic_bar.visible or _omen_badges.has_visible_badges(_relic_icon_grid)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_relic_bar_total", performance_phase_started)
@@ -9993,7 +10136,7 @@ func _refresh_ui_navigation(handoff_entries: Variant = null) -> void:
 	if not SectionMapGraph.enabled(_run_state):
 		mini_map.set_run_state(_run_state)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_minimap", performance_phase_started)
-	if _large_map_view != null and (not _refreshing_noncombat_choice or _visible_control(_large_map_scrim)):
+	if _large_map_view != null and (not (_refreshing_noncombat_choice or _reward_reveal_pending) or _visible_control(_large_map_scrim)):
 		_large_map_view.call("set_run_state", _run_state)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_large_map", performance_phase_started)
 	_refresh_pile_counts()
@@ -10327,7 +10470,7 @@ func _refresh_pile_counts() -> void:
 			pool_cards.append(str(card_id_var))
 	_schedule_pile_dialog_pool_warm(pool_cards)
 
-func _refresh_relic_bar() -> void:
+func _refresh_relic_bar(reconcile_combat_events: bool = true) -> void:
 	if relic_bar == null or _relic_utility_bar == null or _relic_icon_grid == null:
 		return
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -10360,7 +10503,7 @@ func _refresh_relic_bar() -> void:
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_state", performance_phase_started)
 	var skill_sigil_presentation: Dictionary = _skill_sigil_presentation(skill_ids)
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_skill_presentation", performance_phase_started)
-	_request_skill_event_analytics()
+	if reconcile_combat_events: _request_skill_event_analytics()
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_reconcile_analytics_total", performance_phase_started)
 	_request_run_skill_event_analytics()
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_flush_analytics_total", performance_phase_started)
@@ -11058,6 +11201,8 @@ func _configure_skill_status_focus_neighbors() -> void:
 		_skill_status_close_button.focus_neighbor_top = NodePath()
 		_skill_status_close_button.focus_neighbor_bottom = NodePath()
 		return
+	_skill_status_grid.set_meta("controller_repeat_region", &"skill_status_grid")
+	_controller_dpad.mark_region([_skill_status_previous_page, _skill_status_next_page], &"skill_status_pages")
 	var page_focus: Control = null
 	if _can_restore_gui_focus(_skill_status_next_page):
 		page_focus = _skill_status_next_page
@@ -12689,7 +12834,7 @@ func _animate_turn_order_transition(
 	# Enemy pacing and card/movement aftermath can both submit rail motion.
 	# Own the rail for the entire transition so one producer cannot reconcile
 	# away another producer's dissolving portraits or release its lock early.
-	if not is_inside_tree():
+	if not is_inside_tree() or _suppress_final_kill_rail:
 		return
 	# A newer order that ends this motion early (or arrives while this request
 	# waits) moves the serial; this request then returns and leaves the rail to it.
@@ -12885,6 +13030,7 @@ func _turn_order_motion_tween() -> Tween:
 # Durations are unchanged; only the wait behind the older motion goes. Ending a
 # tween wakes the superseded motion, which sees the serial move and returns.
 func _finish_turn_order_transition_now() -> void:
+	if _suppress_final_kill_rail: return
 	_turn_order_supersede_serial += 1
 	if not _turn_order_animating or _turn_order_bar == null:
 		return
@@ -12909,7 +13055,18 @@ func _animate_turn_order_alongside_defeats(
 	order_before_state: Dictionary = {}
 ) -> void:
 	_burst_playback.prepare(before_state, after_state)
-	if not preload("res://scripts/warband_view.gd").break_started(before_state, after_state) and _combat_pacing.overlap_defeats(before_state, after_state, skip_terrain_destruction): return
+	var warband_break: bool = WarbandView.break_started(before_state, after_state)
+	var final_kill: bool = _is_last_kill_victory(before_state, after_state)
+	if not warband_break:
+		# Overlap installs the original enemy-action death clock synchronously.
+		# Suppress only its rail submission for the terminal step.
+		_suppress_final_kill_rail = final_kill
+		var overlaps: bool = _combat_pacing.overlap_defeats(before_state, after_state, skip_terrain_destruction)
+		_suppress_final_kill_rail = false
+		if overlaps: return
+	if final_kill:
+		await _animate_defeats_and_terrain_destruction(before_state, after_state, base_presentation, skip_terrain_destruction)
+		return
 	# The rail may start from a different projection (for example, before this
 	# card's Stagger) so its motion shows the delay landing.
 	var before_order: Array[Dictionary] = _turn_order_entries_from_state(order_before_state if not order_before_state.is_empty() else before_state)
@@ -12928,7 +13085,20 @@ func _animate_turn_order_alongside_defeats(
 		skip_terrain_destruction
 	)
 	while order_changed and _turn_order_animating:
+		if await _combat_departure_interrupts(): return
 		await get_tree().process_frame
+
+func _is_last_kill_victory(before_state: Dictionary, after_state: Dictionary) -> bool:
+	if _reach_exit_victory_preserves_board(after_state) or WarbandView.break_started(before_state, after_state) or _combat_engine.combat_outcome(after_state) != "victory":
+		return false
+	# A playback snapshot puts the kill on the right frame. The resolved card
+	# or activation also includes arrivals, death reactions, costs and echoes.
+	if not _settled_playback_combat_state.is_empty() and not is_same(after_state, _settled_playback_combat_state):
+		if _combat_engine.combat_outcome(_settled_playback_combat_state) != "victory" or WarbandView.break_started(before_state, _settled_playback_combat_state):
+			return false
+	if not _committed_run_state_override.is_empty() and _committed_run_state_override.get("mode") == "defeat":
+		return false
+	return _combat_engine.combat_outcome(before_state) != "victory"
 
 func _refresh_pile_visuals() -> void:
 	var piles: Dictionary = _deck_piles()
@@ -14914,7 +15084,8 @@ func _clear_relic_choice_overlay() -> void:
 		_relic_choice_host.visible = false
 	if _relic_choice_title != null:
 		_relic_choice_title.visible = false
-		_relic_choice_title.text = ""
+		if not _victory_reward_preparation.title_prepared(self, _relic_choice_title.text):
+			_relic_choice_title.text = ""
 	if _relic_choice_title_effect != null:
 		_relic_choice_title_effect.visible = false
 	if _relic_choice_overlay != null:
@@ -15051,9 +15222,9 @@ func _reward_intro_pending() -> bool:
 	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
 	return bool(reward_state.get("intro_pending", false)) and not (reward_state.get("board_state", {}) as Dictionary).is_empty()
 
-func _play_post_combat_victory(board_state: Dictionary, reward_state: Dictionary = {}) -> void:
+func _play_post_combat_victory(board_state: Dictionary, reward_state: Dictionary = {}) -> bool:
 	if board_state.is_empty() or _post_combat_victory_overlay == null:
-		return
+		return true
 	board_view.set_tooltips_enabled(false)
 	# The live victory intro paints before the committed reward is installed.
 	var escape_state: Dictionary = _run_state if reward_state.is_empty() else reward_state
@@ -15071,8 +15242,8 @@ func _play_post_combat_victory(board_state: Dictionary, reward_state: Dictionary
 	else:
 		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.VICTORY_RESOLUTION_ID))
 	_victory_reward_preparation.schedule(self, _run_state if reward_state.is_empty() else reward_state)
-	_run_end_recap.prepare_first_use_after_fight(self)
-	await PostCombatRewardSequence.play_victory(
+	_run_end_recap.prepare_first_use_after_fight.call_deferred(self)
+	return await PostCombatRewardSequence.play_victory(
 		_post_combat_victory_overlay,
 		_reduced_motion_enabled()
 	)
@@ -15094,7 +15265,7 @@ func _play_loaded_reward_intro() -> void:
 	_reward_intro_suppressed = true
 	_animation_lock = true
 	_refresh_animation_lock_ui()
-	await _play_post_combat_victory(_post_combat_board_state())
+	if not await _play_post_combat_victory(_post_combat_board_state()): return
 	if not _reward_intro_pending():
 		_finish_reward_intro()
 		return
@@ -15108,7 +15279,8 @@ func _play_reward_reveal() -> void:
 	_reward_intro_suppressed = false
 	_reward_reveal_pending = true
 	_animation_lock = true
-	_refresh_ui()
+	await _refresh_ui(true)
+	if await _combat_departure_interrupts(): return
 	var card_slots: Array[Control]
 	var card_row: HBoxContainer = _relic_choice_bar.find_child("RewardCardRow", true, false) as HBoxContainer
 	if card_row != null:
@@ -15125,6 +15297,7 @@ func _play_reward_reveal() -> void:
 		_reduced_motion_enabled(),
 		Callable(self, "_play_reward_card_flip_sfx")
 	)
+	if await _combat_departure_interrupts(): return
 	_finish_reward_intro()
 
 func _finish_reward_intro() -> void:
@@ -15145,7 +15318,42 @@ func _finish_reward_intro() -> void:
 
 func _add_dragon_reward_stack() -> void:
 	if _relic_choice_bar == null: return
-	var reward: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
+	if _victory_reward_preparation.adopt(self, _relic_choice_bar):
+		_refresh_dragon_reward_save_tooltip()
+	else:
+		_build_dragon_reward_stack(_run_state, _reward_reveal_pending)
+
+func _dragon_reward_save_tooltip(state: Dictionary) -> String:
+	var key := preload("res://scripts/run_persistence.gd").reward_checkpoint_key(state)
+	return "Your rewards have been saved." if _reward_checkpoint_saved and key == _reward_save_key else ""
+
+func _refresh_dragon_reward_save_tooltip() -> void:
+	if not is_instance_valid(_relic_choice_bar) or not _run_engine.is_dragon_reward(_run_state): return
+	var button := _relic_choice_bar.find_child("DragonRewardContinue", true, false) as UiTooltipButton
+	if button != null: button.tooltip_text = _dragon_reward_save_tooltip(_run_state)
+
+func _track_reward_checkpoint(state: Dictionary) -> void:
+	var key := preload("res://scripts/run_persistence.gd").reward_checkpoint_key(state)
+	if _reward_save_key == key: return
+	_reward_save_key = key
+	_reward_checkpoint_saved = false
+	_victory_checkpoint_failed = false
+
+func _record_reward_checkpoint(key: String, saved: bool, show_victory_failure: bool) -> void:
+	if key != _reward_save_key: return
+	var was_failed := _victory_checkpoint_failed
+	_reward_checkpoint_saved = saved
+	if saved or show_victory_failure: _victory_checkpoint_failed = not saved
+	if preload("res://scripts/run_persistence.gd").reward_checkpoint_key(_run_state) != key: return
+	_refresh_dragon_reward_save_tooltip()
+	if was_failed != _victory_checkpoint_failed and not _leaving_tree:
+		_refresh_persistent_run_notice()
+
+func _has_victory_save_notice(state: Dictionary) -> bool:
+	return _victory_checkpoint_failed and preload("res://scripts/run_persistence.gd").reward_checkpoint_key(state) == _reward_save_key
+
+func _build_dragon_reward_stack(choice_state: Dictionary, preparing_reveal: bool) -> VBoxContainer:
+	var reward: Dictionary = choice_state.get("pending_reward", {}) as Dictionary
 	var relic_id: String = str(reward.get("relic_id", ""))
 	var relic: Dictionary = GameData.relic_def(relic_id)
 	var next_descent: bool = bool(reward.get("next_descent", false))
@@ -15203,10 +15411,11 @@ func _add_dragon_reward_stack() -> void:
 		_dragon_reward_label(content, "DragonRewardPayout", "+%d Embers · +%d Health recovered" % [int(reward["ember_amount"]), int(reward["healed_amount"])], UiTypography.SIZE_BODY_LARGE, Color("f4d598"))
 	if show_shards:
 		_dragon_reward_label(content, "DragonRewardShard", "+1 Moltshard · First dragon defeated this run" if int(reward["moltshards"]) > 0 else "First-dragon Moltshard already earned this run", UiTypography.SIZE_BODY, Color("cfc5dd"))
-	var button: UiTooltipButton = _reward_secondary_button("DragonRewardContinue", "COMPLETE ASCENT" if bool(reward.get("final_boss", false)) else "CONTINUE", _on_dragon_reward_continue, "Your rewards have been saved.")
+	var button: UiTooltipButton = _reward_secondary_button("DragonRewardContinue", "COMPLETE ASCENT" if bool(reward.get("final_boss", false)) else "CONTINUE", _on_dragon_reward_continue, _dragon_reward_save_tooltip(choice_state))
 	stack.add_child(button)
-	if _controller_is_active(): button.call_deferred("grab_focus")
-	if _reward_reveal_pending: PostCombatRewardSequence.prepare_secondary_actions(stack)
+	if _controller_is_active() and not preparing_reveal: button.call_deferred("grab_focus")
+	if preparing_reveal: PostCombatRewardSequence.prepare_secondary_actions(stack)
+	return stack
 
 func _dragon_reward_label(host: Control, node_name: String, text: String, font_size: int, color: Color) -> Label:
 	var label := Label.new()
@@ -15473,6 +15682,8 @@ func _on_reward_card_keyboard_input(event: InputEvent, card_id: String, widget: 
 func _configure_reward_choice_focus(cards: Array[Control], actions: Array[Control]) -> void:
 	if cards.is_empty():
 		return
+	_controller_dpad.mark_region(cards, &"reward_cards", Vector2.AXIS_X)
+	_controller_dpad.mark_region(actions, &"reward_actions", Vector2.AXIS_X)
 	var action_target: Control = actions[actions.size() - 1] if not actions.is_empty() else null
 	for index: int in range(cards.size()):
 		var card: Control = cards[index]
@@ -15557,11 +15768,15 @@ func _reward_recover_button(heal_amount: int, choice_state: Dictionary = {}) -> 
 	button.set_meta("reward_heal_fully_wasted", fully_wasted)
 	return button
 
-func _set_relic_choice_title(text: String) -> void:
+func _set_relic_choice_title(text: String, prepared_mode: String = "") -> void:
 	if _relic_choice_title == null:
 		return
+	if _reward_reveal_pending and _victory_reward_preparation.title_prepared(self, text):
+		_relic_choice_title.show()
+		if _relic_choice_banner != null: _relic_choice_banner.show()
+		return
 	var should_show: bool = not text.is_empty()
-	var mode: String = str(_run_state.get("mode", "room"))
+	var mode: String = prepared_mode if not prepared_mode.is_empty() else str(_run_state.get("mode", "room"))
 	var selection_mode: bool = mode in ["reward", "treasure"]
 	var accent: Color = _relic_choice_title_accent(text)
 	UiTypography.set_label_size(
@@ -15580,7 +15795,7 @@ func _set_relic_choice_title(text: String) -> void:
 		_relic_choice_title_effect.accent = accent
 		_relic_choice_title_effect.title_text = text
 		_relic_choice_title_effect.visible = should_show and not selection_mode
-	if mode == "reward" and _reward_reveal_pending:
+	if mode == "reward" and (_reward_reveal_pending or not prepared_mode.is_empty()):
 		PostCombatRewardSequence.prepare_banner(_relic_choice_banner, _relic_choice_title)
 
 func _apply_relic_choice_title_depth(accent: Color, restrained: bool, target: Label = null) -> void:
@@ -16743,8 +16958,11 @@ func _update_existing_hand_interaction_state() -> bool:
 	return true
 
 func _fit_current_hand_layout_to_visible_width(expected_revision: int, retry_count: int = 0) -> void:
-	await get_tree().process_frame
-	await get_tree().process_frame
+	if not is_inside_tree(): return
+	var tree := get_tree()
+	await tree.process_frame
+	await tree.process_frame
+	if not is_inside_tree(): return
 	if expected_revision != _hand_layout_revision or str(_run_state.get("mode", "")) != "combat":
 		return
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
@@ -17224,6 +17442,7 @@ func _skill_card_selection_frame_style(accent: Color, emphasized: bool) -> Style
 func _configure_skill_hand_selection_focus(buttons: Array[Button]) -> void:
 	if buttons.is_empty():
 		return
+	_controller_dpad.mark_region(buttons, &"skill_hand_cards", Vector2.AXIS_X)
 	for index: int in range(buttons.size()):
 		var button: Button = buttons[index]
 		_set_skill_status_focus_neighbor(button, "left", buttons[posmod(index - 1, buttons.size())])
@@ -22035,11 +22254,11 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 		committed_combat_state,
 		ElementData.NONE
 	)
-	await _animate_defeats_and_terrain_destruction(previous_combat_state, committed_combat_state)
 	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
 	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
+	var post_combat_board_state: Dictionary = _combat_engine.post_combat_board_state(committed_combat_state) if outcome == "victory" else {}
+	await _animate_defeats_and_terrain_destruction(previous_combat_state, committed_combat_state)
 	if outcome == "victory":
-		var post_combat_board_state: Dictionary = _combat_engine.post_combat_board_state(committed_combat_state)
 		if post_combat_board_state != committed_combat_state:
 			await _animate_defeats_and_terrain_destruction(committed_combat_state, post_combat_board_state)
 		if _reach_exit_victory_preserves_board(committed_combat_state):
@@ -22048,7 +22267,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 			transition_combat_state = await _animate_missed_equipment_resolution(post_combat_board_state, _salvaged_equipment_ids(committed_run_state))
 		if str(committed_run_state.get("mode", "room")) == "reward":
 			_combat_pacing.restore_time_scale()
-			await _play_post_combat_victory(transition_combat_state, committed_run_state)
+			if not await _play_post_combat_victory(transition_combat_state, committed_run_state): return
 	_board_presentation.clear()
 	_set_action_banner("")
 	_run_state = committed_run_state
@@ -22152,9 +22371,13 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	# before the board consequence begins; the rest of its flight overlaps.
 	if not bool(pile_completion.get("done", false)):
 		await get_tree().create_timer(0.04 if _reduced_motion_enabled() else 0.08).timeout
+	_settled_playback_combat_state = committed_combat_state
 	await _animate_player_card_resolution(previous_combat_state, card_id, actions, selected_targets)
+	_settled_playback_combat_state = {}
+	if await _combat_departure_interrupts(): return
 	while not bool(pile_completion.get("done", false)):
 		await get_tree().process_frame
+		if await _combat_departure_interrupts(): return
 	_consume_pending_card_draw_sfx(committed_combat_state)
 	# atk-08: a card's own costs (Health, Empower) are paid as it finishes, after
 	# its effects and echoes (which their own beats already showed). Show that
@@ -22170,11 +22393,11 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 		committed_combat_state,
 		GameData.card_element(card_id)
 	)
-	await _animate_turn_order_alongside_defeats(pre_commit_combat_state, committed_combat_state, {}, false, _turn_order_state_before_card_stagger(previous_combat_state, pre_commit_combat_state))
 	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
 	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
+	var post_combat_board_state: Dictionary = _combat_engine.post_combat_board_state(committed_combat_state) if outcome == "victory" else {}
+	await _animate_turn_order_alongside_defeats(pre_commit_combat_state, committed_combat_state, {}, false, _turn_order_state_before_card_stagger(previous_combat_state, pre_commit_combat_state))
 	if outcome == "victory":
-		var post_combat_board_state: Dictionary = _combat_engine.post_combat_board_state(committed_combat_state)
 		if post_combat_board_state != committed_combat_state:
 			await _animate_defeats_and_terrain_destruction(committed_combat_state, post_combat_board_state)
 		if _reach_exit_victory_preserves_board(committed_combat_state):
@@ -22183,7 +22406,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 			transition_combat_state = await _animate_missed_equipment_resolution(post_combat_board_state, _salvaged_equipment_ids(committed_run_state))
 		if str(committed_run_state.get("mode", "room")) == "reward":
 			_combat_pacing.restore_time_scale()
-			await _play_post_combat_victory(transition_combat_state, committed_run_state)
+			if not await _play_post_combat_victory(transition_combat_state, committed_run_state): return
 	var card_finish_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_board_presentation.clear()
 	_set_action_banner("")
@@ -22235,6 +22458,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 		_refresh_ui()
 		_begin_hand_close_slide(hand_close)
 	await _maybe_auto_pass_exhausted_player_turn()
+	if _leaving_tree: return
 	# The resolution pipeline performs several animation-lock refreshes before the
 	# authored post-card lesson exists. Re-assert the final phase after all card
 	# proxy/hand cleanup so a stale deferred lock refresh cannot leave it hidden.
@@ -23420,37 +23644,27 @@ func _animate_turn_start_fire(display_state: Dictionary, burn: Dictionary) -> vo
 
 func _animate_player_card_resolution(animated_state: Dictionary, card_id: String, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	_begin_player_popup_timeline()
-	var target_index: int = 0
-	for action_index: int in range(actions.size()):
-		var action_var: Variant = actions[action_index]
-		var action: Dictionary = action_var
-		var step_target_index: int = target_index
-		var target_tile: Vector2i = INVALID_TARGET_TILE
-		if _combat_engine.player_action_needs_target(action):
-			if target_index < selected_targets.size():
-				target_tile = selected_targets[target_index]
-			target_index += 1
-		if not _combat_engine.player_action_can_resolve(animated_state, action):
+	var playback: Dictionary = CaptionPlacement.player_playback(self, animated_state, actions, selected_targets)
+	for action_index: int in actions.size():
+		var beat: Dictionary = playback["steps"][action_index]
+		if not beat.has("action"):
 			_set_action_step_resolution_index(action_index + 1)
 			continue
-		_set_action_step_resolution_index(action_index, animated_state, selected_targets.slice(step_target_index))
-		var before_state: Dictionary = animated_state.duplicate(true)
-		preload("res://scripts/run_persistence.gd").mark_resolution_frame()
-		var resolution: Dictionary = _combat_engine.resolve_player_action_for_presentation(animated_state, action, target_tile)
-		var after_state: Dictionary = CommittedBattlefieldRules.accept(_combat_engine, resolution.get("state", {}))
-		await _animate_player_action_step(before_state, after_state, card_id, action, target_tile, resolution.get("chain_hits", []), resolution.get("movement_bump", {}))
-		_battlefield_rule_switch.refresh(self, after_state)
-		animated_state = after_state
-	var echo_trace: Dictionary = {"echoes": []}
-	preload("res://scripts/run_persistence.gd").mark_resolution_frame()
-	animated_state = IllusionRelicRules.finish_echoes(_combat_engine, animated_state, echo_trace)
-	for echo: Dictionary in echo_trace["echoes"]:
+		_set_action_step_resolution_index(action_index, beat["before"], beat["remaining_targets"])
+		await _animate_player_action_step(beat["before"], beat["state"], card_id, beat["action"], beat["target"], beat["chain_hits"], beat["movement_bump"], playback["context"])
+		if await _combat_departure_interrupts(): return
+		_battlefield_rule_switch.refresh(self, beat["state"])
+	for echo: Dictionary in playback["echoes"]:
 		var choice: Dictionary = echo["choice"]
-		await _animate_player_action_step(echo["before"], echo["state"], card_id, choice["action"], choice["target"], echo["chain_hits"])
+		await _animate_player_action_step(echo["before"], echo["state"], card_id, choice["action"], choice["target"], echo["chain_hits"], {}, playback["context"])
+		if await _combat_departure_interrupts(): return
+	animated_state = playback["state"]
 	_set_action_step_resolution_index(actions.size())
 	await _finish_player_popup_timeline(animated_state)
+	if await _combat_departure_interrupts(): return
 	_render_board_state(animated_state, {})
-	await get_tree().create_timer(0.04).timeout
+	if not _is_last_kill_victory(_combat_state, animated_state) or _committed_run_state_override.get("mode") != "reward":
+		await get_tree().create_timer(0.04).timeout
 
 func _reach_exit_victory_preserves_board(combat_state: Dictionary) -> bool:
 	var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
@@ -23831,7 +24045,15 @@ func _reflected_shot_descriptor(before_state: Dictionary, action: Dictionary, ta
 	shot[ShotFx.RESOLVED_KEY] = shot_id
 	return shot
 
-func _animate_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i, chain_hits: Array = [], movement_bump: Dictionary = {}) -> void:
+func _animate_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i, chain_hits: Array = [], movement_bump: Dictionary = {}, caption_action: Dictionary = {}) -> void:
+	if caption_action.is_empty():
+		caption_action = CaptionPlacement.new_action()
+		CaptionPlacement.append_player_step(self, caption_action, before_state, after_state, action, target_tile, chain_hits)
+	action_banner.set_meta("player_caption_action", caption_action)
+	await _play_player_action_step(before_state, after_state, card_id, action, target_tile, chain_hits, movement_bump)
+	action_banner.remove_meta("player_caption_action")
+
+func _play_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i, chain_hits: Array, movement_bump: Dictionary) -> void:
 	_resolved_contact_bursts.begin(before_state, {}, not _has_electrical_trace(chain_hits))
 	_burst_playback.prepare(before_state, after_state)
 	action = SurfaceRelicRules.resolve_action(before_state, action)
@@ -24259,8 +24481,10 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	var death_reward_completion: Dictionary = {"done": false}
 	_animate_death_rewards_and_complete(before_state, after_state, death_reward_completion)
 	await _animate_turn_order_alongside_defeats(before_state, after_state, {}, terrain_destruction_presented_inline)
+	if await _combat_departure_interrupts(): return
 	while not bool(death_reward_completion.get("done", false)):
 		await get_tree().process_frame
+		if await _combat_departure_interrupts(): return
 	await _animate_board_pickup_acquisitions(before_state, after_state)
 	_consume_pending_card_draw_sfx(after_state)
 
@@ -24298,8 +24522,10 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	var rule_display: Dictionary = _combat_state.duplicate(true)
 	if not rule_steps.is_empty() and end_reason == "pass" and _controller_is_active():
 		_refresh_hand_panel()
+	_settled_playback_combat_state = scheduled_state
 	for beat: Dictionary in rule_steps:
 		await preload("res://scripts/battlefield_rules/playback.gd").animate(self, rule_display, beat)
+	_settled_playback_combat_state = {}
 	if _combat_engine.enemy_acts_before_next_player_turn(scheduled_state):
 		_combat_pacing.begin_enemies()
 		_show_turn_banner(false)
@@ -24308,7 +24534,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	if end_reason == "pass" and rule_steps.is_empty():
 		if _hitch_trace_enabled: _hitch_continuation = null
 		await RenderingServer.frame_post_draw
-		if _leaving_tree: return
+		if await _combat_departure_interrupts(): return
 		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:run_scene:enemy_round_lock_ui")
 	# The lock refresh must use the last played beat, including its defeats.
 	_refresh_enemy_round_lock_ui(rule_display if not rule_steps.is_empty() else {})
@@ -24323,7 +24549,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	await RenderingServer.frame_post_draw
 	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:run_scene:_resolve_enemy_round:3")
 	preload("res://scripts/run_persistence.gd").resume_resolution_after_draw(self)
-	if _leaving_tree or has_meta(preload("res://scripts/run_persistence.gd").DEPARTURE_META): return
+	if await _combat_departure_interrupts(): return
 	_record_runtime_performance_phase("enemy_round_lock_post_draw_wall_total", performance_lock_started)
 	_record_runtime_performance_phase("enemy_round_lock_and_cache_wall_total", performance_total_started)
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -24342,7 +24568,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	await RenderingServer.frame_post_draw
 	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:run_scene:enemy_round_checkpoint_submit")
 	preload("res://scripts/run_persistence.gd").resume_resolution_after_draw(self)
-	if _leaving_tree or has_meta(preload("res://scripts/run_persistence.gd").DEPARTURE_META): return
+	if await _combat_departure_interrupts(): return
 	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var previous_run_state: Dictionary = PlayerTurnAnalytics.stage_prepared(_run_state, _progression, turn_receipt)
 	_hold_player_turn_ended_receipts(previous_run_state)
@@ -24363,7 +24589,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	await RenderingServer.frame_post_draw
 	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:run_scene:enemy_round_first_simulation")
 	preload("res://scripts/run_persistence.gd").resume_resolution_after_draw(self)
-	if _leaving_tree or has_meta(preload("res://scripts/run_persistence.gd").DEPARTURE_META): return
+	if await _combat_departure_interrupts(): return
 	var first_activation: Dictionary = {}
 	if end_reason == "pass" and _combat_engine.combat_outcome(scheduled_state).is_empty():
 		var first_slice_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -24373,7 +24599,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 		if _hitch_trace_enabled: _hitch_continuation = null
 		await RenderingServer.frame_post_draw
 		preload("res://scripts/run_persistence.gd").resume_resolution_after_draw(self)
-		if _leaving_tree or has_meta(preload("res://scripts/run_persistence.gd").DEPARTURE_META): return
+		if await _combat_departure_interrupts(): return
 	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:run_scene:enemy_round_first_playback")
 	_burst_playback.prepare(rule_display, scheduled_state)
 	if _hitch_trace_enabled: _hitch_continuation = null
@@ -24384,7 +24610,8 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	await preload("res://scripts/hero_loss_playback.gd").present(self, rule_display, scheduled_state)
 	if _hitch_trace_enabled: _hitch_continuation = null
 	await _animate_defeats_and_terrain_destruction(rule_display, scheduled_state)
-	_combat_pacing.present_initial_order(rule_display, scheduled_state)
+	if not _is_last_kill_victory(previous_combat_state, scheduled_state):
+		_combat_pacing.present_initial_order(rule_display, scheduled_state)
 	_combat_state = scheduled_state.duplicate(true)
 	_mark_combat_preview_state_changed()
 	var animated_state: Dictionary = scheduled_state.duplicate(true)
@@ -24443,7 +24670,10 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 		# the complete run at every internal commit boundary.
 		if _hitch_trace_enabled: _hitch_continuation = null
 		_enemy_round_initiative = _enemy_activation_initiative(phase_state, slice_result.get("state", phase_state) as Dictionary)
-		await _animate_enemy_phase_steps(animated_state, slice_steps, slice_result.get("state", phase_state))
+		_settled_playback_combat_state = slice_result.get("state", phase_state)
+		await _animate_enemy_phase_steps(animated_state, slice_steps, _settled_playback_combat_state, slice_player_turn_before_state)
+		if await _combat_departure_interrupts(): return
+		_settled_playback_combat_state = {}
 		_enemy_round_initiative = _turn_order_initiative_fields(slice_result.get("state", phase_state) as Dictionary)
 		var draw_sfx_state: Dictionary = (
 			slice_player_turn_before_state
@@ -24455,6 +24685,8 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	_enemy_round_initiative = {}
 	if _hitch_trace_enabled: _hitch_continuation = null
 	await _combat_pacing.finish_enemies()
+	if await _combat_departure_interrupts(): return
+	board_view.release_waiting_crawler_rigs()
 	if phase_slice_safety >= 100:
 		push_error("Enemy phase slice safety limit reached before player activation.")
 	var phase_result: Dictionary = {
@@ -24485,12 +24717,19 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 			transition_combat_state = await _animate_missed_equipment_resolution(post_combat_board_state, _salvaged_equipment_ids(final_run_state))
 		if str(final_run_state.get("mode", "room")) == "reward":
 			if _hitch_trace_enabled: _hitch_continuation = null
-			await _play_post_combat_victory(transition_combat_state, final_run_state)
+			if not await _play_post_combat_victory(transition_combat_state, final_run_state): return
 	_board_presentation.clear()
 	_set_action_banner("")
 	finalization_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	if await _combat_departure_interrupts(): return
 	if _committed_run_state_override.is_empty() or _committed_run_state_override != final_run_state:
-		final_run_state = _hold_committed_run_state(final_run_state, "enemy_round_complete")
+		if final_run_state.get("mode") == "reward" and has_installed_run():
+			var checkpoint: Dictionary = await preload("res://scripts/run_persistence.gd").persist_reward_in_tree(self, final_run_state, "enemy_round_complete", true)
+			final_run_state = checkpoint["state"]
+			if await _combat_departure_interrupts(): return
+			finalization_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		else:
+			final_run_state = _hold_committed_run_state(final_run_state, "enemy_round_complete")
 	else:
 		final_run_state = _committed_run_state_override.duplicate(true)
 	_run_state = final_run_state
@@ -24537,6 +24776,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 			draw_transition
 		)
 		outcome = _combat_engine.combat_outcome(_combat_state)
+		if await _combat_departure_interrupts(): return
 	finalization_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_analytics_log_combat_transition(previous_run_state, "enemy_round", transition_combat_state)
 	_record_runtime_performance_phase("enemy_round_transition_analytics_total", finalization_phase_started)
@@ -24553,6 +24793,16 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 		await _refresh_ui(false, true)
 		_record_runtime_performance_phase("enemy_round_final_refresh_ui_wall_total", finalization_phase_started)
 
+func _combat_departure_interrupts() -> bool:
+	const Shutdown = preload("res://scripts/application_shutdown.gd")
+	const Persistence = preload("res://scripts/run_persistence.gd")
+	if not is_inside_tree(): return true
+	if not _leaving_tree: return has_meta(Persistence.DEPARTURE_META)
+	var tree := get_tree()
+	while Shutdown.title_save_pending(tree):
+		await tree.process_frame
+	return _leaving_tree or has_meta(Persistence.DEPARTURE_META)
+
 func _finish_enemy_round_player_handoff() -> void:
 	_enemy_round_handoff.publish(self)
 
@@ -24566,7 +24816,7 @@ func _draw_hand_card_ids() -> Array[String]:
 		if widget != null: result.append(widget.card_id)
 	return result
 
-func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolved_state: Dictionary = {}) -> void:
+func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolved_state: Dictionary = {}, player_turn_before_state: Dictionary = {}) -> void:
 	if steps.is_empty():
 		await _burst_playback.finish_resolved_slice(self, animated_state, resolved_state)
 		return
@@ -24579,9 +24829,15 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 	steps = MaquetteAction.presentation_steps(animated_state, steps)
 	var presentation_steps: Array = steps.filter(func(step: Dictionary) -> bool: return not bool(step.get("analytics_only", false)))
 	var playback_steps: Array = preload("res://scripts/enemy_mechanics/lob_view.gd").caption_steps(_intent_callouts.decorate_steps(_combat_engine, animated_state, presentation_steps))
+	var caption_actions: Array[Dictionary] = CaptionPlacement.enemy_actions(playback_steps)
 	var turn_completion: Variant = null if resolved_state.is_empty() else preload("res://scripts/hero_loss_playback.gd").completion_step(playback_steps)
-	for step_var: Variant in playback_steps:
+	var hold_player_activation_order: bool = not player_turn_before_state.is_empty() and _is_last_kill_victory(player_turn_before_state, resolved_state)
+	for step_index: int in playback_steps.size():
+		var step_var: Variant = playback_steps[step_index]
 		var step: Dictionary = (step_var as Dictionary).duplicate(false)
+		if hold_player_activation_order and step.get("kind") == "turn_order" and step.get("label") == "activate":
+			continue
+		step["caption_action"] = caption_actions[step_index]
 		_hero_facing.enemy_step = step
 		# Resolve before pacing stores the turn caption. Cutout adapters and
 		# subsequent action steps all pass through that same canonical caption.
@@ -26508,6 +26764,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		func(tile: Vector2i) -> bool: return ContactVisibility.tile_is_drawn(display_state, tile, rendered_presentation.get("umbra_visible_tiles")))
 	var chain_burst: Callable = _chain_hop_burst(presentation, resolved_state)
 	rendered_presentation.erase(ChainAttackFeedback.CONTACT_TILES)
+	if _hitch_trace_enabled: board_view._begin_stage_submission_detail()
 	board_view.set_combat_state(
 		display_state,
 		[],
@@ -26520,6 +26777,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		rendered_presentation,
 		state_stable_since_last_submission and not _animation_step_requires_submission_validation
 	)
+	if _hitch_trace_enabled: board_view._end_stage_submission_detail()
 	_animation_step_requires_submission_validation = false
 	if not _blink_transits.is_empty(): _present_blink_transits(rendered_presentation)
 	if chain_burst.is_valid(): chain_burst.call()
@@ -27296,6 +27554,11 @@ func _animation_actor_unit(state: Dictionary, actor_key: String) -> Dictionary:
 
 func _set_action_banner(text: String) -> void:
 	text = _boss_move_caption(_combat_pacing.caption_text(text))
+	var step: Dictionary = _hero_facing.enemy_step
+	var context: Dictionary = action_banner.get_meta("player_caption_action", {}) if step.is_empty() else step.get("caption_action", {})
+	if context.is_empty(): context = CaptionPlacement.enemy_actions([step])[0]
+	var previous: Dictionary = action_banner.get_meta("caption_placement", {})
+	var reposition: bool = text != action_banner.text or not is_same(previous.get("context"), context)
 	var rule_icon: Node = action_banner.get_node_or_null("BattlefieldRuleCaptionIcon")
 	if rule_icon != null:
 		action_banner.remove_child(rule_icon)
@@ -27304,7 +27567,31 @@ func _set_action_banner(text: String) -> void:
 	action_banner.text = text
 	if not text.is_empty() and _turn_banner != null and _turn_banner.visible:
 		_turn_banner.call("dismiss", _reduced_motion_enabled())
-	_layout_action_banner()
+	if text.is_empty() or reposition:
+		var timer: Timer = action_banner.get_node_or_null("CaptionNavigationTimer")
+		if timer != null: timer.stop()
+	if text.is_empty():
+		action_banner.remove_meta("caption_placement")
+	elif reposition:
+		action_banner.set_meta("caption_placement", {"context": context, "shift": 0.0})
+	var resize: Callable = _layout_action_banner.bind(true)
+	if not get_viewport().size_changed.is_connected(resize):
+		get_viewport().size_changed.connect(resize, CONNECT_DEFERRED)
+	if not board_view.navigation_changed.is_connected(_queue_caption_navigation_layout):
+		board_view.navigation_changed.connect(_queue_caption_navigation_layout)
+	_layout_action_banner(reposition)
+
+func _queue_caption_navigation_layout() -> void:
+	if not action_banner.is_visible_in_tree(): return
+	var timer: Timer = action_banner.get_node_or_null("CaptionNavigationTimer")
+	if timer == null:
+		timer = Timer.new()
+		timer.name = "CaptionNavigationTimer"
+		timer.one_shot = true
+		timer.ignore_time_scale = true
+		timer.timeout.connect(_layout_action_banner.bind(true))
+		action_banner.add_child(timer)
+	timer.start(CaptionPlacement.NAVIGATION_SETTLE_SECONDS)
 
 # The boss bar directly above already names the boss, so the boss's own moves
 # caption the move alone ("Stonewake"). Helpers and other enemies keep
@@ -27315,7 +27602,7 @@ func _boss_move_caption(text: String) -> String:
 	var prefix: String = _boss_health_name.text + ": "
 	return text.substr(prefix.length()) if text.begins_with(prefix) and text.length() > prefix.length() else text
 
-func _layout_action_banner() -> void:
+func _layout_action_banner(reposition: bool = false) -> void:
 	if action_banner == null:
 		return
 	var top: float = 8.0
@@ -27331,8 +27618,18 @@ func _layout_action_banner() -> void:
 	if font != null and not action_banner.text.is_empty():
 		var text_width: float = font.get_string_size(action_banner.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, action_banner.get_theme_font_size("font_size")).x
 		half_width += text_width * 0.5
-	action_banner.offset_left = -half_width
-	action_banner.offset_right = half_width
+	var placement: Dictionary = action_banner.get_meta("caption_placement", {})
+	if reposition and action_banner.is_visible_in_tree() and not placement.is_empty():
+		var center: float = stage_root.size.x * action_banner.anchor_left
+		var label_rect := Rect2(center - half_width, top, half_width * 2.0, ACTION_BANNER_HEIGHT)
+		var boss: Dictionary = _boss_unit_for_health_overlay(board_view.combat_state)
+		var reserve_width: float = ACTION_BANNER_RESERVE_WIDTH if boss.get("type", "") == "noctyrax" else 0.0
+		var action: Dictionary = CaptionPlacement.visible_geometry(board_view, placement["context"])
+		var geometry: Dictionary = CaptionPlacement.snapshot(self, label_rect, action["tiles"], reserve_width, action["destinations"])
+		placement.merge(CaptionPlacement.place(geometry), true)
+	var shift: float = placement.get("shift", 0.0)
+	action_banner.offset_left = -half_width + shift
+	action_banner.offset_right = half_width + shift
 
 func _board_hud_obstacles(boss: Dictionary) -> Array[Rect2]:
 	var rects: Array[Rect2]
@@ -27341,11 +27638,11 @@ func _board_hud_obstacles(boss: Dictionary) -> Array[Rect2]:
 		rects.append(_boss_health_overlay.get_global_rect().grow(10.0))
 		if action_banner != null and action_banner.visible:
 			rects.append(action_banner.get_global_rect().grow(4.0))
-		elif action_banner != null and str(boss.get("type", "")) == "noctyrax":
+		if action_banner != null and str(boss.get("type", "")) == "noctyrax":
 			# Noctyrax's retained brazier labels must already leave room before an
 			# action appears; the HUD need not repaint during every windup frame.
 			var band_width: float = maxf(action_banner.size.x, ACTION_BANNER_RESERVE_WIDTH)
-			var band := Rect2(Vector2(action_banner.global_position.x + (action_banner.size.x - band_width) * 0.5, _boss_health_overlay.get_global_rect().end.y + 4.0), Vector2(band_width, ACTION_BANNER_HEIGHT))
+			var band := Rect2(Vector2(stage_root.get_global_rect().get_center().x - band_width * 0.5, _boss_health_overlay.get_global_rect().end.y + 4.0), Vector2(band_width, ACTION_BANNER_HEIGHT))
 			rects.append(band.grow(4.0))
 		# Before the cards are laid out the hand has no visual top (INF); an
 		# infinite reservation would turn every HUD placement score into NaN.
@@ -27642,6 +27939,8 @@ func _append_unique_grimoire_ids(target: Array[String], source: Array) -> void:
 
 func _log_text() -> String:
 	var notice: String = str(_run_state.get("notice", ""))
+	if _has_victory_save_notice(_run_state):
+		notice = preload("res://scripts/section_transition.gd").SAVE_FAILURE_NOTICE
 	var grimoire_notice: String = str(_run_state.get(GrimoireLibrary.NOTICE_KEY, ""))
 	if not _combat_state.is_empty():
 		var lines: Array = (_combat_state.get("log", []) as Array).duplicate()
@@ -27657,6 +27956,10 @@ func _log_text() -> String:
 	if not grimoire_notice.is_empty():
 		return grimoire_notice
 	return ""
+
+func _refresh_persistent_run_notice() -> void:
+	if is_instance_valid(log_label) and is_instance_valid(log_overlay):
+		preload("res://scripts/run_notification_queue.gd").replace_persistent(self, _log_text())
 
 func _show_combat_log_message(message: String) -> void:
 	if log_label == null or log_overlay == null:
@@ -28986,12 +29289,17 @@ func _relic_frame_for_id(relic_id: String) -> Control:
 	return null
 
 func _on_back_to_menu_pressed() -> void:
+	const Shutdown = preload("res://scripts/application_shutdown.gd")
+	var tree := get_tree()
+	if not Shutdown.begin_save_to_title(tree): return
 	if not _is_debug_boss_run():
 		if not ProgressionStore.save_data(_progression) or not ProgressionStore.clear_saved_run():
-			_run_state["notice"] = "Could not save. Try again before leaving."
-			_refresh_ui()
+			if Shutdown.cancel_save_to_title(tree):
+				_run_state["notice"] = "Could not save. Try again before leaving."
+				_refresh_ui()
 			return
-	_change_scene_to_file("res://scenes/main_menu.tscn")
+	if Shutdown.finish_save_to_title(tree, _resume_cancelled_departure.bind(process_mode, false, false)):
+		_change_scene_to_file("res://scenes/main_menu.tscn")
 
 func _on_restart_pressed() -> void:
 	if _is_debug_boss_run():
@@ -29033,6 +29341,7 @@ func _on_controller_pass() -> void:
 		_controller_region = "board"
 		_controller_set_hand_focused(false)
 	await _on_pass_turn_pressed()
+	if _leaving_tree: return
 	# Focus walks the newly submitted board. Keep it off the handoff frame.
 	var combat_revision: int = _combat_preview_revision
 	await RenderingServer.frame_post_draw
@@ -29059,8 +29368,9 @@ func _on_pass_turn_pressed() -> void:
 	await _resolve_enemy_round("pass")
 	if _guided_tutorial_pass_pending:
 		_guided_tutorial_pass_pending = false
+		# Save & Quit can interrupt a committed pass; keep its credit so Continue never asks again.
 		_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_PASS)
-		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_CORE_COMPLETE)
+		if not _leaving_tree: _guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_CORE_COMPLETE)
 
 func _maybe_auto_pass_exhausted_player_turn() -> bool:
 	if (
@@ -29299,7 +29609,13 @@ func _run_state_for_combat_checkpoint(base_run_state: Dictionary, combat_state: 
 	)
 	finished_state["progression"] = finished_progression
 	var reward: Dictionary = finished_state.get("pending_reward", {})
-	if bool(reward.get("final_boss", false)) and not _is_debug_boss_run():
+	var combat_id: String = checkpoint_combat_state.get("analytics", {}).get("combat_id", "")
+	if not combat_id.is_empty() and not bool(finished_state.get("debug_boss_run", false)) and _analytics_combat_offers_reward(finished_state):
+		Snapshots.stage_combat_win(_combat_engine, _run_engine, finished_state, checkpoint_combat_state,
+			reason, _salvaged_equipment_ids(finished_state))
+	elif bool(reward.get("final_boss", false)) and not _is_debug_boss_run():
+		# Legacy final-dragon snapshots can carry the original closing receipt
+		# even without a combat ID from an installed encounter.
 		Snapshots.stage_combat_end(_combat_engine, _run_engine, finished_state, reward["board_state"], reason)
 	return finished_state
 
@@ -29396,7 +29712,7 @@ func _repair_legacy_empty_actor_transition() -> bool:
 	_persist_committed_boundary("legacy_empty_actor_transition_repaired")
 	return true
 
-func _consume_next_pending_combat_checkpoint() -> bool:
+func _consume_next_pending_combat_checkpoint(resumed_phase: Dictionary = {}) -> bool:
 	if not _has_pending_combat_checkpoints():
 		return false
 	var checkpoints: Array = _pending_combat_checkpoints()
@@ -29405,14 +29721,25 @@ func _consume_next_pending_combat_checkpoint() -> bool:
 		preload("res://scripts/run_persistence.gd").mark_resolution_frame()
 		var slice_result: Dictionary = CommittedBattlefieldRules.advance_one_activation(_combat_engine, _combat_state)
 		var slice_state: Dictionary = slice_result.get("state", _combat_state) as Dictionary
-		var continuation_checkpoints: Array = _combat_commit_checkpoints(slice_result.get("steps", []) as Array)
+		var slice_steps: Array = slice_result.get("steps", []) as Array
+		var continuation_checkpoints: Array = _combat_commit_checkpoints(slice_steps)
+		var phase_complete: bool = bool(slice_result.get("complete", false))
+		if resumed_phase.has("steps"):
+			# Keep the resolver projections in memory until the final commit.
+			var phase_steps: Array = resumed_phase["steps"]
+			for step: Dictionary in slice_steps:
+				if step.get("kind", "") != "commit":
+					phase_steps.append(step)
+			if phase_complete:
+				resumed_phase["state"] = slice_state
+				resumed_phase["player_turn_before_state"] = slice_result.get("player_turn_before_state", {})
 		# A malformed/stale actor can advance the owned initiative snapshot without
 		# producing a commit presentation. Preserve that progress before requeueing
 		# the compact marker; otherwise Continue would replay the same actor forever.
 		var continuation_base_run_state: Dictionary = _run_state
 		if continuation_checkpoints.is_empty():
 			continuation_base_run_state = _run_state_for_combat_checkpoint(_run_state, slice_state)
-		if not bool(slice_result.get("complete", false)):
+		if not phase_complete:
 			continuation_checkpoints.append(_enemy_phase_continuation_checkpoint())
 		if continuation_checkpoints.is_empty():
 			_run_state = _hold_committed_run_state(
@@ -29446,23 +29773,30 @@ func _resume_pending_combat_checkpoints() -> void:
 	var _hitch_continuation: RefCounted
 	if not _has_pending_combat_checkpoints() or _animation_lock:
 		return
+	var combat_id: String = _combat_state.get("analytics", {}).get("combat_id", "")
 	_animation_lock = true
 	var resume_safety: int = 0
+	var resumed_phase: Dictionary = {"steps": []}
 	while _has_pending_combat_checkpoints() and resume_safety < 100:
 		resume_safety += 1
 		if _hitch_trace_enabled: _hitch_continuation = null
 		await RenderingServer.frame_post_draw
 		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:run_scene:_resume_pending_combat_checkpoints:1")
-		if not _consume_next_pending_combat_checkpoint():
+		if not _consume_next_pending_combat_checkpoint(resumed_phase):
 			break
 		if str(_run_state.get("mode", "")) != "combat":
 			break
 	if resume_safety >= 100 and _has_pending_combat_checkpoints():
 		push_error("Enemy-phase continuation exceeded the 100-activation recovery bound; resetting to one deterministic player activation.")
 		_recover_stalled_enemy_phase_continuation()
+		resumed_phase.clear()
 	_release_committed_run_state()
-	if _run_state.get("mode") == "defeat":
-		_replay_committed_defeat_analytics()
+	if not _leaving_tree:
+		if resumed_phase.has("state"): _analytics_log_enemy_phase_events(resumed_phase)
+		if _run_state.get("mode") == "defeat":
+			_replay_committed_defeat_analytics()
+		elif _analytics_combat_offers_reward(_run_state):
+			_deliver_combat_win_analytics(combat_id)
 	_board_presentation.clear()
 	_set_action_banner("")
 	if _reward_intro_pending():
@@ -29500,6 +29834,8 @@ func _persist_committed_boundary(boundary: String = "") -> bool:
 
 func _hold_committed_run_state(run_state: Dictionary, boundary: String = "") -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	if _run_state.get("mode") == "combat":
+		_track_reward_checkpoint(run_state)
 	var persisted_state: Dictionary = _persist_run_state_snapshot(run_state, true, boundary).get("state", run_state) as Dictionary
 	_record_runtime_performance_phase("combat_checkpoint_hold_persist_total", performance_total_started)
 	_record_runtime_performance_phase("combat_checkpoint_hold_total", performance_total_started)
@@ -29562,6 +29898,7 @@ func _prepare_terminal_settlement(run_state: Dictionary, commit_heirloom_choice:
 			profile = OpeningBoonRecovery.retain_pending_events(self, state, profile)
 		else:
 			profile = disk
+		profile = ProgressionStore.merge_combat_win_receipts(profile, run_state.get("progression", {}))
 	else:
 		state = _terminal_state_with_recorded_run_result(run_state, profile, disk)
 		profile = state["progression"]
@@ -29653,9 +29990,24 @@ func _on_save_and_quit_pressed() -> void:
 	const Shutdown = preload("res://scripts/application_shutdown.gd")
 	var tree := get_tree()
 	if not Shutdown.begin_save_to_title(tree): return
-	await _save_for_quit()
-	if Shutdown.finish_save_to_title(tree):
-		_change_scene_to_file("res://scenes/main_menu.tscn")
+	var recover := _resume_cancelled_departure.bind(process_mode, _skill_analytics_queue.busy(), _run_skill_analytics_queue.busy())
+	if await _save_for_quit():
+		if Shutdown.finish_save_to_title(tree, recover):
+			_change_scene_to_file("res://scenes/main_menu.tscn")
+	elif Shutdown.cancel_save_to_title(tree):
+		recover.call()
+		preload("res://scripts/run_notification_queue.gd").show_departure_failure(self, "Could not save. Try again before leaving.")
+
+func _resume_cancelled_departure(previous_mode: ProcessMode, resume_combat_skills: bool, resume_run_skills: bool) -> void:
+	_leaving_tree = false
+	remove_meta(preload("res://scripts/run_persistence.gd").DEPARTURE_META)
+	process_mode = previous_mode
+	_refresh_persistent_run_notice()
+	if _performance_telemetry_finalized:
+		_performance_telemetry_finalized = false
+		_update_performance_telemetry_context()
+	if resume_combat_skills: _request_skill_event_analytics()
+	if resume_run_skills: _request_run_skill_event_analytics()
 
 func _on_exit_to_desktop_pressed() -> void:
 	preload("res://scripts/application_shutdown.gd").request(get_tree(), "exit_to_desktop")
@@ -29678,13 +30030,15 @@ func prepare_application_quit(reason: String) -> void:
 	await _save_for_quit()
 	_finalize_performance_telemetry_scene(reason)
 
-func _save_for_quit() -> void:
+func _save_for_quit() -> bool:
 	_combat_pacing.vibration.stop()
 	_leaving_tree = true
+	# Departure owns the frozen checkpoint from here; a victory hold must not finish into reward work.
+	PostCombatRewardSequence.cancel_victory(_post_combat_victory_overlay)
 	_close_menu_overlay()
 	process_mode = Node.PROCESS_MODE_DISABLED
 	_emit_pending_card_play(_committed_run_state_override)
-	await preload("res://scripts/run_persistence.gd").save_for_departure(self)
+	return await preload("res://scripts/run_persistence.gd").save_for_departure(self)
 
 func _on_abandon_run_pressed() -> void:
 	_cancel_deferred_skill_analytics()
@@ -29747,7 +30101,11 @@ func _change_scene_to_file(path: String) -> void:
 	if cursor_feedback != null and cursor_feedback.has_method("change_scene_to_file"):
 		cursor_feedback.call("change_scene_to_file", path)
 		return
-	preload("res://scripts/departed_run_cleanup.gd").change_scene_to_file(get_tree(), path)
+	var tree := get_tree()
+	var result := preload("res://scripts/departed_run_cleanup.gd").change_scene_to_file(tree, path)
+	if result != OK:
+		preload("res://scripts/application_shutdown.gd").fail_title_handoff(tree)
+		push_error("RunScene could not change scene to %s (error %d)" % [path, result])
 
 func _on_pile_gui_input(event: InputEvent, pile_kind: String) -> void:
 	if (
@@ -30012,6 +30370,7 @@ func _pile_dialog_size_for_count(card_count: int) -> Vector2:
 func _configure_discard_selection_focus(buttons: Array[Button]) -> void:
 	if buttons.is_empty() or _pile_dialog == null:
 		return
+	_controller_dpad.mark_region(buttons, &"discard_selection_cards", Vector2.AXIS_X)
 	var close_button := _pile_dialog.find_child("CloseButton", true, false) as Button
 	for index: int in range(buttons.size()):
 		var button: Button = buttons[index]
@@ -30541,6 +30900,7 @@ func _refresh_progression_resource_summary() -> void:
 
 func _build_character_overlay_tabs() -> Control:
 	var row := preload("res://scripts/character_menu_view.gd").tabs_row()
+	row.set_meta("controller_repeat_region", &"character_tabs")
 	for entry: Dictionary in [
 		{"mode": "equipment", "text": "Gear"},
 		{"mode": "magic", "text": "Magic"},
@@ -31036,7 +31396,7 @@ func _authoritative_profile_progression() -> Dictionary:
 	persisted_profile["run_counter"] = maxi(int(persisted_profile.get("run_counter", 0)), int(active_progression.get("run_counter", 0)))
 	if int(active_progression.get("progression_revision", 0)) <= int(persisted_profile.get("progression_revision", 0)):
 		ProgressionStore.merge_run_completion_ids(persisted_profile, active_progression)
-		return persisted_profile
+		return ProgressionStore.merge_combat_win_receipts(persisted_profile, active_progression)
 	ProgressionStore.merge_run_completion_ids(active_progression, persisted_profile)
 	# A terminal receipt and its settled wallet must be repaired together.
 	# Otherwise replacement sees the result acknowledged with the old balance.
@@ -33020,6 +33380,7 @@ func _moltshard_gain_idempotency_key(award_id: String) -> String:
 	return "%s|%s" % [MOLTSHARD_GAIN_EVENT_TYPE, award_id]
 
 func _reconcile_progression_analytics_outbox() -> bool:
+	if _leaving_tree: return false
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
 	var outbox: Array[Dictionary] = ProgressionStore.progression_analytics_outbox(_progression)
@@ -33217,6 +33578,17 @@ func _reconcile_skill_event_analytics() -> void:
 	_skill_analytics_queue.flush(_skill_analytics_steps())
 	_skill_analytics_flushing = false
 	_record_runtime_performance_phase("skill_analytics_total", started)
+
+func _reconcile_reward_skill_analytics_in_tree() -> void:
+	const Persistence = preload("res://scripts/run_persistence.gd")
+	if _skill_analytics_flushing or _leaving_tree: return
+	_skill_analytics_queue.cancel()
+	_skill_analytics_flushing = true
+	if _stage_skill_analytics_outbox():
+		var outbox: Dictionary = await Persistence.persist_reward_in_tree(self, _committed_run_state(), "combat_skill_event_outbox")
+		if not await _combat_departure_interrupts() and outbox["saved"] and _append_and_acknowledge_skill_analytics():
+			await Persistence.persist_reward_in_tree(self, _committed_run_state(), "combat_skill_event_ack")
+	_skill_analytics_flushing = false
 
 func _reconcile_skill_event_analytics_across_frames() -> void:
 	var _hitch_continuation: RefCounted
@@ -33644,6 +34016,7 @@ func _analytics_merchant_item_kind(item_id: String) -> String:
 	return kind
 
 func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: String, transition_combat_state: Dictionary = {}) -> void:
+	if _leaving_tree: return
 	var previous_mode: String = str(previous_run_state.get("mode", "room"))
 	var next_mode: String = str(_run_state.get("mode", "room"))
 	if previous_mode != "combat" and next_mode == "combat" and not transition_combat_state.is_empty():
@@ -33675,6 +34048,13 @@ func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: St
 			_replay_committed_defeat_analytics()
 			_reset_analytics_combat_tracker()
 			return
+		var combat_id: String = transition_combat_state.get("analytics", {}).get("combat_id", "")
+		var offers_reward := _analytics_combat_offers_reward(_run_state)
+		if offers_reward and not _is_debug_boss_run():
+			_analytics_flush_surface_events(transition_combat_state)
+			if _deliver_combat_win_analytics(combat_id):
+				_reset_analytics_combat_tracker()
+				return
 		var reward: Dictionary = _run_state.get("pending_reward", {})
 		if next_mode == "reward" and bool(reward.get("final_boss", false)) and not _is_debug_boss_run():
 			_analytics_flush_surface_events(transition_combat_state)
@@ -33684,18 +34064,39 @@ func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: St
 			))
 		else:
 			_analytics_log_combat_ended(transition_combat_state, reason)
-		if next_mode == "reward" or (next_mode == "treasure" and not (_run_state.get("guardian_reward", {}) as Dictionary).is_empty()):
+		if offers_reward:
 			_analytics_log_reward_offered(transition_combat_state, reason)
 		elif next_mode in ["victory", "defeat"]:
 			_analytics_log_run_ended(next_mode)
 		_reset_analytics_combat_tracker()
+
+func _analytics_combat_offers_reward(state: Dictionary) -> bool:
+	var mode: String = state.get("mode", "")
+	return mode == "reward" or (mode == "treasure" and not (state.get("guardian_reward", {}) as Dictionary).is_empty())
+
+func _deliver_combat_win_analytics(combat_id: String) -> bool:
+	if combat_id.is_empty(): return false
+	var keys := [AnalyticsStore.combat_ended_key(combat_id), AnalyticsStore.reward_offered_key(combat_id)]
+	var embedded: Dictionary = _run_state.get("progression", {})
+	var receipts := ProgressionStore.progression_analytics_outbox(embedded).filter(func(receipt: Dictionary) -> bool:
+		return receipt["idempotency_key"] in keys
+	)
+	# Old final-dragon checkpoints have only their original combat receipt.
+	if receipts.size() != keys.size(): return false
+	if _analytics_store.write_events_durable(receipts):
+		_run_state["progression"] = ProgressionStore.acknowledge_progression_analytics_events(embedded, keys)
+	else:
+		# Keep the durable checkpoint's receipts alive across later profile syncs.
+		var outbox := {ProgressionStore.PROGRESSION_ANALYTICS_OUTBOX_KEY: receipts}
+		_progression = ProgressionStore.merge_progression_analytics_outbox(_progression, outbox)
+	return true
 
 func _replay_committed_defeat_analytics() -> void:
 	var disk: Dictionary = ProgressionStore.load_data()
 	var key: String = Snapshots.run_ended_receipt(_run_engine, _run_state, "defeat", _analytics_context_from_states(_run_state))["idempotency_key"]
 	var staged := ProgressionStore.progression_analytics_outbox(_run_state.get("progression", {}))
 	var staged_closings := staged.filter(func(receipt: Dictionary) -> bool:
-		return receipt["idempotency_key"] == key or receipt["event_type"] == "combat_ended"
+		return receipt["idempotency_key"] == key or receipt["event_type"] in ["combat_ended", "reward_offered"]
 	)
 	var durable := ProgressionStore.progression_analytics_outbox(disk)
 	if not durable.any(func(receipt: Dictionary) -> bool: return receipt["idempotency_key"] == key):
@@ -35272,9 +35673,10 @@ func _maybe_present_section_map(crossfade: bool = true) -> void:
 	_section_map_presented_key = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), str(_run_state.get("mode", ""))]
 	_start_room_map.map_presented(self)
 	_open_large_map()
-	# Fade the real backdrop so the room title never paints over the map as
-	# part of a captured frame. Input still transfers on the opening frame.
-	if crossfade and _large_map_scrim.visible: _large_map_scrim.fade_in(_large_map_fade_seconds())
+	# The loading cover owns the dissolve. Keep the new map opaque so its
+	# board suppression stays valid while the run cannot process a frame.
+	var covered: bool = _initial_ui_staging_requested and process_mode == Node.PROCESS_MODE_DISABLED
+	if crossfade and not covered and _large_map_scrim.visible: _large_map_scrim.fade_in(_large_map_fade_seconds())
 
 func _large_map_fade_seconds() -> float:
 	return LargeMapBackdrop.REDUCED_FADE_SECONDS if _reduced_motion_enabled() else LargeMapBackdrop.FADE_SECONDS

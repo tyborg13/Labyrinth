@@ -671,6 +671,7 @@ func _process(delta: float) -> void:
 
 func _wire_focus() -> void:
 	var scope: Control = _inspection if _inspection != null else _picker if _picker != null else _content
+	scope.set_meta("controller_repeat_region", true)
 	var buttons: Array[Button]
 	for node: Node in scope.find_children("*", "Button", true, false):
 		var button: Button = node as Button

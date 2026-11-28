@@ -475,7 +475,10 @@ func handle_input(event: InputEvent) -> bool:
 	if event is InputEventJoypadMotion:
 		if event.axis == JOY_AXIS_LEFT_Y:
 			_stick_repeat.sample(event.axis, event.axis_value, Router.JOYSTICK_ACTIVITY_THRESHOLD)
+		elif event.axis == JOY_AXIS_LEFT_X and absf(event.axis_value) >= Router.JOYSTICK_ACTIVITY_THRESHOLD:
+			_stick_repeat.stop_dpad()
 		return true
+	_stick_repeat.observe_dpad(event, get_viewport(), _can_repeat_dpad)
 	if not event.is_pressed() or event.is_echo(): return not (event is InputEventMouse or event is InputEventScreenTouch or event is InputEventScreenDrag)
 	if page == "result" and result_beats != null:
 		finish_result_beats()
@@ -500,6 +503,18 @@ func _process(delta: float) -> void:
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if _preview_input == PreviewInput.FOCUS and (router == null or bool(router.call("using_controller"))):
 		_stick_repeat.advance(delta)
+	else:
+		_stick_repeat.stop_dpad()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+		_stick_repeat.stop_dpad()
+
+func _can_repeat_dpad(button: int) -> bool:
+	if not is_visible_in_tree() or _closing or page != "choices": return false
+	var direction: int = int(_stick_repeat.dpad_direction(button).y)
+	var index: int = focused_choice_index()
+	return direction != 0 and index >= 0 and index + direction >= 0 and index + direction < choices.size()
 
 func _activate_focused() -> void:
 	if page == "result": activate_continue()

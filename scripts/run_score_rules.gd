@@ -245,7 +245,7 @@ static func cause_text(killer: Dictionary, outcome: String, embers: int) -> Stri
 	for intent: Dictionary in enemy.get("intents", []):
 		if str(intent.get("id", "")) == str(killer.get("intent_id", "")):
 			intent_name = str(intent.get("name", intent_name))
-	var enemy_name: String = preload("res://scripts/glossary.gd").with_article(str(enemy.get("name", enemy_type)))
+	var enemy_name: String = preload("res://scripts/glossary.gd").enemy_name_in_prose(enemy_type, str(enemy.get("name", enemy_type)), not intent_name.is_empty())
 	if intent_name.is_empty():
 		return "Felled by %s, %d damage." % [enemy_name, int(killer.get("damage", 0))]
 	return "Felled by %s's %s, %d damage." % [enemy_name, intent_name, int(killer.get("damage", 0))]

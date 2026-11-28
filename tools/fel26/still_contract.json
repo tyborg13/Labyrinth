@@ -1,0 +1,11 @@
+{
+  "min_images": 5,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "P3.png", "width": 1920, "height": 1080},
+    {"pattern": "04-s0-seed8-0--3_2-t5.png", "width": 1920, "height": 1080},
+    {"pattern": "10-s3-seed12-3-13_-2-t4.png", "width": 1920, "height": 1080},
+    {"pattern": "crate-loot.png", "width": 1920, "height": 1080},
+    {"pattern": "P8-hero-pillar.png", "width": 1920, "height": 1080}
+  ]
+}

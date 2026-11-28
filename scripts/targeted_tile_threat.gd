@@ -32,7 +32,4 @@ func has_pulsing_fill() -> bool:
 
 func _draw() -> void:
 	if _paint.is_empty(): return
-	var inner: PackedVector2Array = _paint["inner"]
-	var outline: PackedVector2Array = inner.duplicate()
-	outline.append(inner[0])
-	draw_polyline(outline, Color(Threats.OUTLINE_COLOR, Threats.OUTLINE_ALPHA * float(_paint["alpha"])), Threats.OUTLINE_WIDTH, true)
+	Threats.draw_tile_outline(self, _paint)

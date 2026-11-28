@@ -38,6 +38,7 @@ static func section(title: String, count: String = "") -> Control:
 static func column(panel_name: String, width: float, title: String, count: String = "") -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.name = panel_name
+	panel.set_meta("controller_repeat_region", true)
 	panel.custom_minimum_size.x = Typography.scaled_value(panel, width)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())

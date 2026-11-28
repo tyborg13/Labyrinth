@@ -237,15 +237,10 @@ static func threat_paint(board: Control, tile: Vector2i, sources: Dictionary, po
 		hero = tile if bool(lob[tile]["center"]) else Vector2i(-1, -1)
 	if alpha < 0.0 or not (board._board_tile_is_visible_to_player(tile) or coverage.get("announced", {}).has(tile)): return {}
 	if polygon.is_empty(): polygon = board.call("_tile_polygon", tile)
-	var center: Vector2 = board.call("_tile_center", tile)
-	var inset: float = Threats.OUTLINE_WIDTH * 0.5
-	var width: float = float(board.call("_tile_width"))
-	var height: float = float(board.call("_tile_height"))
-	var edge_distance: float = (width * height * 0.5) / sqrt(width * width + height * height)
-	var inner := PackedVector2Array()
-	for point: Vector2 in polygon:
-		inner.append(center + (point - center) * maxf(0.0, 1.0 - inset / edge_distance))
-	return {"alpha": alpha, "hero": tile == hero, "inner": inner, "center": center}
+	var paint: Dictionary = Threats.tile_geometry(board, tile, polygon)
+	paint["alpha"] = alpha
+	paint["hero"] = tile == hero
+	return paint
 
 static func threat_operations(board: Control, tile: Vector2i, polygon: PackedVector2Array, sources: Dictionary) -> void:
 	var paint: Dictionary = threat_paint(board, tile, sources, polygon)
@@ -266,9 +261,8 @@ static func rule_outline_operations(board: Control, tile: Vector2i) -> void:
 	if not paint.is_empty(): _threat_outline_operations(board, paint)
 
 static func _threat_outline_operations(board: Control, paint: Dictionary) -> void:
-	var inner: PackedVector2Array = (paint["inner"] as PackedVector2Array).duplicate()
-	inner.append(inner[0])
-	board.call("_slice_op", "draw_polyline", [inner, Color(Threats.OUTLINE_COLOR, Threats.OUTLINE_ALPHA * float(paint["alpha"])), Threats.OUTLINE_WIDTH, true])
+	for arguments: Array in Threats.outline_operations(paint):
+		board.call("_slice_op", "draw_polyline", arguments)
 
 # atk-09: the targeted tile's red fill and zone tag, after its move-range and
 # hover highlights. Its outline is drawn above the targeted-tile border.

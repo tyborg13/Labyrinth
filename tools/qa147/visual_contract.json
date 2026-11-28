@@ -1,0 +1,8 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "victory.png", "regions": [{"rect": [560, 310, 800, 400], "min_luma_range": 30}]},
+    {"pattern": "reward.png", "regions": [{"rect": [400, 630, 1120, 420], "min_luma_range": 30}]}
+  ]
+}

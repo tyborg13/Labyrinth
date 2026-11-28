@@ -21,6 +21,9 @@ func run(session: SceneTree, mode: String) -> void:
 	_source_script = load(source_root.path_join("scripts/board_occlusion_sources.gd"))
 	_alpha_script = load(source_root.path_join("scripts/board_occlusion_alpha.gd"))
 	_added_subjects = load(session.tool_dir.path_join("added_subjects.gd"))
+	var edge_probe: RefCounted
+	if OS.get_environment("FEL26_AUDIT") == "1":
+		edge_probe = load(session.tool_dir.path_join("../fel26/edge_probe.gd").simplify_path()).new()
 	var native_probe: RefCounted = load(session.tool_dir.path_join("native_content.gd")).new()
 	var branch: bool = OS.get_environment("FEL13_SIDE") == "branch"
 	var ids: PackedStringArray = session.fixtures()
@@ -33,8 +36,9 @@ func run(session: SceneTree, mode: String) -> void:
 		if not await session.open_fixture(fixture):
 			_failure_count += 1
 			continue
-		if mode in ["still", "dry", "content"]: await session.settle()
+		if edge_probe != null or mode in ["still", "dry", "content"]: await session.settle()
 		var report: Dictionary = inspect(session.board, fixture, mode == "witness")
+		if edge_probe != null and not edge_probe.audit(session.board, fixture): _failure_count += 1
 		if mode in ["still", "dry", "content"]:
 			if not await _stills(session, fixture, report, native_probe, branch, mode == "content"): _failure_count += 1
 		else:

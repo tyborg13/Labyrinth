@@ -167,9 +167,19 @@ var _travel_progress: float = 0.0:
 		_invalidate_travel_visual_cache()
 		queue_redraw()
 
+var _dpad_repeat := preload("res://scripts/controller_axis_repeat.gd").new()
+
 func _ready() -> void:
 	clip_contents = true
+	set_meta("controller_custom_dpad_navigation", true)
+	visibility_changed.connect(_reset_dpad_if_hidden)
 	_sync_interactivity()
+
+func _reset_dpad_if_hidden() -> void:
+	if not is_visible_in_tree(): _dpad_repeat.stop_dpad()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_WINDOW_FOCUS_OUT: _dpad_repeat.stop_dpad()
 
 func _sync_interactivity() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
@@ -179,11 +189,13 @@ func _sync_interactivity() -> void:
 
 func _process(delta: float) -> void:
 	if not interactive or not is_visible_in_tree() or not _using_controller():
+		_dpad_repeat.stop_dpad()
 		_controller_stick = Vector2.ZERO
 		_controller_zoom_out_strength = 0.0
 		_controller_zoom_in_strength = 0.0
 		_controller_cursor_position = Vector2.INF
 		return
+	_dpad_repeat.advance(delta)
 	_process_controller_cursor(delta)
 	_process_controller_zoom(delta)
 
@@ -191,6 +203,7 @@ func set_run_state(next_state: Dictionary) -> void:
 	var next_signature: String = _map_state_signature(next_state)
 	if next_signature == _run_state_signature:
 		return
+	_dpad_repeat.stop_dpad()
 	var previous_current: Vector2i = run_state.get("current_room", INVALID_COORD)
 	var next_current: Vector2i = next_state.get("current_room", Vector2i.ZERO)
 	_run_state_signature = next_signature
@@ -639,8 +652,10 @@ func _gui_input(event: InputEvent) -> void:
 		var motion := event as InputEventJoypadMotion
 		match motion.axis:
 			JOY_AXIS_LEFT_X:
+				if absf(motion.axis_value) >= ControllerNavigation.CURSOR_DEADZONE: _dpad_repeat.stop_dpad()
 				_controller_stick.x = motion.axis_value
 			JOY_AXIS_LEFT_Y:
+				if absf(motion.axis_value) >= ControllerNavigation.CURSOR_DEADZONE: _dpad_repeat.stop_dpad()
 				_controller_stick.y = motion.axis_value
 			JOY_AXIS_TRIGGER_LEFT:
 				_controller_zoom_out_strength = clampf(motion.axis_value, 0.0, 1.0)
@@ -650,6 +665,13 @@ func _gui_input(event: InputEvent) -> void:
 				return
 		accept_event()
 		return
+	if event is InputEventJoypadButton:
+		if event.has_meta(_dpad_repeat.SYNTHETIC_PRESS) and not event.has_meta(_dpad_repeat.DPAD_REPEAT):
+			_dpad_repeat.stop_dpad()
+		else:
+			_dpad_repeat.observe_dpad(event, get_viewport(), _can_repeat_dpad)
+			if event.pressed and not event.has_meta(_dpad_repeat.SYNTHETIC_PRESS) and _dpad_repeat.dpad_side(event.button_index) >= 0:
+				_controller_stick = Vector2.ZERO
 	if event.is_action_pressed(InputRouter.ACTION_HAND_PREVIOUS):
 		set_camera_zoom(_camera_zoom / CAMERA_ZOOM_FACTOR, _controller_anchor_point())
 		_snap_controller_cursor_to_nearest()
@@ -727,11 +749,18 @@ func _move_controller_focus(direction: Vector2) -> void:
 	_ensure_layout_cache()
 	if _visible_hit_rects_cache.is_empty():
 		return
-	if not is_finite(_controller_cursor_position.x) or not is_finite(_controller_cursor_position.y):
-		_controller_cursor_position = _controller_anchor_point()
-	_controller_cursor_position += direction.normalized() * maxf(86.0, _base_node_size_cache * 1.18)
-	_clamp_controller_cursor()
+	_controller_cursor_position = _next_directional_cursor_position(direction)
 	_snap_controller_cursor_to_nearest()
+
+func _next_directional_cursor_position(direction: Vector2) -> Vector2:
+	var origin: Vector2 = _controller_cursor_position if _controller_cursor_position.is_finite() else _controller_anchor_point()
+	return _bounded_controller_cursor(origin + direction.normalized() * maxf(86.0, _base_node_size_cache * 1.18))
+
+func _can_repeat_dpad(button: int) -> bool:
+	if not interactive or not is_visible_in_tree() or not has_focus() or run_state.is_empty(): return false
+	_ensure_layout_cache()
+	if _visible_hit_rects_cache.is_empty(): return false
+	return not _next_directional_cursor_position(_dpad_repeat.dpad_direction(button)).is_equal_approx(_controller_cursor_position)
 
 func _controller_coord_key(coord: Vector2i) -> String:
 	return "%d:%d" % [coord.x, coord.y]
@@ -770,8 +799,10 @@ func _process_controller_zoom(delta: float) -> void:
 
 func _clamp_controller_cursor() -> void:
 	_ensure_layout_cache()
-	_controller_cursor_position.x = clampf(_controller_cursor_position.x, _map_rect_cache.position.x, _map_rect_cache.end.x)
-	_controller_cursor_position.y = clampf(_controller_cursor_position.y, _map_rect_cache.position.y, _map_rect_cache.end.y)
+	_controller_cursor_position = _bounded_controller_cursor(_controller_cursor_position)
+
+func _bounded_controller_cursor(position: Vector2) -> Vector2:
+	return position.clamp(_map_rect_cache.position, _map_rect_cache.end)
 
 func _snap_controller_cursor_to_nearest() -> void:
 	_ensure_layout_cache()

@@ -1351,6 +1351,7 @@ func _configure_focus_neighbors() -> void:
 		var button: Button = node_for_skill(skill_id)
 		if button == null:
 			continue
+		button.set_meta("controller_repeat_region", &"skill_tree_nodes")
 		for direction: String in ["left", "right", "up", "down"]:
 			var neighbor_id: String = _navigation_neighbor_for_direction(skill_id, direction)
 			button.set_meta("nav_%s" % direction, neighbor_id)

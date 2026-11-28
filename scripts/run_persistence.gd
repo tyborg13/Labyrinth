@@ -6,6 +6,7 @@ const OpeningBoonRules = preload("res://scripts/opening_boon_rules.gd")
 const Writer = preload("res://scripts/ordered_background_writer.gd")
 const Checkpoint = preload("res://scripts/run_checkpoint.gd")
 const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
+const Score = preload("res://scripts/run_score_rules.gd")
 const AFTER_DRAW_RESOLUTION_META: String = "persistence_rules_after_draw"
 const DEPARTURE_META := &"persistence_departure"
 const PENDING_ABANDON_RECEIPT := "pending_abandon_analytics"
@@ -18,20 +19,38 @@ static var _application_drained: bool = false
 static func has_checkpoint(state: Dictionary) -> bool:
 	return Checkpoint.has_checkpoint(state)
 
+static func reward_checkpoint_key(state: Dictionary) -> String:
+	var room: Variant = state.get("current_room")
+	match state.get("mode"):
+		"reward":
+			var reward: Dictionary = state.get("pending_reward", {})
+			if reward.get("kind") == "dragon":
+				var milestone: String = str(reward.get("milestone_id", ""))
+				return "" if milestone.is_empty() else "%s|%s|dragon|%s" % [Score.identity(state), room, milestone]
+			var board: Dictionary = reward.get("board_state", {})
+			if not board.is_empty():
+				return "%s|%s|combat|%s" % [Score.identity(state), room, board.get("analytics", {}).get("combat_id", "")]
+		"treasure":
+			var trophy: Dictionary = state.get("guardian_reward", {})
+			if not trophy.is_empty() and not bool(trophy.get("claimed", false)) and state.get("pending_relics", []).has(trophy.get("relic_id")):
+				return "%s|%s|guardian|%s|%s" % [Score.identity(state), room, trophy.get("guardian_id", ""), trophy["relic_id"]]
+	return ""
+
 static func load_resumable_checkpoint(recover_terminal_profile: bool = false) -> Dictionary:
 	return ProgressionStore.read_resumable_checkpoint(recover_terminal_profile).get("state", {})
 
-static func replay_run_closing_receipts(profile: Dictionary, checkpoint: Dictionary) -> void:
+static func replay_run_closing_receipts(profile: Dictionary, checkpoint: Dictionary, hidden_wins: Array = []) -> void:
 	var embedded: Dictionary = checkpoint.get("progression", {}) if checkpoint.get("progression") is Dictionary else {}
 	var outbox_key: String = ProgressionStore.PROGRESSION_ANALYTICS_OUTBOX_KEY
 	var pending: Variant = embedded.get(outbox_key)
-	if profile.get(outbox_key, []).is_empty() and (not pending is Array or pending.is_empty()): return
+	if hidden_wins.is_empty() and profile.get(outbox_key, []).is_empty() and (not pending is Array or pending.is_empty()): return
+	var carried := profile if hidden_wins.is_empty() else ProgressionStore.merge_progression_analytics_outbox(profile, {outbox_key: hidden_wins})
 	var outbox: Array[Dictionary] = ProgressionStore.progression_analytics_outbox(
-		ProgressionStore.merge_progression_analytics_outbox(profile, embedded)
+		ProgressionStore.merge_progression_analytics_outbox(carried, embedded)
 	)
 	outbox = ProgressionStore.deliverable_progression_receipts(outbox, profile)
 	for receipt: Dictionary in outbox:
-		if receipt["event_type"] in ["combat_ended", "run_ended"]:
+		if receipt["event_type"] in ["combat_ended", "reward_offered", "run_ended"]:
 			# Title boot can deliver immediately. RunScene owns profile
 			# acknowledgment and can safely retry an already appended batch.
 			# A receipt still waiting for that acknowledgment is usually already
@@ -157,6 +176,10 @@ static func _flush_events_in_tree(tree: SceneTree, all_directories: bool = false
 
 static func flush_in_tree(tree: SceneTree, scene: Node = null) -> bool:
 	var saved: bool = await ProgressionStore.flush_pending_run_saves_in_tree(tree)
+	var appended := await _flush_scene_events_in_tree(tree, scene)
+	return saved and appended
+
+static func _flush_scene_events_in_tree(tree: SceneTree, scene: Node) -> bool:
 	var appended: bool = await _flush_events_in_tree(tree, true)
 	if not appended: _invalidate_replay_cursors(scene)
 	if is_instance_valid(scene) and scene.has_meta("perf03_analytics_replay_needed"):
@@ -166,7 +189,7 @@ static func flush_in_tree(tree: SceneTree, scene: Node = null) -> bool:
 		appended = await _flush_events_in_tree(tree, true)
 		if not appended: _invalidate_replay_cursors(scene)
 	_record_samples(scene)
-	return saved and appended
+	return appended
 
 static func _append_receipts_in_tree(tree: SceneTree, analytics: RefCounted, events: Array) -> bool:
 	if events.is_empty(): return true
@@ -209,7 +232,7 @@ static func _invalidate_replay_cursors(scene: Node) -> void:
 	scene._map_analytics_revision = 0
 	scene.set_meta("perf03_analytics_replay_needed", true)
 
-static func save_for_departure(scene: Node) -> void:
+static func save_for_departure(scene: Node) -> bool:
 	var tree := scene.get_tree()
 	scene.set_meta(DEPARTURE_META, true)
 	scene._cancel_deferred_skill_analytics(true)
@@ -223,20 +246,24 @@ static func save_for_departure(scene: Node) -> void:
 			scene._stage_skill_analytics_outbox()
 		state = scene._committed_run_state()
 		scene._run_play_clock.sample_scene_play_time(scene, state)
-	await flush_in_tree(tree, scene)
-	if not has_checkpoint(state): return
+	while scene._save_in_progress: await tree.process_frame
+	var pending_saved := await ProgressionStore.flush_pending_run_saves_in_tree(tree)
+	await _flush_scene_events_in_tree(tree, scene)
+	if not has_checkpoint(state): return pending_saved
 	var mode: String = str(state.get("mode", ""))
+	var saved: bool
 	if mode in ["victory", "defeat"]:
-		await _save_terminal_for_departure(tree, scene, state, held)
+		saved = await _save_terminal_for_departure(tree, scene, state, held)
 	else:
-		await _save_active_for_departure(tree, scene, state)
+		saved = await _save_active_for_departure(tree, scene, state)
 	await flush_in_tree(tree, scene)
+	return saved
 
-static func _save_terminal_for_departure(tree: SceneTree, scene: Node, state: Dictionary, held: bool) -> void:
+static func _save_terminal_for_departure(tree: SceneTree, scene: Node, state: Dictionary, held: bool) -> bool:
 	var disk := await ProgressionStore.load_data_in_tree(tree)
 	state = terminal_state_for_departure(state, disk)
 	var pending: bool = OpeningBoonRules.heirloom_prompt_pending(state)
-	if prompt_needs_checkpoint(state) and not await _write_departing_checkpoint(tree, state): return
+	if prompt_needs_checkpoint(state) and not await _write_departing_checkpoint(tree, scene, state): return false
 	var events := _opening_receipts(scene, state)
 	var append_failed := false
 	if not pending or held:
@@ -252,14 +279,15 @@ static func _save_terminal_for_departure(tree: SceneTree, scene: Node, state: Di
 				event["event_type"], event["idempotency_key"], event["context"], event["payload"])
 	if not await ProgressionStore.save_data_in_tree(tree, retained):
 		push_error("Failed to persist terminal progression; the resumable fallback remains intact.")
-		return
+		return false
 	terminal["progression"] = retained
 	scene._apply_terminal_settlement(settlement)
-	if not await _write_departing_checkpoint(tree, terminal): return
+	if not await _write_departing_checkpoint(tree, scene, terminal): return false
 	if pending: await _append_receipts_in_tree(tree, scene._analytics_store, events)
 	scene._analytics_flush_surface_events(terminal.get("combat_state", {}), terminal)
 	scene._analytics_flush_map_events(terminal)
-	if not pending: await ProgressionStore.clear_saved_run_in_tree(tree)
+	if not pending: return await ProgressionStore.clear_saved_run_in_tree(tree)
+	return true
 
 static func active_departure_profile(active: Dictionary, disk: Dictionary, embedded: Dictionary) -> Dictionary:
 	var source: Dictionary = active if int(active.get("progression_revision", 0)) >= int(disk.get("progression_revision", 0)) else disk
@@ -272,9 +300,9 @@ static func active_departure_profile(active: Dictionary, disk: Dictionary, embed
 	profile["embers"] = int(disk.get("embers", 0))
 	return profile
 
-static func _save_active_for_departure(tree: SceneTree, scene: Node, state: Dictionary) -> void:
+static func _save_active_for_departure(tree: SceneTree, scene: Node, state: Dictionary) -> bool:
 	var disk := await ProgressionStore.load_data_in_tree(tree)
-	if ProgressionStore.has_completed_run(disk, state) or preserves_heirloom_fallback(state): return
+	if ProgressionStore.has_completed_run(disk, state) or preserves_heirloom_fallback(state): return true
 	var embedded: Dictionary = state.get("progression", {})
 	var profile := active_departure_profile(scene._progression, disk, embedded)
 	ProgressionStore.merge_run_completion_ids(profile, disk)
@@ -282,29 +310,36 @@ static func _save_active_for_departure(tree: SceneTree, scene: Node, state: Dict
 	if state.has("progression"):
 		ProgressionStore.merge_run_completion_ids(embedded, profile)
 	var profile_saved := await ProgressionStore.save_data_in_tree(tree, profile)
-	if not await _write_departing_checkpoint(tree, state): return
+	if not await _write_departing_checkpoint(tree, scene, state): return false
 	var outbox := ProgressionStore.deliverable_progression_receipts(
 		ProgressionStore.progression_analytics_outbox(embedded), profile if profile_saved else disk
 	)
+	# Title or Continue replays the win receipts from this frozen checkpoint.
+	# Departure can still deliver unrelated receipts through its existing path.
+	outbox = outbox.filter(func(receipt: Dictionary) -> bool: return not ProgressionStore.is_combat_win_receipt(receipt))
 	var run_skill_events: Array = scene._run_skill_receipts(state, state.get("combat_state", {}))
 	var cursor_updated := false
 	if not outbox.is_empty() and await _append_receipts_in_tree(tree, scene._analytics_store, outbox):
 		var keys: Array[String]
 		for event: Dictionary in outbox: keys.append(event["idempotency_key"])
 		var acknowledged := ProgressionStore.acknowledge_progression_analytics_events(profile, keys)
-		if profile_saved and await ProgressionStore.save_data_in_tree(tree, acknowledged):
-			state["progression"] = ProgressionStore.acknowledge_progression_analytics_events(embedded, keys)
-			cursor_updated = true
+		if profile_saved:
+			profile_saved = await ProgressionStore.save_data_in_tree(tree, acknowledged)
+			if profile_saved:
+				state["progression"] = ProgressionStore.acknowledge_progression_analytics_events(embedded, keys)
+				cursor_updated = true
 	if not run_skill_events.is_empty() and await _append_receipts_in_tree(tree, scene._analytics_store, run_skill_events):
 		var logged: int = 0
 		for event: Dictionary in run_skill_events:
 			logged = maxi(logged, int(event["payload"]["trigger_revision"]))
 		state["analytics"]["run_skill_event_revision_logged"] = logged
 		cursor_updated = true
-	if cursor_updated: await _write_departing_checkpoint(tree, state)
+	var checkpoint_saved := true
+	if cursor_updated: checkpoint_saved = await _write_departing_checkpoint(tree, scene, state)
 	await _append_receipts_in_tree(tree, scene._analytics_store, _opening_receipts(scene, state))
 	scene._analytics_flush_surface_events(state.get("combat_state", {}), state)
 	scene._analytics_flush_map_events(state)
+	return profile_saved and checkpoint_saved
 
 static func _opening_receipts(scene: Node, state: Dictionary) -> Array[Dictionary]:
 	var events: Array[Dictionary]
@@ -316,9 +351,26 @@ static func _opening_receipts(scene: Node, state: Dictionary) -> Array[Dictionar
 			"context": context, "payload": event["payload"]})
 	return events
 
-static func _write_departing_checkpoint(tree: SceneTree, state: Dictionary) -> bool:
-	ProgressionStore.queue_owned_run_state(state.duplicate(true), "explicit_save")
+static func _write_departing_checkpoint(tree: SceneTree, scene: Node, state: Dictionary) -> bool:
+	_queue_checkpoint(scene, state, "explicit_save")
 	return await ProgressionStore.flush_pending_run_saves_in_tree(tree)
+
+static func save_loaded_checkpoint(scene: Node, state: Dictionary) -> bool:
+	_queue_checkpoint(scene, state, "", true)
+	return ProgressionStore.flush_pending_run_saves()
+
+static func _queue_checkpoint(scene: Node, state: Dictionary, failure_boundary: String = "", show_victory_failure: bool = false) -> void:
+	var key := reward_checkpoint_key(state)
+	var settled: Callable
+	if not key.is_empty():
+		# Do not pin a receipt. The writer calls this observer again if an
+		# ordinary background retry makes a previously failed checkpoint durable.
+		settled = _report_reward_checkpoint.bind(weakref(scene), key, show_victory_failure)
+	ProgressionStore.queue_owned_run_state(state.duplicate(true), failure_boundary, null, settled)
+
+static func _report_reward_checkpoint(saved: bool, host: WeakRef, key: String, show_victory_failure: bool) -> void:
+	var scene: Node = host.get_ref()
+	if is_instance_valid(scene): scene._record_reward_checkpoint(key, saved, show_victory_failure)
 
 static func prompt_needs_checkpoint(state: Dictionary) -> bool:
 	if not OpeningBoonRules.heirloom_prompt_pending(state): return false
@@ -374,20 +426,10 @@ static func persist_owned(scene: Node, owned_state: Dictionary, boundary: String
 
 static func _persist_snapshot(scene: Node, run_state: Dictionary, hold_for_animation: bool, boundary: String, owns_snapshot: bool,
 		receipt: Writer.Receipt = null) -> Dictionary:
-	mark_resolution_frame()
-	var performance_total_started: int = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
-	var state: Dictionary = run_state if owns_snapshot else SectionMapGraph.checkpoint_copy(run_state)
-	var performance_phase_started: int = scene._record_runtime_performance_phase("combat_checkpoint_persist_input_duplicate", performance_total_started)
-	if not has_checkpoint(state) or bool(state.get("debug_boss_run", false)):
-		return {"state": state, "saved": false}
-	if scene._save_in_progress:
-		return {"state": state, "saved": false}
-	scene._run_play_clock.sample_scene_play_time(scene, state)
-	scene._save_in_progress = true
+	var prepared := _begin_snapshot(scene, run_state, owns_snapshot)
+	var state: Dictionary = prepared["state"]
+	if not prepared["ready"]: return {"state": state, "saved": false}
 	var mode: String = str(state.get("mode", ""))
-	var resume_run_skill_request: bool = mode not in ["combat", "victory", "defeat"] and scene._run_skill_analytics_queue.busy() and not scene._run_skill_analytics_flushing
-	if mode != "combat" and not scene._skill_analytics_flushing:
-		scene._cancel_deferred_skill_analytics(true)
 	var saved: bool = false
 	var profile_saved: bool = true
 	var terminal_profile_committed := false
@@ -435,25 +477,66 @@ static func _persist_snapshot(scene: Node, run_state: Dictionary, hold_for_anima
 			# the queued request shares only the guarded journal prefix.
 			saved = ProgressionStore.queue_owned_run_state(state if owns_snapshot else SectionMapGraph.checkpoint_copy(state), failure_boundary, receipt, settled)
 		else:
-			saved = ProgressionStore.save_run_state(state)
+			_queue_checkpoint(scene, state, "", hold_for_animation or boundary == "reward_intro_complete")
+			saved = ProgressionStore.flush_pending_run_saves()
 		# Explicit callers need the result now. Deferred combat reconciliation
 		# instead waits on its pinned receipt before the dependent append.
 		if mode == "combat" and durable_boundary and receipt == null:
 			saved = ProgressionStore.flush_pending_run_saves() and saved
-	performance_phase_started = scene._record_runtime_performance_phase("combat_checkpoint_persist_storage", performance_phase_started)
+	var phase: int = scene._record_runtime_performance_phase("combat_checkpoint_persist_storage", prepared["phase"])
+	_finish_snapshot(scene, state, boundary, hold_for_animation, saved, profile_saved, receipt,
+		prepared["resume_run_skill_request"], phase, prepared["started"])
+	return {"state": state, "saved": saved, "terminal_profile_committed": terminal_profile_committed}
+
+static func persist_reward_in_tree(scene: Node, run_state: Dictionary, boundary: String, hold_for_animation: bool = false) -> Dictionary:
+	var prepared := _begin_snapshot(scene, run_state, false)
+	var state: Dictionary = prepared["state"]
+	if not prepared["ready"]: return {"state": state, "saved": false}
+	# Publish the held checkpoint at its existing commit point after VICTORY.
+	# Departure can snapshot it while the live reward waits for durability.
 	if hold_for_animation:
 		scene._committed_run_state_override = SectionMapGraph.checkpoint_copy(state)
-	scene._record_runtime_performance_phase("combat_checkpoint_persist_hold_duplicate", performance_phase_started)
+		scene._track_reward_checkpoint(state)
+	_queue_checkpoint(scene, state, "", hold_for_animation or boundary == "reward_intro_complete")
+	scene._record_runtime_performance_phase("reward_checkpoint_submit", prepared["phase"])
+	var saved := await ProgressionStore.flush_pending_run_saves_in_tree(scene.get_tree())
+	var phase: int = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
+	_finish_snapshot(scene, state, boundary, false, saved, true, null, prepared["resume_run_skill_request"], phase)
+	return {"state": state, "saved": saved}
+
+static func _begin_snapshot(scene: Node, run_state: Dictionary, owns_snapshot: bool) -> Dictionary:
+	mark_resolution_frame()
+	var performance_total_started: int = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
+	var state: Dictionary = run_state if owns_snapshot else SectionMapGraph.checkpoint_copy(run_state)
+	var performance_phase_started: int = scene._record_runtime_performance_phase("combat_checkpoint_persist_input_duplicate", performance_total_started)
+	if not has_checkpoint(state) or bool(state.get("debug_boss_run", false)):
+		return {"state": state, "started": performance_total_started, "ready": false}
+	if scene._save_in_progress:
+		return {"state": state, "started": performance_total_started, "ready": false}
+	scene._run_play_clock.sample_scene_play_time(scene, state)
+	scene._save_in_progress = true
+	var mode: String = str(state.get("mode", ""))
+	var resume_run_skill_request: bool = mode not in ["combat", "victory", "defeat"] and scene._run_skill_analytics_queue.busy() and not scene._run_skill_analytics_flushing
+	if mode != "combat" and not scene._skill_analytics_flushing:
+		scene._cancel_deferred_skill_analytics(true)
+	return {"state": state, "started": performance_total_started, "phase": performance_phase_started,
+		"ready": true, "resume_run_skill_request": resume_run_skill_request}
+
+static func _finish_snapshot(scene: Node, state: Dictionary, boundary: String, hold_for_animation: bool,
+		saved: bool, profile_saved: bool, receipt: Writer.Receipt, resume_run_skill_request: bool, phase: int,
+		total_started: int = 0) -> void:
+	if hold_for_animation:
+		scene._committed_run_state_override = SectionMapGraph.checkpoint_copy(state)
+	scene._record_runtime_performance_phase("combat_checkpoint_persist_hold_duplicate", phase)
 	scene._save_in_progress = false
 	if not saved:
 		push_error("Failed to persist committed run boundary: %s" % (boundary if not boundary.is_empty() else "unspecified"))
-	scene._record_runtime_performance_phase("combat_checkpoint_persist_total", performance_total_started)
+	if total_started > 0: scene._record_runtime_performance_phase("combat_checkpoint_persist_total", total_started)
 	if saved and receipt == null:
-		_after_saved_snapshot(scene, state, mode, profile_saved)
+		_after_saved_snapshot(scene, state, str(state.get("mode", "")), profile_saved)
 		# A reveal/action may save after its final HUD refresh. Keep that same-run
 		# request alive so unlocking without another refresh still drains it.
 		if resume_run_skill_request: scene._request_run_skill_event_analytics()
-	return {"state": state, "saved": saved, "terminal_profile_committed": terminal_profile_committed}
 
 static func _finish_combat_receipt(saved: bool, host: WeakRef, state: Dictionary, boundary: String) -> void:
 	if not saved:

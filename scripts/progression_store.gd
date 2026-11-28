@@ -31,6 +31,7 @@ const RUN_BESTS_KEY: String = "run_bests"
 const LAST_RUN_RESULT_KEY: String = "last_run_result"
 const RUN_RESULT_LEDGER_KEY: String = "completed_run_results"
 const RUN_COMPLETION_IDS_KEY: String = "completed_run_ids"
+const HIDDEN_WIN_RECEIPTS_KEY := "hidden_win_receipts"
 const RUN_RESULT_OWNERS_KEY: String = "completed_result_owners"
 const PENDING_DESCENT_ID_KEY: String = "pending_descent_run_id"
 const RUN_RESULT_LEDGER_LIMIT: int = 32
@@ -547,10 +548,25 @@ static func _record_save_error(failure: Dictionary, reason: Error) -> bool:
 	return false
 
 static func _prepare_profile_write(data: Dictionary, failure: Dictionary) -> Callable:
+	return _write_profile_retaining_wins_at.bind(_storage_path, _profile_write_bytes(data), failure,
+		ProjectSettings.globalize_path(preload("res://scripts/analytics_store.gd").storage_dir()))
+
+static func _write_profile_retaining_wins_at(path: String, bytes: PackedByteArray, failure: Dictionary, ledger_dir: String) -> bool:
+	# A save prepared before a checkpoint replacement can reach the worker
+	# after that replacement carried its receipts. Keep any still pending.
+	var wins := _combat_win_receipts(_load_data_at(path))
+	if not wins.is_empty():
+		var profile: Variant = JSON.parse_string(bytes.get_string_from_utf8())
+		if profile is Dictionary:
+			var missing := _unowned_win_receipts(wins, profile)
+			if not missing.is_empty() and not _win_rows_durable(missing, ledger_dir):
+				bytes = _profile_write_bytes(merge_progression_analytics_outbox(profile, {PROGRESSION_ANALYTICS_OUTBOX_KEY: missing}))
+	return _write_profile_at(path, bytes, failure)
+
+static func _profile_write_bytes(data: Dictionary) -> PackedByteArray:
 	var saved_data: Dictionary = _normalized_data(data.duplicate(true))
 	if DemoBuild.is_demo(): saved_data["build_kind"] = "demo"
-	var bytes: PackedByteArray = JSON.stringify(saved_data, "\t").to_utf8_buffer()
-	return _write_profile_at.bind(_storage_path, bytes, failure)
+	return JSON.stringify(saved_data, "\t").to_utf8_buffer()
 
 static func _write_profile_at(path: String, bytes: PackedByteArray, failure: Dictionary) -> bool:
 	var temp_path: String = "%s.tmp" % path
@@ -632,15 +648,23 @@ static func _read_saved_run(require_structure: bool, recover_terminal_profile: b
 	var finalized: bool = live["status"] == RunFile.TERMINAL and not live.get("settlement_pending", false)
 	if not finalized and live["status"] not in [RunFile.MISSING, RunFile.INVALID, RunFile.STALE]: return live
 	var backup := _read_checkpoint_at(_run_backup_path(), require_structure, profile, recover_terminal_profile, for_replacement, promote_backup)
-	if finalized and backup["status"] != RunFile.READY: return live
-	if live["status"] == RunFile.STALE and backup["status"] in [RunFile.INVALID, RunFile.EXCLUDED]:
-		return live
-	if promote_backup and backup.has("state"):
-		if not PersistenceDisk.run(_promote_resume_backup_at.bind(_run_storage_path, backup["bytes"])):
+	var keep_live: bool = (
+		(finalized and backup["status"] != RunFile.READY)
+		or (live["status"] == RunFile.STALE and backup["status"] in [RunFile.INVALID, RunFile.EXCLUDED])
+		or backup["status"] == RunFile.MISSING
+	)
+	var selected: Dictionary = live if keep_live else backup
+	var hidden: Array[Dictionary]
+	hidden.assign(live.get(HIDDEN_WIN_RECEIPTS_KEY, []))
+	hidden.append_array(backup.get(HIDDEN_WIN_RECEIPTS_KEY, []))
+	if not hidden.is_empty(): selected[HIDDEN_WIN_RECEIPTS_KEY] = hidden
+	if not keep_live and promote_backup and backup.has("state"):
+		var destination := _win_receipt_destination(backup["state"].get("progression"), true)
+		if not PersistenceDisk.run(_promote_resume_backup_at.bind(_run_storage_path, backup["bytes"], destination)):
 			push_error("Failed to promote the selected run backup.")
 			return {"status": RunFile.UNAVAILABLE}
 		backup.erase("bytes")
-	return live if backup["status"] == RunFile.MISSING else backup
+	return selected
 
 static func _read_checkpoint_at(path: String, require_structure: bool, profile: Dictionary, recover_terminal_profile: bool, for_replacement: bool, retain_bytes: bool = false) -> Dictionary:
 	var inspection := _inspect_run_file(path, retain_bytes)
@@ -649,15 +673,15 @@ static func _read_checkpoint_at(path: String, require_structure: bool, profile: 
 	var state: Dictionary = inspection["state"]
 	# Keep the demo cutoff authoritative so an older backup cannot bypass it.
 	if Checkpoint.past_demo_cutoff(state):
-		return {"status": RunFile.EXCLUDED}
+		return _hidden_checkpoint(RunFile.EXCLUDED, state)
 	if not Checkpoint.build_stamp_allowed(state):
-		return {"status": RunFile.INVALID if require_structure else RunFile.EXCLUDED}
+		return _hidden_checkpoint(RunFile.INVALID if require_structure else RunFile.EXCLUDED, state)
 	var summary: Dictionary = {}
 	if require_structure:
 		summary = Checkpoint.validated_resume_summary(state)
 		if summary.is_empty():
 			if not Checkpoint.is_terminal_record(state):
-				return {"status": RunFile.STALE if has_completed_run(profile, state) else RunFile.INVALID}
+				return _hidden_checkpoint(RunFile.STALE if has_completed_run(profile, state) else RunFile.INVALID, state)
 			# A run scene already asked to resume may need to repair a bank or
 			# recovery marker whose profile write failed after the heirloom choice.
 			# Title Continue uses the ordinary resume summary.
@@ -673,13 +697,20 @@ static func _read_checkpoint_at(path: String, require_structure: bool, profile: 
 		# The release summary already validates an unanswered terminal prompt.
 		# Only active gameplay can be hidden by a matching completion receipt.
 		if summary["mode"] not in ["victory", "defeat"] and has_completed_run(profile, state):
-			return {"status": RunFile.STALE}
+			return _hidden_checkpoint(RunFile.STALE, state)
 	inspection["state"] = _migrate_run_dictionary(state)
 	inspection["summary"] = summary
 	return inspection
 
-static func _promote_resume_backup_at(path: String, bytes: PackedByteArray) -> bool:
-	if not _archive_before_surface_migration(path, false): return false
+static func _hidden_checkpoint(status: int, state: Dictionary) -> Dictionary:
+	# Resume eligibility never exposes the hidden run's gameplay state. Its
+	# staged wins can still be replayed on the current title visit.
+	return {"status": status, HIDDEN_WIN_RECEIPTS_KEY: _combat_win_receipts(state.get("progression"))}
+
+static func _promote_resume_backup_at(path: String, bytes: PackedByteArray, destination: Dictionary) -> bool:
+	var live := _inspect_run_file(path)
+	if not _archive_before_surface_migration(path, false, live): return false
+	_preserve_discarded_win_receipts(destination, [live], {})
 	var temporary := path + ".tmp"
 	_remove_run_file_if_present(temporary)
 	var file := FileAccess.open(temporary, FileAccess.WRITE)
@@ -775,7 +806,7 @@ static func install_replacement_run(run_state: Dictionary) -> bool:
 	# never enter that queue, even if the failing file operation later recovers.
 	if not flush_pending_run_saves(): return false
 	var failure: Dictionary = {}
-	var saved := _save_run_state_at(_run_storage_path, run_state, Callable(), false, failure)
+	var saved := PersistenceDisk.run(_prepare_run_state_at(_run_storage_path, run_state, Callable(), false, failure, true))
 	if not saved: SaveFailures.report("run_checkpoint", failure)
 	return saved
 
@@ -792,7 +823,7 @@ static func queue_owned_run_state(state: Dictionary, failure_boundary: String, r
 	return true
 
 static func _prepare_run_state_at(path: String, state: Dictionary, transaction_probe: Callable = Callable(),
-		force_backup_rotation: bool = false, failure: Dictionary = {}) -> Callable:
+		force_backup_rotation: bool = false, failure: Dictionary = {}, replacing_run: bool = false) -> Callable:
 	# FileAccess.store_var(false) writes a little-endian length followed by the
 	# same object-free Variant payload as var_to_bytes(). Keep both finished
 	# buffers separate to avoid copying the full room graph into a second array.
@@ -800,7 +831,8 @@ static func _prepare_run_state_at(path: String, state: Dictionary, transaction_p
 	var length: PackedByteArray = [0, 0, 0, 0]
 	length.encode_u32(0, payload.size())
 	var rotate_live: bool = force_backup_rotation or OS.get_name() == "Windows"
-	return _write_run_state_at.bind(path, length, payload, not state.is_empty(), transaction_probe, rotate_live, failure)
+	return _write_run_state_at.bind(path, length, payload, not state.is_empty(), transaction_probe, rotate_live,
+		failure, _win_receipt_destination(state.get("progression"), replacing_run))
 
 static func _report_run_write(saved: bool, failure_boundary: String, request: Dictionary, settled: Callable) -> void:
 	if not saved and not bool(request["reported"]) and not failure_boundary.is_empty():
@@ -827,7 +859,7 @@ static func _save_run_state_at(run_path: String, run_state: Dictionary, transact
 	return PersistenceDisk.run(_prepare_run_state_at(run_path, run_state, transaction_probe, force_backup_rotation, failure))
 
 static func _write_run_state_at(run_path: String, length: PackedByteArray, payload: PackedByteArray,
-		validate: bool, transaction_probe: Callable, rotate_live: bool, failure: Dictionary) -> bool:
+		validate: bool, transaction_probe: Callable, rotate_live: bool, failure: Dictionary, destination: Dictionary) -> bool:
 	# Reuse this transaction's inspection for migration and crash recovery. Both
 	# used to deserialize the entire previous run independently on every save.
 	# Never cache across transactions: externally restored/corrupt files must be
@@ -837,6 +869,7 @@ static func _write_run_state_at(run_path: String, length: PackedByteArray, paylo
 	var archive_error := _surface_migration_archive_error(run_path, false, live_inspection)
 	if archive_error == OK: archive_error = _surface_migration_archive_error("%s.backup" % run_path, false, backup_inspection)
 	if archive_error != OK: return _record_save_error(failure, archive_error)
+	if not _preserve_discarded_win_receipts(destination, [live_inspection, backup_inspection], failure): return false
 	var temp_path: String = "%s.tmp" % run_path
 	var backup_path: String = "%s.backup" % run_path
 	_remove_run_file_if_present(temp_path)
@@ -882,22 +915,24 @@ static func _write_run_state_at(run_path: String, length: PackedByteArray, paylo
 static func clear_saved_run() -> bool:
 	flush_pending_run_saves()
 	_run_writer.discard_pending()
-	return _report_run_clear(PersistenceDisk.run(_clear_run_at.bind(_run_storage_path)))
+	return _report_run_clear(PersistenceDisk.run(_clear_run_at.bind(_run_storage_path, _win_receipt_destination())))
 
 static func clear_saved_run_in_tree(tree: SceneTree) -> bool:
 	await flush_pending_run_saves_in_tree(tree)
 	_run_writer.discard_pending()
-	return _report_run_clear(await PersistenceDisk.run_in_tree(tree, _clear_run_at.bind(_run_storage_path)))
+	return _report_run_clear(await PersistenceDisk.run_in_tree(tree, _clear_run_at.bind(_run_storage_path, _win_receipt_destination())))
 
 static func _report_run_clear(cleared: bool) -> bool:
 	if not cleared: push_warning("Could not clear the saved run.")
 	return cleared
 
-static func _clear_run_at(path: String) -> bool:
+static func _clear_run_at(path: String, destination: Dictionary) -> bool:
 	# A terminal legacy save can reach clearing without another combat write.
 	# Preserve its original bytes before the normal live/recovery cleanup.
-	if not _archive_before_surface_migration(path, false) or not _archive_before_surface_migration(path + ".backup", false):
-		return false
+	var live := _inspect_run_file(path)
+	var backup := _inspect_run_file(path + ".backup")
+	if not _archive_before_surface_migration(path, false, live) or not _archive_before_surface_migration(path + ".backup", false, backup): return false
+	if not _preserve_discarded_win_receipts(destination, [live, backup], {}): return false
 	# Keep the live checkpoint authoritative until both recovery paths are gone.
 	return _delete_run_file(path + ".backup") and _delete_run_file(path + ".tmp") and _delete_run_file(path)
 
@@ -1605,6 +1640,77 @@ static func progression_analytics_outbox(data: Dictionary) -> Array[Dictionary]:
 			_normalized_data(data.duplicate(true)).get(PROGRESSION_ANALYTICS_OUTBOX_KEY, [])
 		)
 	return _normalized_progression_analytics_outbox(data.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, []))
+
+static func merge_combat_win_receipts(profile: Dictionary, embedded: Dictionary) -> Dictionary:
+	var receipts := _combat_win_receipts(embedded)
+	if receipts.is_empty(): return profile
+	return merge_progression_analytics_outbox(profile, {PROGRESSION_ANALYTICS_OUTBOX_KEY: receipts})
+
+static func _combat_win_receipts(progression: Variant) -> Array[Dictionary]:
+	var receipts: Array[Dictionary]
+	if not progression is Dictionary: return receipts
+	var pending: Variant = progression.get(PROGRESSION_ANALYTICS_OUTBOX_KEY)
+	if not pending is Array or pending.is_empty(): return receipts
+	return progression_analytics_outbox(progression).filter(is_combat_win_receipt)
+
+static func _win_receipt_destination(successor: Variant = null, best_effort: bool = false) -> Dictionary:
+	return {
+		"profile_path": _storage_path,
+		"ledger_dir": ProjectSettings.globalize_path(preload("res://scripts/analytics_store.gd").storage_dir()),
+		"successor": successor,
+		"best_effort": best_effort,
+	}
+
+static func _preserve_discarded_win_receipts(destination: Dictionary, inspections: Array, failure: Dictionary) -> bool:
+	# The disk worker tries the carry before replacing any checkpoint. Player
+	# choices use best effort. Housekeeping keeps the checkpoint on failure.
+	var outgoing: Array[Dictionary]
+	for inspection: Dictionary in inspections:
+		outgoing.append_array(_combat_win_receipts(inspection.get("state", {}).get("progression")))
+	if outgoing.is_empty(): return true
+	var uncovered := _unowned_win_receipts(outgoing, destination["successor"])
+	if uncovered.is_empty(): return true
+	var profile_path: String = destination["profile_path"]
+	var profile := _load_data_at(profile_path)
+	var missing := _unowned_win_receipts(uncovered, profile)
+	if missing.is_empty() or _win_rows_durable(missing, destination["ledger_dir"]): return true
+	var retained := merge_progression_analytics_outbox(profile, {PROGRESSION_ANALYTICS_OUTBOX_KEY: missing})
+	var best_effort: bool = destination["best_effort"]
+	var carry_failure: Dictionary = {} if best_effort else failure
+	if _write_profile_at(profile_path, _profile_write_bytes(retained), carry_failure): return true
+	if not best_effort: return false
+	_warn_uncarried_win_receipts(missing, inspections)
+	return true
+
+static func _warn_uncarried_win_receipts(missing: Array[Dictionary], inspections: Array) -> void:
+	var uncarried: Dictionary = {}
+	for receipt: Dictionary in missing:
+		uncarried[receipt["idempotency_key"]] = true
+	var counts: Dictionary = {}
+	for inspection: Dictionary in inspections:
+		var state: Dictionary = inspection.get("state", {})
+		for receipt: Dictionary in _combat_win_receipts(state.get("progression")):
+			if not uncarried.erase(receipt["idempotency_key"]): continue
+			var run_id: String = receipt["context"].get("run_id", "")
+			if run_id.is_empty(): run_id = Chronicle.record_id(state)
+			counts[run_id] = int(counts.get(run_id, 0)) + 1
+	for run_id: String in counts:
+		push_warning("Could not carry %d win analytics receipts for run %s." % [counts[run_id], run_id])
+
+static func _unowned_win_receipts(wins: Array[Dictionary], progression: Variant) -> Array[Dictionary]:
+	var covered: Dictionary = {}
+	for receipt: Dictionary in _combat_win_receipts(progression):
+		covered[receipt["idempotency_key"]] = true
+	return wins.filter(func(receipt: Dictionary) -> bool: return not covered.has(receipt["idempotency_key"]))
+
+static func _win_rows_durable(wins: Array[Dictionary], ledger_dir: String) -> bool:
+	var keys := wins.map(func(receipt: Dictionary) -> String: return receipt["idempotency_key"])
+	return preload("res://scripts/analytics_store.gd").has_durable_rows_at(keys, ledger_dir, true)
+
+static func is_combat_win_receipt(receipt: Dictionary) -> bool:
+	return receipt["event_type"] == "reward_offered" or (
+		receipt["event_type"] == "combat_ended" and receipt["payload"].get("outcome") == "victory"
+	)
 
 static func _progression_event_key(event_type: String, key: String, context: Dictionary) -> String:
 	var run_id: String = str(context.get("run_id", ""))

@@ -1,0 +1,30 @@
+{
+  "min_images": 6,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*01-reward-save-failed.png",
+      "regions": [{"rect": [550, 280, 820, 700], "min_luma_range": 8, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*02-reward-save-succeeded.png",
+      "regions": [{"rect": [550, 280, 820, 700], "min_luma_range": 8, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*03-save-quit-failed.png",
+      "regions": [{"rect": [550, 280, 820, 700], "min_luma_range": 8, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*04-save-quit-retried.png",
+      "regions": [{"rect": [550, 280, 820, 700], "min_luma_range": 8, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*05-event-save-quit-failed.png",
+      "regions": [{"rect": [550, 280, 820, 700], "min_luma_range": 8, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*06-recap-save-quit-failed.png",
+      "regions": [{"rect": [550, 280, 820, 700], "min_luma_range": 8, "min_luma_stdev": 2}]
+    }
+  ]
+}

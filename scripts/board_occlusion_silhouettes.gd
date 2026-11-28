@@ -6,6 +6,32 @@ const Sources = preload("res://scripts/board_occlusion_sources.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Outline = preload("res://scripts/board_occlusion_silhouettes.gdshader")
 const Reveal = preload("res://scripts/board_occlusion_reveal.gd")
+const EDGE_OFF := "off"
+const EDGE_WINDOW := "window"
+const EDGE_ALWAYS := "always"
+# The late x-ray rims can cross a front prop's edge. Clip only those rim
+# pixels, leaving the original unit and floor checker shaders untouched
+# wherever they paint a window.
+const RIM_EDGE_CLIP = """
+uniform sampler2D rim_edge_atlas : filter_nearest, repeat_disable;
+uniform sampler2D rim_edge_rows : filter_nearest, repeat_disable;
+uniform sampler2D rim_edge_opacity : filter_nearest, repeat_disable;
+uniform int rim_edge_count;
+
+float exterior_cover(vec2 point) {
+	float cover = 0.0;
+	for (int row = 0; row < rim_edge_count; row++) {
+		vec4 rect = texelFetch(rim_edge_rows, ivec2(0, row), 0);
+		vec2 uv = (point - rect.xy) / rect.zw;
+		if (any(lessThan(uv, vec2(0.0))) || any(greaterThanEqual(uv, vec2(1.0)))) continue;
+		vec4 region = texelFetch(rim_edge_rows, ivec2(1, row), 0);
+		if (texelFetch(rim_edge_atlas, ivec2(region.xy + floor(uv * region.zw)), 0).a == 0.0) continue;
+		cover = mix(cover, 1.0, texelFetch(rim_edge_opacity, ivec2(row, 0), 0).r);
+		if (cover == 1.0) break;
+	}
+	return cover;
+}
+"""
 const Assets = preload("res://scripts/asset_loader.gd")
 const UNIT_ON: float = 0.30
 const UNIT_OFF: float = 0.22
@@ -109,6 +135,15 @@ var tool_enabled: bool = true
 var latest_sources: Array[Dictionary]
 var sources_revision: int = 0
 var _sources_stale: bool = true
+var edge_mode: String = _launch_edge_mode()
+var _edge_atlas: ImageTexture
+var _edge_regions: Dictionary = {}
+var _edge_asset_keys: Array
+var _edge_image_cache: Dictionary = {}
+var _edge_sprites: Dictionary = {}
+var _edges: Array[Dictionary]
+var _edge_strengths: Dictionary = {}
+var _rim_edge_shader: Shader
 var _fill_atlas: ImageTexture
 var _fill_regions: Dictionary = {}
 var _fill_signature: Array
@@ -124,10 +159,15 @@ var content_show_through_enabled: bool = true:
 			if not is_instance_valid(screen.get("painter")): continue
 			screen["painter"].visible = value and board._board_tile_is_visible_to_player(tile)
 			if value: _queue_content_tile(screen)
+		if edge_mode == EDGE_WINDOW: _refresh_window_edges()
 		if value and _content_pixels_animating(): set_process(true)
 var _content_entries: Dictionary = {}
 var _content_fading: bool = false
 var _rims_fading: bool = false
+
+static func _launch_edge_mode() -> String:
+	var value: String = OS.get_environment("LABYRINTH_OCCLUDER_EDGE")
+	return value if value in [EDGE_OFF, EDGE_WINDOW, EDGE_ALWAYS] else EDGE_ALWAYS
 
 func attach(owner_board: Control) -> void:
 	board = owner_board
@@ -158,6 +198,7 @@ func _collect_sources() -> Array[Dictionary]:
 	var room: Variant = (board.get("combat_state") as Dictionary).get("room_coord")
 	if _mask_room != room:
 		alpha_masks = Alpha.new()
+		_edge_image_cache.clear()
 		_mask_room = room
 	latest_sources = Sources.collect(board)
 	alpha_masks.prepare(latest_sources)
@@ -176,10 +217,13 @@ func submission_changed(structural: bool, changes: Dictionary, registrations: Di
 		for tile: Vector2i in _content_order:
 			var painter: Variant = _content_tiles.get(tile, {}).get("painter")
 			if is_instance_valid(painter) and not board._board_tile_is_visible_to_player(tile): painter.hide()
+		for sprite: Variant in _edge_sprites.values():
+			if is_instance_valid(sprite) and not board._board_tile_is_visible_to_player(sprite.get_meta("tile")): sprite.hide()
 	if changes.has("unit_outline_alpha_multipliers"):
 		for key: String in entries: _refresh_ink(entries[key])
 		for key: String in team.entries: team.refresh_alpha(key)
-	if structural or not registrations.is_empty():
+		if edge_mode == EDGE_WINDOW: _refresh_window_edges()
+	if structural or not registrations.is_empty() or (edge_mode != EDGE_OFF and changes.has("door_opening")):
 		invalidate()
 		return
 	for key: String in ["surface_feedback_events", "throw_surface_frames", "combat_feel_surface_frames", "surface_feedback_progress", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "unit_texture_origins",
@@ -211,6 +255,7 @@ func set_tool_enabled(enabled: bool) -> void:
 	if enabled: invalidate()
 	else:
 		_clear_content()
+		_clear_edges()
 		set_process(false)
 
 static func switched_on(coverage: float, was_on: bool, _unit: bool) -> bool:
@@ -229,6 +274,7 @@ func sync_coverage() -> void:
 	team.sync()
 	var masks: Array[Dictionary] = _fill_sources(sources)
 	var fill_grid: Vector4 = _board_fill_grid()
+	if edge_mode != EDGE_OFF: _sync_edge_sprites(masks)
 	_sync_content(sources, masks, fill_grid)
 	var retained: Dictionary = {}
 	for index: int in range(sources.size()):
@@ -252,6 +298,8 @@ func sync_coverage() -> void:
 			add_child(sprite)
 			entry = {"sprite": sprite, "alpha": 0.0}
 		entry.merge({"source": source, "coverage": amount, "on": on}, true)
+		if not _edges.is_empty() or entry.has("edge_rows"):
+			_configure_rim_edges(entry, index)
 		if not unit: entry["rim_blockers"] = _later_rim_blockers(sources, index)
 		if unit:
 			var blockers: Array[Dictionary] = _fill_blockers(source, index, masks)
@@ -260,6 +308,13 @@ func sync_coverage() -> void:
 				var ink: ShaderMaterial = (entry["sprite"] as Sprite2D).material
 				ink.set_shader_parameter("fill_grid", fill_grid)
 			_update_fill(entry)
+			if edge_mode == EDGE_WINDOW:
+				var windows: Array[Dictionary]
+				for blocker: Dictionary in blockers:
+					if blocker.has("edge_rect") and alpha_masks.coverage_cached(source,
+							_only_blocker(blocker["coverage_source"]), key + ":edge:" + str(blocker["index"])) > 0.0:
+						windows.append(blocker)
+				entry["edge_windows"] = windows
 		_update_pose(entry)
 		retained[key] = entry
 	for key: String in entries:
@@ -268,6 +323,7 @@ func sync_coverage() -> void:
 			(entries[key]["sprite"] as Sprite2D).visible = false
 			(entries[key]["sprite"] as Sprite2D).queue_free()
 	entries = retained
+	if edge_mode == EDGE_WINDOW: _refresh_window_edges(true)
 	_rims_fading = not entries.is_empty()
 	for key: String in team.entries: team.refresh_alpha(key)
 
@@ -328,7 +384,10 @@ func _fill_sources(sources: Array[Dictionary]) -> Array[Dictionary]:
 				region = Rect2i()
 			if texture == null: continue
 			key = [texture, region]
-			assets[key] = {"texture": texture, "region": region}
+			if not assets.has(key): assets[key] = {"texture": texture, "region": region}
+			if edge_mode != EDGE_OFF and Sources.gets_occluder_edge(source):
+				assets[key]["edge"] = true
+				mask["edge_id"] = [tile, source.get("prop_kind", kind)]
 		mask["key"] = key
 		masks.append(mask)
 	var signature: Array = assets.keys()
@@ -341,6 +400,10 @@ func _fill_sources(sources: Array[Dictionary]) -> Array[Dictionary]:
 		var asset: Dictionary = _fill_regions.get(mask["key"], {})
 		if asset.is_empty(): continue
 		mask["region"] = asset["region"]
+		if mask.has("edge_id") and _edge_regions.has(mask["key"]):
+			var region: Rect2i = _edge_regions[mask["key"]]
+			mask["edge_region"] = region
+			mask["edge_rect"] = Alpha.occluder_edge_rect(mask["rect"], region.size)
 		mask["kind"] = sources[mask["index"]]["kind"]
 		mask["coverage_source"] = sources[mask["index"]]
 		if mask.has("origin"):
@@ -375,6 +438,7 @@ func _build_fill_atlas(assets: Dictionary) -> void:
 			if (asset["region"] as Rect2i).has_area(): image = image.get_region(asset["region"])
 			image.convert(Image.FORMAT_RGBA8)
 		images[key] = image
+	if edge_mode != EDGE_OFF: _sync_edge_atlas(assets, images)
 	if images.is_empty(): return
 	var packed: Dictionary = _pack_atlas(images)
 	_fill_atlas = packed["texture"]
@@ -382,6 +446,22 @@ func _build_fill_atlas(assets: Dictionary) -> void:
 		var asset: Dictionary = _fill_regions.get(key, {})
 		asset["region"] = packed["regions"][key]
 		_fill_regions[key] = asset
+
+func _sync_edge_atlas(assets: Dictionary, body_images: Dictionary) -> void:
+	var keys: Array = body_images.keys().filter(func(key: Variant) -> bool: return assets[key].get("edge", false))
+	if keys == _edge_asset_keys: return
+	_edge_asset_keys = keys
+	_edge_atlas = null
+	_edge_regions.clear()
+	if keys.is_empty(): return
+	var edge_images: Dictionary = {}
+	for key: Variant in keys:
+		if not _edge_image_cache.has(key):
+			_edge_image_cache[key] = Alpha.occluder_edge_image(body_images[key])
+		edge_images[key] = _edge_image_cache[key]
+	var atlas: Dictionary = _pack_atlas(edge_images)
+	_edge_atlas = atlas["texture"]
+	_edge_regions = atlas["regions"]
 
 func _procedural_mask(asset: Dictionary) -> Dictionary:
 	return Sources.procedural_mask(board, asset)
@@ -512,12 +592,14 @@ func reveal_alpha(key: String) -> float:
 func reveal_changed() -> void:
 	for entry: Dictionary in entries.values(): _refresh_ink(entry)
 	_update_content_reveal()
+	if edge_mode == EDGE_WINDOW: _refresh_window_edges()
 	for key: String in team.entries: team.refresh_alpha(key)
 
 func set_unit_alpha_multiplier(key: String, value: float) -> void:
 	_unit_alpha_overrides[key] = clampf(value, 0.0, 1.0)
 	for entry: Dictionary in entries.values(): _refresh_ink(entry)
 	team.refresh_alpha(key)
+	if edge_mode == EDGE_WINDOW: _refresh_window_edges()
 
 func _refresh_ink(entry: Dictionary) -> void:
 	if entry.has("fill_blockers"): _update_fill(entry)
@@ -538,11 +620,13 @@ func _process(delta: float) -> void:
 	var instrumented: bool = bool(board.get("_submission_performance_instrumentation_enabled"))
 	var started: int = Time.get_ticks_usec() if instrumented else 0
 	if coverage_dirty: sync_coverage()
+	var edges_fading: bool = edge_mode == EDGE_WINDOW and (_content_fading or _rims_fading)
 	if _content_fading: _content_fading = _fade_content(delta)
 	var animated_pixels: bool = _content_pixels_animating()
 	if animated_pixels: _advance_content_pixels()
 	if _rims_fading or not pose_tiles.is_empty() or ground_dirty:
 		_rims_fading = _advance_rims(delta)
+	if edges_fading: _refresh_window_edges()
 	set_process(_rims_fading or _content_fading or coverage_dirty or animated_pixels)
 	if instrumented: board.call("_record_render_frame_section", Engine.get_process_frames(), "occlusion_silhouettes", Time.get_ticks_usec() - started)
 
@@ -659,8 +743,10 @@ func _sync_hidden_mask(screen: Dictionary) -> void:
 	var indices: Dictionary = {}
 	for index: int in blockers: indices[index] = indices.size() + 1
 	var planes: Array[Image]
+	var used: Array[Dictionary]
 	var last_index: int = -1
 	for entry: Dictionary in subjects:
+		var used_rows: Dictionary = {}
 		var pixels := PackedFloat32Array()
 		pixels.resize(size.x * size.y)
 		var source: Dictionary = entry["fill_geometry"]
@@ -673,6 +759,7 @@ func _sync_hidden_mask(screen: Dictionary) -> void:
 			var end := Vector2i(overlap.end.ceil()) - origin
 			var coverage: Dictionary = blocker["coverage_source"]
 			var row: float = indices[blocker["index"]]
+			var has_pixels: bool = false
 			for y: int in range(start.y, end.y):
 				for x: int in range(start.x, end.x):
 					var offset: int = y * size.x + x
@@ -681,9 +768,12 @@ func _sync_hidden_mask(screen: Dictionary) -> void:
 					if not Alpha.fill_contains(source, point) or not Alpha.opaque_at(coverage, point): continue
 					if _content_protected_at(entry["protected"], point): continue
 					pixels[offset] = row
+					has_pixels = true
 					if int(blocker["index"]) > last_index:
 						last_index = blocker["index"]
 						screen["last_tile"] = blocker["tile"]
+			if has_pixels and edge_mode == EDGE_WINDOW and blocker.has("edge_rect"): used_rows[blocker["index"]] = blocker
+		if edge_mode == EDGE_WINDOW: used.append(used_rows)
 		planes.append(Image.create_from_data(size.x, size.y, false, Image.FORMAT_RF, pixels.to_byte_array()))
 	if last_index < 0: return
 	var mask := Texture2DArray.new()
@@ -691,6 +781,7 @@ func _sync_hidden_mask(screen: Dictionary) -> void:
 		screen.erase("signature")
 		screen.erase("last_tile")
 		return
+	if edge_mode == EDGE_WINDOW: screen["used_blockers"] = used
 	screen["mask"] = mask
 	screen["bounds"] = Rect2(Vector2(origin), Vector2(size))
 
@@ -763,6 +854,15 @@ func _order_content_tiles() -> void:
 		var layer: Node = painter.get_parent()
 		var index: int = next_slot.get(layer, 0)
 		if painter.get_index() != index: layer.move_child(painter, index)
+		next_slot[layer] = index + 1
+	# The board can retire a tile's render layer before the deferred edge
+	# coverage sync runs. Its children are freed with the old layer.
+	for sprite: Variant in _edge_sprites.values():
+		if not is_instance_valid(sprite): continue
+		var layer: Node = sprite.get_parent()
+		if layer == null: continue
+		var index: int = next_slot.get(layer, 0)
+		if sprite.get_index() != index: layer.move_child(sprite, index)
 		next_slot[layer] = index + 1
 
 func _bind_content_mask(screen: Dictionary, ink: ShaderMaterial) -> void:
@@ -987,3 +1087,148 @@ func _clear_content() -> void:
 	for tile: Vector2i in _content_tiles.keys(): _retire_content_tile(tile)
 	_content_entries.clear()
 	_content_fading = false
+
+
+static func _only_blocker(source: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary] = [source]
+	return result
+
+func _sync_edge_sprites(masks: Array[Dictionary]) -> void:
+	_edges.clear()
+	var retained: Dictionary = {}
+	for blocker: Dictionary in masks:
+		if not blocker.has("edge_rect"): continue
+		var tile: Vector2i = blocker["tile"]
+		var layer: Control = board.get("_scene_render_layers_by_tile").get(tile)
+		if not is_instance_valid(layer): continue
+		_edges.append(blocker)
+		var id: Array = blocker["edge_id"]
+		var rect: Rect2 = blocker["edge_rect"]
+		var region: Rect2i = blocker["edge_region"]
+		var sprite: Variant = _edge_sprites.get(id)
+		if not is_instance_valid(sprite):
+			sprite = Sprite2D.new()
+			sprite.name = "OccluderEdge"
+			sprite.centered = false
+			sprite.region_enabled = true
+			sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			sprite.set_meta("tile", tile)
+			sprite.hide()
+			layer.add_child(sprite)
+		elif sprite.get_parent() != layer:
+			sprite.reparent(layer, false)
+		if sprite.texture != _edge_atlas: sprite.texture = _edge_atlas
+		if sprite.region_rect != Rect2(region): sprite.region_rect = Rect2(region)
+		if sprite.position != rect.position: sprite.position = rect.position
+		if edge_mode == EDGE_ALWAYS: sprite.show()
+		var fit: Vector2 = rect.size / Vector2(region.size)
+		if sprite.scale != fit: sprite.scale = fit
+		retained[id] = sprite
+	for id: Array in _edge_sprites:
+		if retained.has(id) or not is_instance_valid(_edge_sprites[id]): continue
+		_edge_sprites[id].hide()
+		_edge_sprites[id].queue_free()
+	_edge_sprites = retained
+
+func _clear_edges() -> void:
+	for sprite: Variant in _edge_sprites.values():
+		if not is_instance_valid(sprite): continue
+		sprite.hide()
+		sprite.queue_free()
+	_edge_sprites.clear()
+	_edges.clear()
+	_edge_strengths.clear()
+
+
+func _refresh_window_edges(force: bool = false) -> void:
+	var strengths: Dictionary = {}
+	if content_show_through_enabled:
+		for screen: Dictionary in _content_tiles.values():
+			for row: int in screen["used_blockers"].size():
+				for blocker: Dictionary in screen["used_blockers"][row].values():
+					_add_edge_strength(strengths, blocker, screen["subjects"][row]["alpha"])
+	for entry: Dictionary in entries.values():
+		var source: Dictionary = entry["source"]
+		if source["kind"] != "unit": continue
+		var fade: float = entry["alpha"] * unit_alpha_multiplier(source["key"])
+		for blocker: Dictionary in entry["edge_windows"]: _add_edge_strength(strengths, blocker, fade)
+	if not force and _edge_strengths == strengths: return
+	_edge_strengths = strengths
+	for blocker: Dictionary in _edges:
+		var sprite: Variant = _edge_sprites.get(blocker["edge_id"])
+		if not is_instance_valid(sprite): continue
+		var opacity: float = strengths.get(blocker["index"], 0.0)
+		sprite.visible = opacity > 0.0 and board._board_tile_is_visible_to_player(blocker["tile"])
+		if sprite.self_modulate.a != opacity: sprite.self_modulate.a = opacity
+	for entry: Dictionary in entries.values():
+		if entry.has("edge_rows"): _update_rim_edge_opacity(entry)
+
+func _add_edge_strength(strengths: Dictionary, blocker: Dictionary, fade: float) -> void:
+	var index: int = blocker["index"]
+	strengths[index] = maxf(strengths.get(index, 0.0), fade * _blocker_alpha(blocker))
+
+func _configure_rim_edges(entry: Dictionary, index: int) -> void:
+	var source: Dictionary = entry["source"]
+	var reach: Rect2 = source["rect"]
+	var pose: Dictionary = Sources.drawing(board, source)
+	if not pose.is_empty(): reach = reach.merge(pose["rect"])
+	reach = reach.grow(WIDTH * 2.0 * float(board.get("_navigation_zoom")))
+	var blockers: Array[Dictionary] = _edges.filter(func(edge: Dictionary) -> bool:
+		return edge["index"] > index and reach.intersects(edge["edge_rect"]))
+	var previous: Array = entry.get("edge_rows", [])
+	if blockers.is_empty() and previous.is_empty(): return
+	var ink: ShaderMaterial = entry["sprite"].material
+	if blockers.is_empty() != previous.is_empty():
+		ink.shader = Outline if blockers.is_empty() else _outline_with_edge()
+		entry.erase("pose_signature")
+		entry.erase("fill_signature")
+	if blockers.is_empty():
+		entry.erase("edge_rows")
+		entry.erase("edge_binding")
+		entry.erase("edge_opacity")
+		entry.erase("edge_opacity_texture")
+		return
+	entry["edge_rows"] = blockers
+	_bind_rim_edge_geometry(entry, ink)
+	if edge_mode == EDGE_ALWAYS: _update_rim_edge_opacity(entry)
+
+func _outline_with_edge() -> Shader:
+	if _rim_edge_shader == null:
+		_rim_edge_shader = Shader.new()
+		var code: String = Outline.code.replace("void fragment() {", RIM_EDGE_CLIP + "\nvoid fragment() {")
+		_rim_edge_shader.code = code.replace(
+			"COLOR = vec4(rim_color.rgb, residual + fill * (1.0 - residual));",
+			"if (residual > 0.0 && fill == 0.0) residual *= 1.0 - exterior_cover(point);\n" +
+			"	COLOR = vec4(rim_color.rgb, residual + fill * (1.0 - residual));")
+	return _rim_edge_shader
+
+func _bind_rim_edge_geometry(entry: Dictionary, ink: ShaderMaterial) -> void:
+	var blockers: Array = entry["edge_rows"]
+	var signature: Array = [_edge_atlas]
+	for blocker: Dictionary in blockers: signature.append([blocker["edge_rect"], blocker["edge_region"]])
+	if entry.get("edge_binding") == signature: return
+	entry["edge_binding"] = signature
+	var rows := Image.create_empty(2, blockers.size(), false, Image.FORMAT_RGBAF)
+	for row: int in blockers.size():
+		var rect: Rect2 = blockers[row]["edge_rect"]
+		var region := Rect2(blockers[row]["edge_region"])
+		rows.set_pixel(0, row, Color(rect.position.x, rect.position.y, rect.size.x, rect.size.y))
+		rows.set_pixel(1, row, Color(region.position.x, region.position.y, region.size.x, region.size.y))
+	ink.set_shader_parameter("rim_edge_atlas", _edge_atlas)
+	ink.set_shader_parameter("rim_edge_rows", ImageTexture.create_from_image(rows))
+	ink.set_shader_parameter("rim_edge_count", blockers.size())
+
+func _update_rim_edge_opacity(entry: Dictionary) -> void:
+	var opacity := PackedFloat32Array()
+	for blocker: Dictionary in entry["edge_rows"]:
+		opacity.append(1.0 if edge_mode == EDGE_ALWAYS else _edge_strengths.get(blocker["index"], 0.0))
+	if entry.get("edge_opacity") == opacity: return
+	entry["edge_opacity"] = opacity
+	var image := Image.create_from_data(opacity.size(), 1, false, Image.FORMAT_RF, opacity.to_byte_array())
+	var texture: ImageTexture = entry.get("edge_opacity_texture")
+	if texture != null and texture.get_width() == opacity.size():
+		texture.update(image)
+	else:
+		texture = ImageTexture.create_from_image(image)
+		entry["edge_opacity_texture"] = texture
+		entry["sprite"].material.set_shader_parameter("rim_edge_opacity", texture)

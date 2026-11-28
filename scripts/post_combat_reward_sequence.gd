@@ -5,6 +5,7 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
 const VICTORY_LABEL_NAME: String = "PostCombatVictoryLabel"
+const VICTORY_STEP_FINISHED := &"victory_step_finished"
 const CARD_BACK_NAME: String = "RewardRevealCardBack"
 const CARD_FRAME_NAME: String = "CardScaleFrame"
 
@@ -28,6 +29,7 @@ const SECONDARY_ACTION_FADE_SECONDS: float = 0.18
 
 static func build_victory_overlay(stage_host: Control) -> Control:
 	var overlay := Control.new()
+	overlay.add_user_signal(VICTORY_STEP_FINISHED, [{"name": "completed", "type": TYPE_BOOL}])
 	overlay.name = "PostCombatVictoryOverlay"
 	overlay.visible = false
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -130,17 +132,28 @@ static func restore_combat_hud(resting: Dictionary, hand: Control) -> void:
 	if resting.has(hand):
 		(hand.get_parent() as Container).queue_sort()
 
-static func play_victory(overlay: Control, reduced_motion: bool) -> void:
+static func cancel_victory(overlay: Control) -> void:
+	if is_instance_valid(overlay): overlay.emit_signal(VICTORY_STEP_FINISHED, false)
+
+
+# A node-bound tween can be discarded without emitting finished. Let the scene
+# cancel the same wait before its suspended callers lose their owner.
+static func _victory_step(overlay: Control, completion: Signal) -> Signal:
+	completion.connect(overlay.emit_signal.bind(VICTORY_STEP_FINISHED, true), CONNECT_ONE_SHOT)
+	return Signal(overlay, VICTORY_STEP_FINISHED)
+
+
+static func play_victory(overlay: Control, reduced_motion: bool) -> bool:
 	var label: Label = victory_label(overlay)
 	if overlay == null or label == null or not overlay.is_inside_tree():
-		return
+		return true
 	show_victory_proof_state(overlay)
-	await overlay.get_tree().process_frame
+	if not await _victory_step(overlay, overlay.get_tree().process_frame): return false
 	label.pivot_offset = label.size * 0.5
 	if reduced_motion:
-		await overlay.get_tree().create_timer(victory_hold_seconds(true)).timeout
+		if not await _victory_step(overlay, overlay.get_tree().create_timer(victory_hold_seconds(true)).timeout): return false
 		hide_victory(overlay)
-		return
+		return true
 
 	label.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	label.scale = Vector2(0.04, 0.86)
@@ -150,18 +163,19 @@ static func play_victory(overlay: Control, reduced_motion: bool) -> void:
 	unfurl.tween_property(label, "scale", Vector2(1.04, 1.0), VICTORY_UNFURL_SECONDS)
 	unfurl.tween_property(label, "rotation", 0.0, VICTORY_UNFURL_SECONDS)
 	unfurl.tween_property(label, "modulate:a", 1.0, VICTORY_UNFURL_SECONDS * 0.58)
-	await unfurl.finished
+	if not await _victory_step(overlay, unfurl.finished): return false
 	var settle: Tween = label.create_tween()
 	settle.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	settle.tween_property(label, "scale", Vector2.ONE, VICTORY_SETTLE_SECONDS)
-	await settle.finished
-	await overlay.get_tree().create_timer(victory_hold_seconds(false)).timeout
+	if not await _victory_step(overlay, settle.finished): return false
+	if not await _victory_step(overlay, overlay.get_tree().create_timer(victory_hold_seconds(false)).timeout): return false
 	var fade: Tween = label.create_tween().set_parallel(true)
 	fade.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	fade.tween_property(label, "modulate:a", 0.0, VICTORY_FADE_SECONDS)
 	fade.tween_property(label, "scale", Vector2(1.08, 0.94), VICTORY_FADE_SECONDS)
-	await fade.finished
+	if not await _victory_step(overlay, fade.finished): return false
 	hide_victory(overlay)
+	return true
 
 
 static func prepare_banner(banner: TextureRect, title: Label) -> void:

@@ -170,6 +170,7 @@ func _build() -> void:
 	_progress = _label("", Typography.ROLE_BODY)
 	title_stack.add_child(_progress)
 	_tabs = HBoxContainer.new()
+	_tabs.set_meta("controller_repeat_region", &"section_map_tabs")
 	_tabs.add_theme_constant_override("separation", 8)
 	_tabs.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_header.add_child(_tabs)
@@ -232,6 +233,7 @@ func _build() -> void:
 	legend_row.add_theme_constant_override("separation", 24)
 	footer.add_child(legend_row)
 	_legend = _build_legend()
+	_legend.set_meta("controller_repeat_region", &"section_map_legend")
 	var legend: Control = _legend
 	legend.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	legend.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -306,6 +308,7 @@ func _refresh_legend() -> void:
 class LegendItem:
 	extends HBoxContainer
 	func _make_custom_tooltip(for_text: String) -> Object:
+		if for_text.strip_edges().is_empty(): return null
 		return preload("res://scripts/ui_tooltip_panel.gd").make_text(for_text)
 
 func _add_legend_item(type: String) -> void:
@@ -1155,6 +1158,7 @@ func _wire_choice_focus() -> void:
 	if _legend_navigation and _legend.get_child_count() > 0 and not scout_targeting:
 		footer_target = _legend.get_child(0)
 	for button: Control in node_buttons.values():
+		button.set_meta("controller_repeat_region", &"section_map_rooms")
 		for side: int in [SIDE_TOP, SIDE_BOTTOM, SIDE_LEFT, SIDE_RIGHT]:
 			var direction: Vector2 = {SIDE_TOP: Vector2.UP, SIDE_BOTTOM: Vector2.DOWN, SIDE_LEFT: Vector2.LEFT, SIDE_RIGHT: Vector2.RIGHT}[side]
 			var target: Control = Navigation.nearest(button, direction, candidates)

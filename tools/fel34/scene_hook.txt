@@ -1,0 +1,27 @@
+
+
+func _fel34_observe_caption(placed: bool = false) -> void:
+	var step: Dictionary = _hero_facing.enemy_step
+	if not action_banner.visible:
+		action_banner.remove_meta("fel34_round0_caption")
+		return
+	var observe: Callable = get_tree().root.get_meta("fel34_caption", Callable())
+	if not observe.is_valid() or str(_run_state.get("mode", "")) != "combat":
+		return
+	var prior: Dictionary = action_banner.get_meta("fel34_round0_caption", {})
+	var round_zero: bool = prior.get("text") != action_banner.text or not is_same(prior.get("step"), step)
+	action_banner.set_meta("fel34_round0_caption", {"text": action_banner.text, "step": step})
+	# Round 0 used the shared empty enemy-step dictionary for all player moves.
+	if step.is_empty() and prior.has("step") and (prior["step"] as Dictionary).is_empty():
+		round_zero = prior.get("text") != action_banner.text
+	var placement: Dictionary = action_banner.get_meta("caption_placement", {})
+	var stage_rect := Rect2(action_banner.position, action_banner.size)
+	stage_rect.position.x -= float(placement.get("shift", 0.0))
+	var geometry: Dictionary = {}
+	if not placement.is_empty():
+		var helper = preload("res://scripts/action_caption_placement.gd")
+		var boss: Dictionary = _boss_unit_for_health_overlay(board_view.combat_state)
+		var reserve: float = ACTION_BANNER_RESERVE_WIDTH if boss.get("type", "") == "noctyrax" else 0.0
+		var action: Dictionary = helper.visible_geometry(board_view, placement["context"])
+		geometry = helper.snapshot(self, stage_rect, action["tiles"], reserve, action["destinations"])
+	observe.call(self, geometry, placement, step, placed, round_zero)

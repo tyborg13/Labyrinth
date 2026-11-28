@@ -34,23 +34,35 @@ func run(session: SceneTree, mode: String) -> void:
 		return
 	if not session.dry: await session.point(session.NO_POINTER)
 	var scene: Node = session.scene
+	var viewport_input: bool = OS.get_environment("FEL26_VIEWPORT_INPUT") == "1"
 	var initial: Dictionary = _positions(scene)
 	var start: int = Engine.get_process_frames()
 	print("FEL13 MOTION START ", id, " ", start)
 	if not session.dry: await _wait_frames(session, LEAD_FRAMES)
 	if target.x >= 0:
 		var player_tile: Vector2i = initial["player"]
-		await scene.call("_on_board_tile_clicked", player_tile)
+		if viewport_input: await session.click(session.tile_point(player_tile))
+		else: await scene.call("_on_board_tile_clicked", player_tile)
 		var legal: Array = scene.get("_player_movement_target_tiles")
 		if not legal.has(target):
 			session.fail("%s motion target %s unavailable from %s, targets=%s" % [id, target, player_tile, str(legal)])
 			return
-		await scene.call("_on_board_tile_clicked", target)
+		if viewport_input:
+			await session.click(session.tile_point(target))
+			await _wait_for_input(session, initial, true)
+		else: await scene.call("_on_board_tile_clicked", target)
 		if _positions(scene)["player"] != target:
 			session.fail(id + " did not walk to the requested tile")
 			return
 	else:
-		await scene.call("_on_pass_turn_pressed")
+		if viewport_input:
+			for pressed: bool in [true, false]:
+				var event := InputEventJoypadButton.new()
+				event.button_index = JOY_BUTTON_Y
+				event.pressed = pressed
+				session.viewport.push_input(event, true)
+			await _wait_for_input(session, initial, false)
+		else: await scene.call("_on_pass_turn_pressed")
 		var final: Dictionary = _positions(scene)
 		var moved: bool = false
 		for actor: Variant in initial:
@@ -74,6 +86,14 @@ func run(session: SceneTree, mode: String) -> void:
 	await session.close_fixture()
 	session.quit()
 
+func _wait_for_input(session: SceneTree, initial: Dictionary, player_action: bool) -> void:
+	var deadline: int = Time.get_ticks_msec() + session.INPUT_TIMEOUT_MSEC
+	while Time.get_ticks_msec() < deadline:
+		await session.process_frame
+		var current: Dictionary = _positions(session.scene)
+		var changed: bool = current["player"] != initial["player"] if player_action else current != initial
+		if changed and session.at_first_input(): return
+
 func _positions(scene: Node) -> Dictionary:
 	var state: Dictionary = scene.get("_combat_state")
 	var positions: Dictionary = {"player": state["player"]["pos"]}
@@ -91,6 +111,16 @@ func _perf(session: SceneTree) -> void:
 	Engine.max_fps = 0
 	if not session.dry: DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	await _wait_frames(session, PERF_WARMUP_FRAMES)
+	if OS.get_environment("FEL13_PERF_SET") == "fel26":
+		var overlay: Node = session.board.get("_occlusion_silhouettes")
+		var variant: String = OS.get_environment("LABYRINTH_OCCLUDER_EDGE")
+		var visible_edges: int = 0
+		for sprite: Sprite2D in overlay.get("_edge_sprites").values():
+			if sprite.visible: visible_edges += 1
+		if overlay.get("edge_mode") != variant or (variant == "always") != (visible_edges > 0):
+			session.fail("perf fixture did not install the requested edge variant")
+			return
+		print("FEL26 PERF LAYER variant=%s edges=%d" % [variant, visible_edges])
 	var times := PackedFloat64Array()
 	var previous: int = Time.get_ticks_usec()
 	for frame: int in PERF_SAMPLE_FRAMES:

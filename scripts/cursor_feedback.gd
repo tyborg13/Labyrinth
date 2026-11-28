@@ -146,15 +146,19 @@ func is_loading() -> bool:
 	return _manual_loading_depth > 0 or preload("res://scripts/presentation_clock.gd").ticks_msec() < _loading_until_msec
 
 func change_scene_to_file(path: String) -> void:
+	const Shutdown = preload("res://scripts/application_shutdown.gd")
 	_transition_generation += 1
 	var generation: int = _transition_generation
 	show_loading_for(SCENE_TRANSITION_MINIMUM_SECONDS)
 	await get_tree().create_timer(SCENE_TRANSITION_LEAD_SECONDS, true, false, true).timeout
 	if generation != _transition_generation or not is_inside_tree():
 		return
+	if Shutdown.quit_requested(get_tree()):
+		return
 	var result: Error = preload("res://scripts/departed_run_cleanup.gd").change_scene_to_file(get_tree(), path)
 	if result != OK:
 		_loading_until_msec = 0
+		Shutdown.fail_title_handoff(get_tree())
 		push_error("CursorFeedback could not change scene to %s (error %d)" % [path, result])
 		return
 	await get_tree().process_frame

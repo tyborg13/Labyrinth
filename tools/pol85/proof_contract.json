@@ -1,0 +1,18 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*hand.png",
+      "regions": [
+        {"rect": [400, 760, 1120, 320], "min_luma_range": 20, "min_luma_stdev": 3}
+      ]
+    },
+    {
+      "pattern": "*grimoire.png",
+      "regions": [
+        {"rect": [330, 220, 530, 610], "min_luma_range": 20, "min_luma_stdev": 3}
+      ]
+    }
+  ]
+}

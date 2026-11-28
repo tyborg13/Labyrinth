@@ -5,7 +5,9 @@ project="$(cd "$tool_dir/../.." && pwd)"
 cd "$project"
 export FEL13_TOOL_DIR="$tool_dir"
 export LABYRINTH_CEL_LOOK=all
+export LABYRINTH_OCCLUDER_EDGE="${LABYRINTH_OCCLUDER_EDGE:-off}"
 base_project="${FEL13_RELEASE_PROJECT:-$project/../release}"
+task_id="${FEL13_TASK_ID:-fel-16}"
 timeout=240
 content_dry_timeout=360
 session="$tool_dir/session.gd"
@@ -16,7 +18,7 @@ sample_order=(1-release 1-branch 2-branch 2-release 3-release 3-branch)
 motions=(M1a M1b M2 M3)
 
 run_headless() {
-    python3 tools/godot_task_runner.py --task-id fel-16 --timeout "${2:-$timeout}" --stream \
+    python3 tools/godot_task_runner.py --task-id "$task_id" --timeout "${2:-$timeout}" --stream \
         -- godot --headless --path "$1" --script "$session"
 }
 
@@ -24,6 +26,33 @@ skip_content() {
     echo "FEL16 NATIVE CONTENT SKIPPED (grid failed)"
     exit 1
 }
+
+# fel-26 compares two launch-time modes in this checkout, with the same
+# fixture, warmup, samples and alternating order as the original benchmark.
+if [[ "${FEL13_PERF_SET:-}" == fel26 && ( "${1:-}" == --perf || "${1:-} ${2:-}" == "--dry-run --perf" ) ]]; then
+    task_id=fel-26
+    samples=(1-off 1-always 2-always 2-off 3-off 3-always)
+    perf_dir="$project/tools/fel26/captures"
+    mkdir -p "$perf_dir"
+    touch "$perf_dir/.gdignore"
+    perf_output="$(mktemp -d "$perf_dir/perf.XXXXXX")"
+    echo "FEL26 perf directory $perf_output"
+    for sample in "${samples[@]}"; do
+        variant="${sample#*-}"
+        dir="$perf_output/$sample"
+        mkdir "$dir"
+        export FEL13_MODE=perf FEL13_SIDE="$variant" FEL13_CAPTURE_DIR="$dir" LABYRINTH_OCCLUDER_EDGE="$variant"
+        if [[ "$1" == --dry-run ]]; then
+            run_headless "$project" 2>&1 | tee "$dir/run.log" || failed=1
+        else
+            python3 tools/visual_probe_runner.py --task-id "$task_id" --no-headless --display-driver macos \
+                --audio-driver Dummy --attempts 1 --timeout "$timeout" --expect-size 1920x1080 \
+                --result-manifest "$dir/proof.json" "$session" 2>&1 | tee "$dir/run.log" || failed=1
+        fi
+    done
+    python3 "$project/tools/fel26/proof.py" perf "$perf_output" || failed=1
+    exit "$failed"
+fi
 
 if [[ "${1:-}" == --dry-run ]]; then
     printf 'Windowed proof: cd %q && tools/fel13/native.sh\n' "$project"
@@ -66,7 +95,7 @@ output="$(mktemp -d "$tool_dir/captures/native.XXXXXX")"
 echo "FEL13 capture directory $output"
 
 run_visual() {
-    python3 tools/visual_probe_runner.py --task-id fel-16 --no-headless --display-driver macos \
+    python3 tools/visual_probe_runner.py --task-id "$task_id" --no-headless --display-driver macos \
         --audio-driver Dummy --attempts 1 --timeout "$timeout" --expect-size 1920x1080 "$@" "$session"
 }
 

@@ -117,6 +117,11 @@ static func with_article(phrase: String, capitalized: bool = false) -> String:
 	var article: String = "an" if vowel else "a"
 	return (article.capitalize() if capitalized else article) + " " + phrase
 
+static func enemy_name_in_prose(enemy_type: String, enemy_name: String, use_short_name: bool = false) -> String:
+	if preload("res://scripts/dragon_boss_library.gd").is_dragon_boss_id(enemy_type):
+		return enemy_name.get_slice(", the ", 0) if use_short_name else enemy_name
+	return with_article(enemy_name)
+
 ## Read a term's printed amount in authored relic copy. Competing amounts
 ## leave the shared definition generic.
 static func amount_in_text(id: String, text: String) -> Variant:

@@ -507,6 +507,7 @@ func _build_children() -> void:
 		var other: Button = _main_menu_button if button == _new_run_button else _new_run_button
 		button.focus_neighbor_left = button.get_path_to(other)
 		button.focus_neighbor_right = button.get_path_to(other)
+		button.set_meta("controller_repeat_region", &"recap_actions")
 		button.focus_neighbor_top = button.get_path_to(_chronicle_button)
 		button.focus_neighbor_bottom = button.get_path_to(button)
 	var stay: NodePath = _chronicle_button.get_path_to(_chronicle_button)

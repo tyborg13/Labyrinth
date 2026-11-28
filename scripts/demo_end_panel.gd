@@ -124,6 +124,9 @@ func configure(panel_kind: String, chronicle: Button, rise: Button, menu: Button
 	wire_focus(chronicle)
 
 func wire_focus(chronicle: Button) -> void:
+	const Repeat = preload("res://scripts/controller_axis_repeat.gd")
+	Repeat.mark_region(plates, &"demo_end_plates", Vector2.AXIS_X)
+	Repeat.mark_region(links, &"demo_end_links", Vector2.AXIS_X)
 	for index: int in range(plates.size()):
 		var plate: Button = plates[index]
 		plate.focus_neighbor_left = plate.get_path_to(plates[posmod(index - 1, plates.size())])

@@ -85,8 +85,14 @@ completed JSONL history remains append-only.
 A failed flush preserves the original transition policy, rather than adding a
 new dialog or blocking a transition that previously proceeded. Failed committed
 checkpoints report their original boundary error once; explicit Save is a
-synchronous boundary and reports its actual result. Exit, Save & Quit and Continue
-can proceed with the preceding durable checkpoint, as in the pre-perf03 path.
+synchronous boundary and reports its actual result. Exit and Continue can proceed
+with the preceding durable checkpoint, as in the pre-perf03 path, but nothing claims
+a save that failed (qa-145): the dragon reward's "Your rewards have been saved."
+appears only after a confirmed write of that reward, and a failed victory checkpoint
+shows the save-failure notice on the reward screen until a later write succeeds. A
+failed explicit Save & Quit stays in the run with input restored and the notice
+"Could not save. Try again before leaving."; leaving needs a successful retry, and
+the retry emits no duplicate analytics events.
 New-run failure retains the existing recovery notice. Explicit run clearing still
 deletes the ended/abandoned run after a failed checkpoint attempt and cancels its
 queued writes, preventing later resurrection.
@@ -339,6 +345,20 @@ result records under its own random run ID. New dragon milestones use the
 random run ID. Older staged dragon claim keys can be scoped by the run ID in
 their context. Replay also repairs coordinate strings in pending pre-fix
 combat receipts.
+
+A won checkpoint stages `combat_ended` followed by `reward_offered` in its
+progression outbox. Both receipts are keyed by combat ID. The live reward
+transition delivers the pair while the run is active. Once departure begins,
+the saved receipts replay on title or Continue. Undelivered receipts follow
+later checkpoints across mode changes and profile revisions, including into
+terminal settlement. Replaying an earlier combat checkpoint stages the pair
+again under the same keys, so each row appears once in the ledger.
+The title can replay staged wins from a checkpoint hidden by a synced
+completion. Before discarding a checkpoint, the save transaction tries to
+carry uncovered win receipts into the profile outbox. A receipt already in
+the destination checkpoint needs no carry. Continue, New Run, and Rise Again
+proceed after a failed carry and log the run ID and uncarried receipt count.
+Housekeeping keeps the checkpoint when its carry fails so replay can retry.
 
 Ember Hearth withdrawal publishes a terminal checkpoint before the profile
 bank and score commit. A new build can recover the bank from that checkpoint
